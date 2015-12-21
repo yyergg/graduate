@@ -143,20 +143,22 @@
 %----------- generate the certification page by LaTeX -----------
 %\makecertification
 %----------- includepdf by using package pdfpages -----------
-\addcontentsline{toc}{chapter}{口試委員會審定書}
-\includepdf[pages={1}]{cert.pdf}
+%\addcontentsline{toc}{chapter}{口試委員會審定書}
+%\includepdf[pages={1}]{cert.pdf}
 
 \onehalfspacing
-\input{acknowledgementsCH}
-\input{abstractCH}
+%\input{acknowledgementsCH}
+%\input{abstractCH}
 \doublespacing
 \input{abstractEN}
+
+
 \tableofcontents
 
 \doublespacing
-\listoffigures
+%\listoffigures
 
-\listoftables
+%\listoftables
 
 \mainmatter
 
@@ -165,12 +167,15 @@
 %----------- Include/Input your thesis here -----------
 %normal cite == \input
 
-\input{start}
+%\input{start}
 \input{introduction}
-\input{THM}
-\input{EXP}
+\input{resilience}
+\input{BSIL}
+\input{TCL}
+\input{conclusions}
+%\input{THM}
+%\input{EXP}
 %\input{main}
-%\input{conclusions}
 
 %chapter cite  == \include
 
