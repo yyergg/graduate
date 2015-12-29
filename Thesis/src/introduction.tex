@@ -1,7 +1,158 @@
 \chapter{Introduction}
 \label{c:intro}
 
-The organization of this thesis is as follows. In chapte~\ref{c:thm}, the theoretical background and definition of surface plasmon will be included~\cite{maier2007plasmonics}. Chapte~\ref{c:exp} contains description of experiment methods such as atomic force microscopy and scanning electron microscopy. 
+There can be million lines of code in today's software system.
+On such a scale of complexity, defects in the source codes are unavoidable.  
+Various empirical studies show that the defect density of commercial software system is around 1 to 20 defects in every 1000 lines of source code\cite{Sommerville:2006:SE:1196763}.
+Therefore, developers of systems created many engineering techniques to contain the damage that could be caused by such defects.
+For example, a software system may have several measures to its disposal to avoid system failure, including resending the request, resetting the server, clearing the communication buffers, and etc when observing that a critical service request is not acknowledged.
+However, in general, since all the recovery cost time and money it is important to estimate how to organize the measures for the maximal resilience of the system against realistic errors.
+At the moment, an automated support which can suggest defence techniques to development teams is missing.
+I created a game theoretic approach to study this problem and carried out experiments to show how this approach can be helpful in  synthesizing the most resilient defence of software systems against multiple errors.
 
+The naive way to measure the safety level of a system is to find the number of errors that it can endure before running into failure state.
+But in second thought, no non-trivial system can handle unlimited errors without degrading to inevitable system failure.
+Thus, it would be meaningless to analyse the resilience level of the systems to software errors can proceed without creating a realistic error model in which practical control mechanism can be devised to defend the systems against errors.
+In this work, I am interested in defending the system against a more restricted error model, but still let the error model has a quantifiable level of power in order to simulate different error scenarios.
+Further more, I think a reasonable foundation need to take into consider that the life-time of a software system is much longer than the duration needed for a reasonably designed software system to recover from an error.
+Therefore, I propose to evaluate control mechanism of software systems on how many errors the control can endure before recovery to safe states.
+I then present an algorithm to find a control strategy that can handle the maximum number of such errors.
+
+Let us standardize the basic terms before proceeding further.
+A design defect in software or hardware is called a {\it fault} in embedded systems.
+An {\it error} (sometimes called component failure in the literature) is the effect of a fault that causes a difference between the expected and the actual behavior of a software system, e.g., measurement errors, read/write errors, etc. 
+An {\it error} does not always lead to a system failure, but may instead be repaired by, e.g., a defence mechanism in the software. 
+That is, an {\it error} may be detected and fixed/neutralized before it creates any harm to the system or its users.
+A {\it failure} is the fact that users can observe the faulty behavior created by {\it errors}.
+
+My specific goal is to develop a technique for finding a control mechanism of a software system which can against the maximal number of dense errors without degrading to failure.
+My inspiration is from methods for resilient avionic systems\cite{conf/ftrtft/Rushby92}, where fault tolerance is designed to recover from a bounded number of errors.
+The number of errors a system needs to tolerate is calculated from the mean time between errors of individual components and the maximal duration of the system.
+I use the quality guarantees one obtains for an airplain(the system) as an example to demonstrate the difference between the objective to tolerate up to {\it k errors} and sequences of separated blocks of up to {\it k dense errors} in a short period.
+Assuming the operating time of the system is 20 hours, the mean time between exponentially distributed errors is 10 hours and the repair time is 3.6 seconds.
+The mean time between dense errors (consecutive errors before system recovery) is calculated in Table~\ref{tab.mtbf}.
+\begin{table*}
+\begin{center}
+\begin{tabular}{l||c|c|c|c|c|c|c|c}\hline 
+$k$              & $0$     & $1$     &    $2$   &  $3$  & $4$ & $5$ & $6$ & $\ldots$ \\\hline 
+$k$ errors       & $0.865$ & $0.594$ & $0.333$ & $0.143$ & $0.053$ & $0.017$ & $0.005$ & $\ldots$ \\
+$k$ dense errors & $0.865$ & $2 \cdot 10^{-4}$ & $2 \cdot 10^{-9}$ & $2 \cdot 10^{-14}$ & $2\cdot 10^{-19}$ & $2\cdot 10^{-24}$ & $2\cdot 10^{-29}$ & $\ldots$ 
+\\ \hline 
+\end{tabular}
+\end{center}
+\caption{Probabilities of $k$ dense errors} 
+\label{tab.mtbf} 
+\end{table*} 
 %\bibliographystyle{unsrt}
 %\bibliography{thesisbib}
+The figures for $k$ errors (component failures) are simply the values 
+for the Poisson distribution with coefficient $2$.
+To explain the figures for $k$ dense errors, 
+consider the density of 2 dense errors occurring in close succession.
+If an error occurs, the chance that the next error occurs 
+within the repair time (3.6 seconds) is approximately $\frac{1}{10000}$.
+The goal to tolerate an arbitrary number of up to $k$-dense errors is, of course, 
+much harder than the goal of tolerating up to $k$ errors, but, 
+as the example shows, the number $k$ can be much smaller.   
+Tolerating an arbitrary number of errors 
+(with a distance of at least $3.6$ seconds between them) 
+creates the same likelihood to result in a system failure 
+as tolerating up to $9$ errors overall, and 
+tolerating up to $15$ errors still results 
+in a $70\%$ higher likelihood of a system failure 
+than tolerating blocks of up to $2$ errors in this example. 
+Only errors for which this is the case could cause a system failure.
+The mean time between blocks of two dense errors is therefore not ten hours, 
+but 100,000\label{reply2.100000} hours.
+Likewise, it increases to 1,000,000,000 (one billion) hours for blocks of three dense errors, and so forth.
+
+Maximizing the number of dense errors that are permitted before full recovery 
+is therefore a natural design goal.  
+After full recovery, the system is allowed again the same number of errors.
+Now, if the {\em mean time between errors} ({\em MTBE}) 
+is huge compared to the time the system needs to fully recover, 
+then the mean time between system failures (MTBF) grows immensely. 
+
+We view the problem of designing a resilient control mechanism 
+towards dense errors as a two-player game, 
+called {\em safety resilience game}, 
+between the system (\label{reply1.protagonist.player1}protagonist\footnote{In game theory, a protagonist sometimes is also called {\em player 1}.}, `he' for convenience) 
+and a hostile agent (antagonist\footnote{In game theory, an antagonist sometimes is also called {\em player 2}.}, `she' for convenience) 
+that injects errors into the system under execution.\label{reply1.antagonist.inject.errors}   
+The protagonist wants to keep the system from failure in the presence of errors, 
+while the antagonist wants to derail the system to failure. 
+\label{reply1.how.models} 
+Specifically, 
+system designers may model their system, defense mechanism, and error model 
+as a finite game graph.  
+The nodes in the graph represent system states.
+These system states are partitioned into three classes:
+the safe states, the failure states, and the recovery states. 
+Some transitions are labeled with errors while others are considered normal transitions.  
+The game is played with respect to a resilience level $k$.  
+If a play ever enters a failure state, then the antagonist wins in the play.  
+Otherwise, the protagonist wins.
+
+The protagonists plays by selecting a move, intuitively the `normal' event that should happen next (unless an error is injected).
+The antagonist can then decide to trigger 
+an error transition (injecting an error) with the intention to
+eventually deflect the system into a failure state. 
+Our error model, however, restricts 
+the antagonist to inject at most $k$ errors before she allows for a long period of time that the system may use to recover to the safe states.
+(If the antagonist decides to use less than $k$ errors, the protagonist does not know about this.
+It proves that this information is not required, as we will show
+\label{reply1.memoryless.future} that the protagonist can play memoryless.)
+After full recovery by the protagonist to the safe states, the antagonist is allowed again 
+to inject the same number of errors, and so forth.
+  
+If the system can win this game, then the system is called {\em $k$-resilient}.
+For $k$-resilient systems, there exists a control strategy---even one that does not use memory---to make the system 
+resilient in the presence of blocks of up to $k$ dense errors. 
+We argue that, if the component MTBF is huge compared to the time the system needs to fully recover, then the expected time for system breakdown grows immensely.  
+
+Besides formally defining safety resilience games, we also present algorithms 
+for answering the following questions.  
+\label{reply2.alg.sfrch.res}
+\begin{itemize} 
+\item Given an integer $k$, a set $F$ of failure states, and 
+  a set $S$ of safe states (disjoint from $F$), is there a recovery mechanism that 
+  can endure up to $k$ dense errors, 
+  effectively avoid entering $F$, and quickly direct the system back to $S$.  
+  Sometimes, the system designers may have designated parts of the state space 
+  for the recovery mechanism.  
+  The answer to this question thus also implicitly tells 
+  whether the recovery 
+  mechanism is fully functional in the recovery process. 
+\item Given an integer $k$ and the set of failure states, 
+  what is the maximal set of safe states, 
+  for which the system has a strategy to maintain $k$-resilience?
+  In game theory, this means that 
+  safety resilience games can be used for synthesizing safety regions 
+  for a given bound on consecutive errors before the system is fully recovered.  
+  
+The question can be extended to not only partition the states into safety, recovery, and failure states, but also for providing memoryless control on the safety and recovery states.
+  
+\item Given a set of failure states, what is the maximal resilience level of the system that can be achieved with proper control?  
+  We argue that this maximal resilience level is a well-defined and plausible indicator of 
+  the defense strength of a control mechanism against a realistic error model. 
+\end{itemize} 
+With our technique, 
+software engineers and system designers 
+can focus on maximizing the number of dense errors that 
+the system can tolerate infinitely often, providing that they are grouped into blocks that are separated by a short period of time, which is sufficient for recovery.
+
+We investigate how to analyze the game with existing techniques. 
+We present an extension to alternating-time $\mu$-calculus (AMC) 
+and propose to use the AMC model-checking algorithm on concurrent games to check 
+resilience levels of embedded systems. 
+We present reduction from safety resilience games to 
+AMC formulas and concurrent game structures.  
+Then we present a PTIME algorithm for answering whether the system can be 
+controlled to tolerate up to a given number of dense errors.  
+The algorithm can then be used to find the maximal resilience level 
+that can be achieved of the system. 
+The evaluation is constructive:  
+it provides a control strategy  
+for the protagonist, which can be used to control a system 
+to meet this predefined resilience level.  
+
