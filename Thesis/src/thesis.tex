@@ -1,7 +1,7 @@
 %!TEX TS-program = xelatex
 %!TEX encoding = UTF-8 Unicode
 \documentclass[a4paper, 12pt, oneside]{book}
-
+\usepackage{slashbox}
 \usepackage{cite}
 %\usepackage{chapterbib}
 %The chapterbib package facilitates multiple bibliographies in a LATEX document
@@ -24,8 +24,9 @@
 \usepackage{indentfirst}
 %Make the first line of all sections etc., be indented by the usual paragraph indentation. This should work with all the standard document classes. This minimalist package is part of the "tools" bundle in the LaTeX required distribution.
 \usepackage{algorithm}
-\usepackage{algpseudocode}
-%A suite of tools for typesetting algorithms in pseudo-code. The algorithmicx package provides many possibilities to customize the layout of algorithms. You can use one of the predefined layouts (pseudocode, pascal and c and others), with or without modifications, or you can define a completely new layout for your specific needs.
+
+\usepackage{algorithmic}
+
 \usepackage{enumitem}
 %Control layout of itemize, enumerate, description.  It supersedes both enumerate and mdwlist (providing well- structured replacements for all their funtionality), and in addition provides functions to compute the layout of labels, and to 'clone' the standard environments, to create new environments with counters of their own.
 \usepackage{mfirstuc}
@@ -54,6 +55,10 @@
 %Include PDF documents in LaTeX.
 \usepackage{pst-fractal,pst-exa}
 % The package will draw the Julia and Mandelbrot sets, the Sierpinski triangle, Koch flake, and Apollonius Circle as well as fractal trees (which need not be balanced) with a variety of different parameters (including varying numbers of iterations).
+
+\usepackage{epsfig}
+\usepackage[multidot]{grffile}
+
 
 %Define \XeTeX \XeLaTeX command
 \def\reflect#1{{\setbox0=\hbox{#1}\rlap{\kern0.5\wd0
@@ -104,6 +109,7 @@
 \usepackage{multirow}
 %Create tabular cells spanning multiple rows.
 
+
 \usepackage{ntu}
 %NTU thesis style file
 \hypersetup{
@@ -122,7 +128,371 @@
 
 \setcounter{tocdepth}{2}
 
+\let\example\relax
+\let\qed\relax
+\let\exec\relax
+
 \pagestyle{plain}
+
+%new
+\theoremstyle{definition}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newenvironment{list1}{\begin{list}{$\bullet$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list}}
+\newenvironment{list2}{\begin{list}{$-$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list}}
+\newenvironment{list3}{\begin{list}{$*$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list}}
+\newenvironment{list4}{\begin{list}{$\cdot$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list}}
+\newcounter{sequent1}
+\newcounter{sequent2}
+\newcounter{sequent3}
+\newcounter{sequent4}
+\newenvironment{stmt1}{\begin{list}{(\arabic{sequent1})}
+  {\usecounter{sequent1}
+    \topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0 pt
+} }{\end{list}}
+\newenvironment{stmt2}{\begin{list}{(\arabic{sequent2})}
+  {\usecounter{sequent2}
+    \topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0 pt
+} }{\end{list}}
+\newenvironment{stmt3}{\begin{list}{(\arabic{sequent3})}
+  {\usecounter{sequent3} 
+    \topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0 pt
+} }{\end{list}}
+
+
+
+\def\statespace{M}
+\def\fault#1{{\cal F} ( #1 )}
+\def\recover#1{{\cal R} ( #1 )}
+
+
+\newcommand\AP{\mathit{AP}}
+\newcommand\buchi{B\"uchi}
+\newcommand\cla{\mathsf{cone}}
+\newcommand\sla{\mathsf{sla}}
+\newcommand\suc{\mathsf{suc}}
+\newcommand\clr{\mathsf{clr}}
+\newcommand\cobuchi{Co-B\"uchi}
+\newcommand\frag{\mathsf{frag}}
+\newcommand\res{\mathsf{res}}
+\newcommand\safe{\mathsf{sfrch}}
+\newcommand\tempt{\mathsf{tempt}}
+\newcommand\qed{\hfill\ensuremath{\Box}}
+\renewcommand\uplus{\dot{\cup}}
+
+\newcommand{\IFNLINE}[1]{\STATE {\bf if} #1 {\bf then} }
+\newcommand{\IFLINE}[1]{{\bf if} #1 {\bf then} }
+\newcommand{\ELSELINE}{\textbf{else} }
+\newcommand{\ELSNLINE}{\STATE \textbf{else} }
+\newcommand{\ENDIFLINE}{\textbf{end if}}
+\newcommand{\ENDIFNLINE}{\STATE \textbf{end if}}
+\newcommand{\ELSIFLINE}[1]{\textbf{else if} #1 {\bf then}}
+\newcommand{\ELSIFNLINE}[1]{\STATE \textbf{else if} #1 {\bf then}}
+\newcommand{\FORNLINE}[1]{\STATE {\bf for} #1 {\bf do} }
+\newcommand{\FORLINE}[1]{{\bf for} #1 {\bf do} }
+\newcommand{\ENDFORLINE}{\textbf{end for}}
+\newcommand{\ENDFORNLINE}{\STATE \textbf{end for}}
+\newcommand{\WHILELINE}[1]{\STATE {\bf while} #1 {\bf do} }
+\newcommand{\ENDWHILELINE}{\textbf{end while}}
+\newcommand{\RETLINE}{\textbf{return} }
+
+\newcommand{\SWITCH}[1]{\STATE \textbf{switch} (#1)} 
+\newcommand{\ENDSWITCH}{\STATE \textbf{end switch}} 
+\newcommand{\CASE}[1]{\STATE \textbf{case} #1\textbf{:} \begin{ALC@g}} 
+\newcommand{\ENDCASE}{\end{ALC@g}} 
+\newcommand{\CASELINE}[1]{\STATE \textbf{case} #1\textbf{:} } 
+\newcommand{\DEFAULT}{\STATE \textbf{default:} \begin{ALC@g}} 
+\newcommand{\ENDDEFAULT}{\end{ALC@g}} 
+\newcommand{\DEFAULTLINE}[1]{\STATE \textbf{default:} } 
+%% 
+%% End of the LaTex algorithmic package extension. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \newcommand{\procbegin}{\vspace*{3mm}\hrule\vspace{2mm}\noindent}
+\newcommand{\procbegin}{\vspace*{3mm}\hrule\noindent}
+% \newcommand{\procend}{\vspace*{2mm}\hrule\vspace{3mm}}
+\newcommand{\procend}{\vspace*{1mm}\hrule\vspace{3mm}}
+
+\newcommand{\rmrel}{\textrm{R}} % {\textsf{W}} % \textup{W}\textsc{W}\textmd{W}}
+\renewcommand{\topfraction}{1.00}
+\renewcommand{\dbltopfraction}{1.00}
+
+\newcommand{\emsimpn}{\mbox{\tt simPN}}
+\newcommand{\empnf}{\mbox{\tt PNF}}
+\newcommand{\emsint}{\textit{SInt}}
+\newcommand{\ttsynsuc}{\mbox{\tt sucSet}}
+\newcommand{\constr}{\textit{Cons}}
+\newcommand{\move}{\ensuremath{\sf move}}
+\newcommand{\ttchksil}{\mbox{\tt checkBSIL}}
+\newcommand{\ttsyntree}{\mbox{\tt checkTree}}
+\newcommand{\ttrecsyn}{\mbox{\tt recTree}}
+\newcommand{\ttsynset}{\mbox{\tt checkSetOfBSIL}}
+\newcommand{\tteval}{\mbox{\tt localEval}}
+\newcommand{\ttnxt}{\mbox{\tt next}}
+\newcommand{\emltl}{\textit{LTL}}
+\newcommand{\empob}{\textit{U}}
+\newcommand{\ttsynltl}{\mbox{\tt Syn\_LTL}}
+\newcommand{\ttdfssyn}{\mbox{\tt DFS\_syn}}
+\newcommand{\emsuc}{\textit{suc}}
+\newcommand{\embnd}{\textit{bnd}}
+\newcommand{\eminh}{\textit{inh}}
+\newcommand{\emseq}{\textit{seq}}
+\newcommand{\emset}{\textit{set}}
+\newcommand{\emserr}{\textit{\scriptsize error}}
+\newcommand{\emopp}{\textit{opp}}
+\newcommand{\emclos}{\textit{Cl}}
+\newcommand{\embf}{\textit{bf}}
+\newcommand{\emdef}{\textit{def}}
+\newcommand{\emnewv}{\textit{newVar}}
+\newcommand{\ttset}{\mbox{\tt set}}
+\newcommand{\ttnext}{\mbox{\tt next}}
+\newcommand{\rg}{\mbox{\em RG}}
+\newcommand{\calI}{{\cal I}}
+\newcommand{\tctl}{\mbox{TCTL}}
+\newcommand{\tctlf}{\mbox{TECTL$^{f}$}}
+\newcommand{\etctl}{\mbox{TECTL}}
+\newcommand{\emproj}{\textit{proj}}
+\newcommand{\emdqnf}{\textit{dqnf}}
+\newcommand{\emewk}{\textit{break}}
+\newcommand{\existsb}{\mbox{$\exists\!\!\exists$}}
+\newcommand{\emconna}{\textit{conn}_\forall}
+\newcommand{\emconne}{\textit{conn}_\exists}
+\newcommand{\emstr}{\textit{str}}
+\newcommand{\emstp}{\textit{SP}}
+\newcommand{\emetctl}{\mbox{\em TECTL}}
+\newcommand{\emtctl}{\mbox{\em TCTL}}
+\newcommand{\embros}{\textit{BrObs}_\forall}
+\newcommand{\emxagree}{\mbox{\em xtion\_agree}}
+\newcommand{\emsvalues}{\mbox{\em \scriptsize values}}
+\newcommand{\emtvalues}{\mbox{\em \tiny values}}
+\newcommand{\emsevents}{\mbox{\em \scriptsize events}}
+\newcommand{\emstime}{\mbox{\em \scriptsize time}}
+\newcommand{\emtevents}{\mbox{\em \tiny events}}
+\newcommand{\emprecond}{\mbox{\em precond}}
+
+\newcommand{\emscsynx}{\textit{\scriptsize SynNext}}
+\newcommand{\emsynx}{\textit{SynNext}}
+\newcommand{\emewkn}{\textit{WNext}^\exists}
+
+\newcommand{\tttbck}{\mbox{\tt Tbck}}
+\newcommand{\ttxbck}{\mbox{\tt Xbck}}
+\newcommand{\ttsetzero}{\mbox{\tt reset}}
+\newcommand{\ttreplace}{\mbox{\tt replace}}
+\newcommand{\ldbrac}{[\![}
+\newcommand{\rdbrac}{]\!]}
+\newcommand{\ldabrac}{\langle\!\langle}
+\newcommand{\rdabrac}{\rangle\!\rangle}
+\newcommand{\emgfp}{\mbox{\bf gfp}}
+\newcommand{\emlfp}{\mbox{\bf lfp}}
+\newcommand{\emsim}{\mbox{\em sim}}
+\newcommand{\emnls}{\textit{NLSet}}
+\newcommand{\emnl}{\textit{NL}}
+\newcommand{\emlast}{\textit{last}}
+\newcommand{\emforced}{\mbox{\em forced}}
+\newcommand{\emplay}{\mbox{\em play}}
+\newcommand{\emplayi}{\mbox{\em play}_{(e,f)}}
+\newcommand{\emplayei}{\mbox{\em play}_{f}}
+\newcommand{\emplayii}{\mbox{\em play}_{(e,g)}}
+\newcommand{\emplayeii}{\mbox{\em play}_{g}}
+\newcommand{\emmatchi}{\mbox{\em match}_{(e,f)}}
+\newcommand{\emmatchei}{\mbox{\em match}_{f}}
+\newcommand{\emmatchii}{\mbox{\em match}_{(e,g)}}
+\newcommand{\emmatcheii}{\mbox{\em match}_{g}}
+\newcommand{\emevti}{\mbox{\em not\_bisim}_{(e,f)}}
+\newcommand{\emevtii}{\mbox{\em not\_bisim}_{(e,g)}}
+\newcommand{\emsrc}{\mbox{\em src}}
+\newcommand{\emdst}{\mbox{\em dst}}
+\newcommand{\ttplayi}{\mbox{\tt Play}_{(e,f)}}
+\newcommand{\ttplayei}{\mbox{\tt Play}_{f}}
+\newcommand{\ttplayii}{\mbox{\tt Play}_{(e,g)}}
+\newcommand{\ttplayeii}{\mbox{\tt Play}_{g}}
+\newcommand{\ttnzplayi}{\mbox{\tt NZ\_Play}_{(e,f)}}
+\newcommand{\ttnzplayii}{\mbox{\tt NZ\_Play}_{(e,g)}}
+\newcommand{\ttmatchi}{\mbox{\tt Match}_{(e,f)}}
+\newcommand{\ttmatchei}{\mbox{\tt Match}_{f}}
+\newcommand{\ttmatchii}{\mbox{\tt Match}_{(e,g)}}
+\newcommand{\ttmatcheii}{\mbox{\tt Match}_{g}}
+\newcommand{\ttevti}{\mbox{\tt Not\_sim}_{(e,f)}}
+\newcommand{\ttevtei}{\mbox{\tt Not\_sim}_{f}}
+\newcommand{\ttevtii}{\mbox{\tt Not\_sim}_{(e,g)}}
+\newcommand{\ttevteii}{\mbox{\tt Not\_sim}_{g}}
+\newcommand{\ttnzevti}{\mbox{\tt Not\_nZsim}_{(e,f)}}
+\newcommand{\ttnzevtii}{\mbox{\tt Not\_nZsim}_{(e,g)}}
+\newcommand{\emnzevti}{\mbox{\em Not\_nZsim}_{(e,f)}}
+\newcommand{\emnzevtii}{\mbox{\em Not\_nZsim}_{(e,g)}}
+\newcommand{\emuplay}{\mbox{\em uplay}_{e1}}
+\newcommand{\emomatch}{\mbox{\em omatch}_{e_1}}
+\newcommand{\emuevt}{\mbox{\em under\_not\_sim}_{e_1}}
+\newcommand{\ttuplay}{\mbox{\tt UPlay}_{e_1}}
+\newcommand{\ttomatch}{\mbox{\tt OMatch}_{e_1}}
+\newcommand{\ttuevt}{\mbox{\tt UNot\_sim}_{e_1}}
+\newcommand{\bfsone}{\mbox{\bf S1} }
+\newcommand{\bfstwo}{\mbox{\bf S2} }
+\newcommand{\empmtch}{\mbox{\em pre-match}}
+\newcommand{\empmtchi}{\mbox{\em pre-match}_{\calmdl}}
+\newcommand{\empmtchii}{\mbox{\em pre-match}_{\calspc}}
+\newcommand{\empath}{\mbox{\em path}}
+\newcommand{\emspms}{{\mbox{\em SP}^\calmdl_\calspc}}
+\newcommand{\emepms}{{\mbox{\em EP}^\calmdl_\calspc}}
+\newcommand{\emsepms}{{\mbox{\scriptsize \em EP}^\calmdl_\calspc}}
+\newcommand{\emufms}{{\mbox{\em UF}^\calmdl_\calspc}}
+\newcommand{\emzp}{\mbox{\em ZP}}
+\newcommand{\emnz}{\mbox{\em NZ}}
+\newcommand{\emmtime}{\mbox{\em minT}_{e_1}}
+\newcommand{\emmmt}{\mbox{\em maxminT}_{e_1}}
+\newcommand{\ttpath}{\mbox{\tt path}}
+
+\newcommand{\emgain}{\textsl{gain}}
+\newcommand{\emclks}{\mbox{\em clks}}
+\newcommand{\emprps}{\mbox{\em props}}
+\newcommand{\emevts}{\mbox{\em evts}}
+\newcommand{\emplbl}{\mbox{\em prop}}
+\newcommand{\emmods}{\mbox{\em modes}}
+\newcommand{\emini}{\mbox{\em init}}
+\newcommand{\eminv}{\mbox{\em inv}}
+\newcommand{\emxtns}{\mbox{\em xtions}}
+\newcommand{\emxtp}{\mbox{\em src\_dst}}
+\newcommand{\emelbl}{\mbox{\em event}}
+\newcommand{\emtrg}{\mbox{\em trigger}}
+\newcommand{\emass}{\mbox{\em reset}}
+\newcommand{\cala}{{\cal A}}
+\newcommand{\calb}{{\cal B}}
+\newcommand{\calc}{{\cal C}}
+\newcommand{\cald}{{\cal D}}
+\newcommand{\cale}{{\cal E}}
+\newcommand{\calg}{{\cal G}}
+\newcommand{\cali}{{\cal I}}
+\newcommand{\calp}{{\cal P}}
+\newcommand{\calq}{{\cal Q}}
+\newcommand{\calr}{{\cal R}}
+\newcommand{\calsp}{{\cal SP}}
+\newcommand{\calv}{{\cal V}}
+\newcommand{\caln}{{\cal N}}
+\newcommand{\calw}{{\cal W}}
+\newcommand{\calab}{{\cal A\times B}}
+\newcommand{\calenv}{{\cal E}}
+\newcommand{\calmdl}{{\cal M}}
+\newcommand{\cals}{{\cal S}}
+\newcommand{\calspc}{{\cal S}}
+\newcommand{\calsys}{{\cal S}}
+\newcommand{\calflu}{{\cal F}}
+\newcommand{\calemdl}{{\calenv\times\calmdl}}
+\newcommand{\calespc}{{\calenv\times\calspc}}
+\newcommand{\scalenv}{{\scriptsize \cal E}}
+\newcommand{\scalmdl}{{\scriptsize \cal M}}
+\newcommand{\scalspc}{{\scriptsize \cal S}}
+
+\newcommand{\nzf}{\mbox{\em NZF}}
+\newcommand{\pevtf}{\stackrel{\infty}{\Diamond}}
+\newcommand{\pfrrf}{\stackrel{\infty}{\Box}}
+\newcommand{\true}{\mbox{\em true}}
+\newcommand{\false}{\mbox{\em false}}
+\newcommand{\strue}{{\mbox{\scriptsize \em true}}}
+\newcommand{\sfalse}{{\mbox{\scriptsize \em false}}}
+\newcommand{\ttrbck}{\mbox{\tt Rbck}}
+\newcommand{\ttrbcke}{\mbox{\tt R$^\epsilon$\_bck}}
+\newcommand{\ttrbckave}{\mbox{\tt R\_aux\_vars$^\epsilon$\_bck}}
+\newcommand{\datom}{\mbox{\em REDatom}}
+\newcommand{\hst}{\\\hspace*{4mm}}
+\newcommand{\hstt}{\\\hspace*{8mm}}
+\newcommand{\hsttt}{\\\hspace*{12mm}}
+\newcommand{\hstttt}{\\\hspace*{16mm}}
+\newcommand{\hsttttt}{\\\hspace*{20mm}}
+\newcommand{\hstttttt}{\\\hspace*{24mm}}
+\newcommand{\hsttttttt}{\\\hspace*{28mm}}
+\newcommand{\hstttttttt}{\\\hspace*{32mm}}
+\newcommand{\lcm}{\mbox{\rm lcm}}
+\newcommand{\slcm}{\mbox{\rm \scriptsize lcm}}
+\newcommand{\mgu}{\mbox{mgu}}
+\newcommand{\ehgh}{\mbox{height}}
+\newcommand{\etop}{\mbox{top}}
+\newcommand{\epush}{\mbox{push}}
+\newcommand{\epop}{\mbox{pop}}
+\newcommand{\etick}{\mbox{inc}}
+\newcommand{\exec}{\mbox{exec}}
+\newcommand{\proc}{\mbox{proc}}
+\newcommand{\arity}{\mbox{arity}}
+\newcommand{\pf}{\noindent\mbox{\bf Proof : }}
+\newcommand{\depth}{\mbox{\it depth}}
+\newcommand{\sdepth}{\mbox{\it\tiny depth}}
+\newcommand{\defn}{\stackrel{\mbox{\tiny def}}{=}}
+\newcommand{\frr}{\bigtriangledown}
+\newcommand{\strall}{\bigtriangledown}
+\newcommand{\evt}{\bigtriangleup}
+\newcommand{\pfrr}{\Box}
+\newcommand{\until}{\textrm{U}} % {\textsf{U}} % \textup{U}\textsc{U}\textmd{U}}
+\newcommand{\wntil}{\textrm{W}} % {\textsf{W}} % \textup{W}\textsc{W}\textmd{W}}
+\newcommand{\pevt}{\Diamond}
+\newcommand{\nxt}{\bigcirc}
+\newcommand{\upa}{\!\!\uparrow\!\!}
+\newcommand{\dna}{\!\!\downarrow\!\!}
+\newcommand{\aptl}{\mbox{APTL}}
+\newcommand{\ld}{\mbox{\em LD}}
+\newcommand{\syn}{\mbox{ \em \underline{sync} }}
+\newcommand{\sst}{\mbox{\em SSet}}
+\newcommand{\mi}{\mbox{\em MIdx}}
+\newcommand{\trth}{\mbox{\em truth}}
+\newcommand{\off}{^{\mbox{off}}}
+\newcommand{\on}{^{\mbox{on}}}
+\newcommand{\emdcsts}{\mbox{$V\langle Rnv,\calmdl\rangle\stackrel{\delta}{\times}V\langle Rnv,\calspc\rangle$}}
+\newcommand{\pg}{\mbox{\em pgraph}_{\neg r}}
+\newcommand{\thg}{\mbox{\em thgraph}_{\neg r}}
+\newcommand{\sren}{\mbox{\bf r}}
+\newcommand{\fren}{\neg\mbox{\bf r}}
+\newcommand{\ttmode}{\mbox{\tt mode}}
+\newcommand{\emerr}{\textit{error}}
+\newcommand{\emnerr}{\textit{noerr}}
+
+\newcommand{\bbbbb}{{\mathbb B}}
+\newcommand{\bbbbc}{{\mathbb C}}
+\newcommand{\bbbbd}{{\mathbb D}}
+\newcommand{\inneg}{{{\mathbb I}^{\mathbb N}_{\mathbb N}}}
+\newcommand{\gnneg}{{{\mathbb I}^{\mathbb N}_0}}
+\newcommand{\rnall}{{\mathbb R}}
+\newcommand{\rnneg}{{{\mathbb R}^{\geq 0}}}
+\newcommand{\nnneg}{{\mathbb N}}
+\newcommand{\bbbbp}{{\mathbb P}}
+\newcommand{\bbbbs}{{\mathbb S}}
+\newcommand{\nnify}{{\cal N}^{\{\infty\}}}
+\newcommand{\nnstar}{{\cal N}^{\{*\}}}
+\newcommand{\bbbzz}{{\mathbb Z}}
+\newcommand{\aoat}{{(\calmdl,\calspc)}}
+\newcommand{\clkcd}{{\Omega^t}}% {\langle \caoat-\delta\rangle}
+\newcommand{\ccmfs}{{C^\calmdl_\calspc}}
+\newcommand{\caoat}{C^{\calmdl,\calspc}_Rnv}
+\newcommand{\caoate}{C^{\calmdl,\calspc}_\emptyset}
+\newcommand{\izc}{{[0,\caoat]}}
+\newcommand{\izce}{{[0,\caoate]}}
+\newcommand{\izcinf}{{(\caoat,\infty)}}
+\newcommand{\relsim}{\equiv_{\mbox{\scriptsize\em sim}}}
+\newcommand{\hdline}[1]{\begin{center}\underline{\bf #1}\end{center}}
+\newcommand{\quoline}[1]{\begin{quote}\em ``#1''\end{quote}}
+\newcommand{\edge}[1]{\stackrel{#1}{\longrightarrow}}
+\newcommand{\patt}[1]{^{#1}}
+\newcommand{\nrpatt}[1]{^{#1}_{\neg r}}
+\newcommand{\ratt}[1]{^{\langle #1\rangle}}
+\newcommand{\nrratt}[1]{^{\langle #1\rangle}_{\neg r}}
+\newcommand{\satt}[1]{_{(#1)}}
+\newcommand{\ccnr}[1]{\mbox{\circle{8}#1}}
+
+\newcommand{\llrarrow}{{\rule[2pt]{8mm}{0.5pt}\!\!\!\longrightarrow}}
+\newcommand{\lllrarrow}{{\rule[2pt]{10mm}{0.5pt}\!\!\!\longrightarrow}}
+\newcommand{\dlrarrow}{{\rule[1.5pt]{20mm}{0.5pt}\!\!\!\longrightarrow}}
+
+\newcommand{\calk}{{\cal K}}
+
 
 \begin{document}
 

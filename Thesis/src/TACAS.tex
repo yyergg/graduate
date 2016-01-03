@@ -1,8 +1,410 @@
-\chapter{Temporal Cooperation Logic}
-\label{c:tcl}
+\documentclass{llncs}
 
-\section{TCL}
-\subsection{Syntax}
+\usepackage[T1]{fontenc}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{complexity}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{slashbox}
+\usepackage{pstricks,pst-all}
+
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{color}
+
+
+\newcommand{\embnd}{\textit{bnd}}
+\newcommand{\cale}{{\cal E}}
+\newcommand{\calg}{{\cal G}}
+\newcommand{\calp}{{\cal P}}
+\newcommand{\calq}{{\cal Q}}
+\newcommand{\emlast}{\textit{last}}
+\newcommand{\true}{\mbox{\em true}}
+\newcommand{\false}{\mbox{\em false}}
+\newcommand{\defn}{\stackrel{\mbox{\tiny def}}{=}}
+\newcommand{\pfrr}{\Box}
+\newcommand{\until}{\textrm{U}} % {\textsf{U}} % \textup{U}\textsc{U}\textmd{U}}
+\newcommand{\rmrel}{\textrm{R}} % {\textsf{W}} % \textup{W}\textsc{W}\textmd{W}}
+\newcommand{\pevt}{\Diamond}
+\newcommand{\nxt}{\bigcirc}
+\newcommand{\nnneg}{{\mathbb N}}
+
+
+\def\qed{\ifmmode\|\else{\unskip\nobreak\hfil
+\penalty50\hskip1em\null\nobreak\hfil$\blacksquare$
+\parfillskip=0pt\finalhyphendemerits=0\endgraf}\fi}
+
+
+
+
+\newenvironment{list1}{\begin{list}{$\bullet$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0 pt}}{\end{list}}
+\newenvironment{list2}{\begin{list}{$-$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0 pt}}{\end{list}}
+
+
+\begin{document}
+
+\title{Model-Checking Iterated Games%
+\thanks{The research was supported
+by the National Science Council %(NSF)
+grant 97-2221-E-002-129-MY3 and 
+by the Engineering and Physical Sciences Research Council %(EPSRC)
+grant EP/H046623/1.}}
+
+\author{Chung-Hao Huang$^{1}$ 
+\hspace*{5mm} Sven Schewe{$^2$} 
+\hspace*{5mm} Farn Wang$^{1,3}$ 
+}
+
+\institute{
+1: Graduate Institute of Electronic Engineering, National Taiwan University\\
+2: Department of Computer Sciences, University of Liverpool\\
+3: Department of Electrical Engineering, National Taiwan University \\
+}
+
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{plain}
+% \baselineskip 18pt
+
+\begin{abstract}
+We propose a logic for the definition of the collaborative power of groups of agents to enforce different temporal objectives.
+The resulting {\em temporal cooperation logic} ({\em TCL}) extends ATL by allowing for successive definition of strategies for agents and agencies.
+Different to previous logics with similar aims, our extension cuts a fine line between extending the power and maintaining a low complexity:
+model-checking TCL sentences is EXPTIME complete in the logic, and fixed parameter tractable for specifications of bounded size.
+This advancement over non-elementary logics is bought by disallowing 
+a too close entanglement between cooperation and competition.
+We show how allowing such an entanglement immediately leads to a non-elementary complexity.
+%
+We have implemented a model-checker for the logic and shown the feasibility of model-checking on a few benchmarks.
+\end{abstract}
+
+
+% \noindent {\bf Keywords:}
+% games, turn-based,  
+% logic, model-checking, expressiveness
+
+
+\section{Introduction}
+
+
+While the verification of traditional linear and 
+branching time logics like LTL, CTL, and CTL* \cite{Pnueli77,CE81} 
+has been reduced to (repeated) reachability \cite{Holzmann97,KVW00},
+the satisfiability checking and synthesis problem has been tightly linked with game theory ever since the seminal works 
+of B\"uchi and Landweber \cite{BL69,BL69a}.
+With the introduction of {\em alternating time logic} 
+({\em ATL}) by Alur, Henzinger, and Kupferman \cite{AHK02} and in automata based $\mu$-calculus model-checking (e.g., \cite{Wilke01}), games have entered into the verification of the correctness of reactive systems.
+With game theoretic challenges moving into the focus of researchers who study the specification and design of reactive systems, traditional problems of multi-player games are replacing the former distinction between an adversarial environment and a supportive system.
+Instead, we have groups of players that cooperate on some objectives while competing on others.
+
+For particular properties, the intuition that some players represent the system while 
+other players represent the environment is, however, still useful.  
+Following this intuition, the system wins the game in an execution 
+(or a {\em play} in the jargon of game theory) 
+if the system specification is fulfilled along it, and it wins the game if it can force a winning play.
+System design as a whole for specifications in game logics can rather be compared to designing a game board and to show that the respective group of players (or: agency) has the coalition power required by the system specification.
+
+There are various established game-based specification languages, 
+including 
+{\em ATL}, {\em ATL}$^*$, the {\em alternating $\mu$-calculus} ({\em AMC}), and 
+{\em game logic} ({\em GL}) \cite{AHK02}, 
+{\em strategy logics} \cite{CHP10,CLM10,MMV10,MMPV12}, 
+{\em coordination logic} \cite{FS10},
+{\em stochastic game logic} \cite{BBGK07}, and
+{\em basic strategy interaction logic} ({\em BSIL}) \cite{WHY11}
+for the specification of the interplay in open systems.  
+Each language also comes with a verification algorithm that 
+determines whether a winning strategy for the system exists.  
+However, there is a gap between the available techniques and the scalability required for industrial applications.
+Frankly speaking, none of the languages above represents, in our view, a proper combination of expressiveness for close interaction among agent strategies and efficiency for the verification or refutation of compliance with a specification.
+On one hand, logics like ATL, ATL$^*$, AMC, and GL \cite{AHK02} allow 
+us to specify the collaborative power of groups of players to enforce a common objective.
+This falls short from specifying even the simple properties in 
+a typical game.  
+For example, it was shown in \cite{WHY11} 
+that ATL, ATL$^*$, AMC, and GL \cite{AHK02}  
+cannot express that the same strategy of a banking system must allow the clients 
+both, to withdraw and to deposit money:
+a strategy quantifier in these logics always refers to the strategies of all agents, whereas this property requires to bind first the strategy of the bank, and then refer to different strategies of the clients.
+This is arguably a severe restriction when reasoning about real-world problems.  
+
+
+To solve the expressiveness problem in the above example, 
+{\em strategy logics} ({\em SL}) were proposed in \cite{BBGK07,CHP10,MMV10,MMPV12}. 
+They allow for the flexible quantification over strategies in logic formulas.  
+However, their verification complexity is prohibitively high 
+and has inhibited practical application.  
+
+A previous attempt to tame the complexity of strategy interaction \cite{WHY11}, on the other hand, results in a full temporalisation.
+This leads to severe restrictions in the entanglement between temporal operators and strategy binding and thus prevents, for example, reasoning about Nash equilibria.
+
+We thus propose to adapt the logic introduced in \cite{WHY11} to 
+a new temporal logic called {\em temporal cooperation logic}
+({\em TCL}) for this purpose.
+%
+Let us introduce TCL informally on a game among three prisoners.
+
+\paragraph{\bf Example: Iterated Prisoners' Dilemma.} 
+Inspired by the famous prisoners' dilemma, we consider a model where three suspects, who are initially in custody, are interrogated.
+In our simplified version, they play in turns (rather than concurrently), and have the choices to either admit or deny the charges made against them.
+If all deny, they will be released based on lack of evidence.
+
+However, a suspect may decide to collaborate with the police and betray her peers.
+A sole collaborator will be acquitted as a crown witness, while her peers will be sentenced.
+But if two or more suspects collaborate with the police, all will be sentenced.
+
+In an iterated prisoners' dilemma, the interplay can continue 
+up to an unbounded number of times. 
+Such a game is very useful in modelling collaboration and competition 
+in networks.  
+For example, a strategy in prisoners' dilemma is {\em nice} if 
+it does not suggest betrayal initially and only suggests 
+betrayal if, in the previous round, another prisoner betrayed 
+\cite{Axelrod80}.  
+The following TCL sentence states that Prisoner 1 has a nice strategy.
+\begin{center} 
+\hfill 
+$\langle 1\rangle \pfrr ((\langle+\rangle \nxt \neg\mbox{\tt betray}_1)
+\vee \bigvee_{a\neq 1}\mbox{\tt betray}_a)$
+\hfill (A) 
+\end{center} 
+$\langle 1\rangle$ is a \emph{strategy quantifier} (SQ), which states
+that there exists a strategy of Prisoner 1 to achieve her temporal goal. 
+$\langle+\rangle$ is a {\em strategy interaction quantifier} 
+({\em SIQ}) %introduced in \cite{WHY11} 
+that inherits the strategy from its parent formula. 
+Proposition $\mbox{\tt betray}_i$ is an atomic proposition for the betrayal 
+of prisoner $i$ at the present state. 
+Similarly, we can reflect more involved strategies, such as `Prisoner 2 will always betray when she does not have the power to force Player 1 to always play nice.'
+\begin{center} 
+\hfill 
+$\langle 2\rangle (
+(\langle+\rangle \pfrr \mbox{\tt betray}_2) 
+\vee \langle+\rangle\pfrr ((\langle+\rangle \nxt \neg\mbox{\tt betray}_1)
+\vee \bigvee_{a\neq 1}\mbox{\tt betray}_a))$
+\hfill (B) 
+\end{center} 
+
+Similar properties can be used to specify {\em forgiving}\footnote{A strategy 
+is forgiving if it does not always punish betrayal in the previous round.} 
+or other related strategies \cite{Axelrod80}.  
+A forgiving strategy of Prisoner 1 
+is reflected by the following TCL property. 
+\begin{center} 
+\hfill 
+$\langle 1\rangle \pevt ((\langle+\rangle \nxt \neg\mbox{\tt betray}_1)
+\wedge \bigvee_{a\neq 1}\mbox{\tt betray}_a)$
+\hfill (C) 
+\end{center} 
+We can also reason about the existence of Prisoner 2's strategy 
+that avoid betrayal if Prisoner 1 can be unforgiving under this strategy. 
+\begin{center} 
+\hfill 
+$\langle 2\rangle (
+(\langle+\rangle \pfrr \neg\mbox{\tt betray}_2) 
+\vee \langle +1\rangle\pevt ((\langle+\rangle \nxt \neg\mbox{\tt betray}_1)
+\wedge \bigvee_{a\neq 1}\mbox{\tt betray}_a))$
+\hfill (D) 
+\end{center} 
+As can be seen, properties like (B) and (D) are relevant in network environments
+where plays can be extended round by round
+without termination.  
+Every agent may track each others' records to decide whether or not to cooperate. 
+Such a property cannot be expressed in ATL$^*$, GL, AMC, or BSIL. 
+While it can be expressed with SL, the verification complexity of SL is prohibitive.  
+
+In \cite{WHY11}, SIQs can neither override nor revoke strategies assigned by the SQ or SIQs in whose scope they are.
+Consequently, BSIL cannot express deterministic Nash equilibria.
+To overcome this restriction, we introduce a strategy reset operator that revokes previous strategy assignments.
+
+Let $\mbox{\tt jail}_a$ be a proposition, which states that ``Prisoner $a$ is in jail''.
+In TCL,
+\begin{center}
+\hfill
+$\langle 1,2,3\rangle
+        \bigwedge_{a\in [1,3]}\big((
+        \langle+\emptyset\rangle\pevt \neg \mbox{\tt jail}_a) \vee
+        \langle-a\rangle \pfrr \mbox{\tt jail}_a\big)$
+\hfill (E)
+\end{center}
+requires that the tree agents can cooperate such that every agent either eventually leaves prism, or stays for ever in prism regardless of her own strategy under the current strategies of the remaining prisoners.
+The SIQ $\langle-a\rangle\psi$ revokes the binding of agent $a$ to her strategy.
+
+% Also in \cite{WHY11}, the universal SIQs $[+A]$ are subject 
+% to the restriction that 
+% any agent in $A$ may not conflict with an ancestor SQ or SIQ 
+% that pass down a strategy with the same agent.   
+% As a result, BSIL cannot express the deterministic Nash equilibria. 
+% For this purpose, we also presented a strategy reset operator 
+% in this work.  
+% Let $\mbox{\tt jail}_a$ be the proposition for prisoner $a$ in jail.  
+% Specifically, 
+% in TCL, the equilibria can be specified with the following property. 
+% \begin{center} 
+% \hfill 
+% $\langle 1,2,3\rangle(
+% 	(\bigwedge_{a\in [1,3]}
+% 	\langle+\emptyset\rangle\pfrr \mbox{\tt jail}_a)\wedge 
+% \bigwedge_{a\in[1,3]}\langle-a\rangle \pfrr\bigwedge_{b\in[1,3];b\neq a}\mbox{\tt jail}_b)$
+% \hfill (E) 
+% \end{center} 
+% SIQ $\langle-a\rangle\psi$ resets the inheritance of any strategy for 
+% $a$ declared with the ancestor formulas of $\langle-a\rangle\psi$.  
+
+In this work, we establish that TCL is incomparable with ATL$^*$, GL, and AMC in expressiveness.  
+Although the strategy logics proposed in \cite{BBGK07,CHP10,CLM10,MMV10} subsume TCL with their flexible quantification of strategies and binding to strategy variables, 
+their model-checking complexities are all doubly exponential time hard.  
+In contrast, TCL enjoys an EXPTIME-complete model-checking complexity and fixed parameter tractability when using the length of the formula as parameter, as well as 2EXPTIME completeness of the TCL satisfiability problem for turn-based game graphs.  
+TCL thus provides a better balance between expressiveness and complexity / efficiency considerations 
+than ATL$^*$, GL \cite{AHK02}, and SL \cite{CHP10,MMV10,MMPV12}.
+Given the expressive power as exemplified by the specifications from above, TCL can be viewed as an expressive yet inexpensive subclass of SL \cite{MMV10,MMPV12}.  
+
+\paragraph{\bf Organisation of the Paper.}
+Section~\ref{sec.sysmodel} explains turn-based game graphs for the description of multi-agent systems and presents the syntax and semantics of TCL.
+Section~\ref{sec.exp} discusses the expressiveness of TCL, establishing that CTL, ATL, LTL, and CTL* can be viewed as syntactic fragments of TCL.
+We show that TCL is more expressive than any of these logics while incomparable with ATL$^*$, AMC, and GL \cite{AHK02} in expressiveness, and discuss the effect of a mild extension of TCL. 
+In the following sections, we develop an automata based model-checking algorithm and establish the EXPTIME-completeness and 2EXPTIME-completeness of the TCL model-checking and satisfiability problem, respectively.
+Finally, we have implement a model-checker and validated the feasibility of using TCL on a set of benchmarks.
+
+
+\section{System Models and TCL \label{sec.sysmodel}}
+
+\subsection{Turn-based game graphs \label{subsec.tb.gg}} 
+
+A {\em turn-based} game is played by a finite number $m$ of agents, indexed $1$ through $m$.
+A game is a tuple $\calg=\langle m,\calq,r,\omega,P,\lambda,E\rangle$, where
+\begin{list1}
+\item 
+	Parameter $m$ is the number of agents in the game.
+\item 
+	$\calq$ is the set of states and
+% \item 
+	$r\in \calq$ is the {\em initial state} (or root) of $\calg$.
+\item 
+	$\omega:\calq\mapsto [1,m]$ is a function that specifies the
+    owner of each state.
+    Only the owner of a state makes choices at the state.
+\item 
+	$P$ is a finite set of atomic propositions.
+\item 
+	$\lambda:\calq\mapsto 2^P$ is a proposition labelling function.
+\item 
+	$E\subseteq \calq \times \calq$ is the set of transitions.
+\end{list1}
+For ease of notation, we denote with 
+$\calq_a = \{q \in \calq \mid \omega(q)=a\}$ 
+the states owned by an agent $a$.
+
+In Figure~\ref{fig.gg.mem.fin}, we have the graphical representation of 
+a turn-based game graph.  
+\begin{figure}[t]
+\begin{center}
+\begin{picture}(0,0)%
+\includegraphics{gg.mem.fin60.eps}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(3310,861)(-169,-285)
+\put(2490,-39){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$w'$}%
+}}}}
+\put(2437,-171){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\{q\}$}%
+}}}}
+\put(376,-39){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$u'$}%
+}}}}
+\put(350,-171){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\{p\}$}%
+}}}}
+\put(1090,-171){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\emptyset$}%
+}}}}
+\put(1777,-39){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$w$}%
+}}}}
+\put(1803,-171){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\emptyset$}%
+}}}}
+\put(1433,463){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$v$}%
+}}}}
+\put(1433,331){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\emptyset$}%
+}}}}
+\put(1063,-39){\makebox(0,0)[lb]{\smash{{\SetFigFont{7}{8.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$u$}%
+}}}}
+\end{picture}%
+\\
+$\nxt$ belongs to Agent 1 and $\pfrr$ belongs to Agent 2.
+\end{center}
+\caption{A turn-based game graph}
+\label{fig.gg.mem.fin}
+\end{figure} 
+The ovals and squares represent states while the arcs represent 
+state transitions.  
+We also put down the $\lambda$ values inside the corresponding states.  
+
+For convenience, in the remaining part of the 
+manuscript, we assume that we are always in the context 
+of a given game graph
+$\calg=\langle m,\calq,r,\omega,\calp,\lambda,\cale\rangle$.
+Thus, when we write $\calq,r,\omega,\calp,\lambda$, and $\cale$, 
+we respectively refer to the components $\calq$, $r$, 
+$\omega$, $P$, $\lambda$, and $E$ of this $\calg$.  
+
+% A state predicate of $\calp$ is a Boolean combination of elements in $\calp$.
+% We let $\emstp(\calp)$ be the set of state predicates of $\calp$.
+% The satisfaction of a state predicate $\eta$ at a state $q$,
+% in symbols $q\models \eta$, is defined in a standard way.
+% \begin{list1} 
+% \item $q\models p$ if and only if $p\in\lambda(q)$.  
+% \item $q\models\neg \eta$ if and only if $q\not\models \eta$. 
+% \item $q\models \eta_1\vee\eta_2$ if and only if $q\models \eta_1$ or 
+%   $q\models\eta_2$.  
+% \end{list1} 
+
+A {\em play} $\rho$ is an infinite path $q_0 q_1\ldots$ in $\calg$ 
+such that, for every $k\in \nnneg$, 
+$(q_k,q_{k+1})\in \cale$.  
+$\rho$ is {\em initial} if $q_0=r$. 
+For every $k\geq 0$, we let $\rho(k)$ denote $q_k$.
+Also, given $h\leq k$,
+we let $\rho[h,k]$ denote $\rho(h)\ldots\rho(k)$ and
+$\rho[h,\infty)$ denote the infinite tail of $\rho$
+from $\rho(h)$. 
+
+A {\em play prefix} is a finite segment of a play from the beginning of
+the play.  
+Given a play prefix $\pi=q_0q_1\ldots q_n$, 
+$|\pi|=n+1$ denotes the length of the prefix.
+Given a $k\in [0,|\pi|-1]$, we let $\pi(k)=q_k$.  
+For convenience, we use $\emlast(\pi)$ to denote the 
+last state in $\pi$, i.e., $\pi(|\pi|-1)$.  
+
+For an agent $a\in [1,m]$,
+a {\em strategy} $\sigma$ for $a$ is
+a function from $\calq^*\calq_a$ to $\calq$ such that
+for every $\pi\in \calq^*\calq_a$,
+$\sigma(\pi)\in \calq$ with $\big(\emlast(\pi),\sigma(\pi)\big)\in \cale$.
+
+An {\em agency} $A$ of $[1,m]$ is a subset of $[1,m]$.
+In a short hand notation, we often drop the curly brackets in the set notation, in particular for singleton and empty sets.
+For example, ``$1,3,4$'' is a short hand for $\{1,3,4\}$.
+
+A play $\rho$ is \emph{compatible} with a strategy $\sigma_a$ of an agent $a\in [1,m]$ iff, for every $k\in \mathbb N$, $\omega(\rho(k))=a$ implies $\rho(k+1)=\sigma(\rho[0..k])$.
+
+
+
+
+\subsection{TCL Syntax \label{subsec.bsil.syntax}}
+
+
 A TCL formula $\phi$ is constructed with the following three syntax rules.
 \smallskip
 
@@ -140,7 +542,15 @@ We will briefly discuss in the following section that model-checking becomes non
 
 From now on, we assume that we are always in the context of a
 given TCL sentence. % $\chi$.  
-\subsection{semantics}
+
+
+
+
+
+
+\subsection{TCL Semantics 
+  \label{subsec.psil.semantics}}
+
 In order to prepare the definition of a semantics for TCL formulas, 
 we start with the definition of a semantics for sentences 
 of the form $\langle A \rangle \psi$, where $\psi$ does not contain any SQs.
@@ -306,7 +716,12 @@ where they are invoked.)
 This is possible, simply because the validity of state formulas (and hence of TCL sentences) cannot depend on the validity of the left hand side of an until (or the right hand side of a release) \emph{after} the first time it has been satisfied. 
 
 
-\section{Expressive Power of TCL}
+
+
+
+
+\section{Expressiveness of TCL \label{sec.exp}}
+
 Note that TCL is not a superclass of BSIL since 
 BSIL allows for negation in front of SIQs while TCL does not. 
 However, by examining the proofs in \cite{WHY11} 
@@ -766,3 +1181,162 @@ The data shows that our prototype can handle the various benchmarks, and scales 
 Ignoring the overhead, it also shows the exponential growth.
 The models, however, are growing exponentially, too.
 We assume that this growth i the main cause of the exponential growth of the response time.
+
+
+
+
+
+\section{Conclusion \label{sec.conc}}
+
+TCL is a promising logic for the specification of groups of agents 
+who balance their strategies in order to cooperate with different partners to achieve different objectives.
+It is an inexpensive logic in many ways.
+First and foremost, it is fixed parameter tractable.
+Following folklore, specifications are tiny while models are huge.
+In this situation, fixed parameter tractability is a very important property, in particular as it is achieved by a natural and simple decision procedure, which is merely exponential in the formula.
+
+This appealing property is not bought with inexpressiveness.
+In particular, the popular temporal logics LTL, CTL, ATL, and CTL$^*$ are contained as de-facto sublogics.
+Consequently, it can be excellently used to extend existing specifications in these languages, without the need to develop competitive models.
+
+The applicability is underlined by compelling data from our benchmarks.
+This is in spite of the fact that our implementation is rather based on 
+an ad hoc extension of an existing algorithm for a different logic, and neither fully exploit the low complexity, nor is a fully symbolic implementation.
+It will be interesting to see by which extent symbolic representation like BDDs will enhance the performance and how an automata based tool would fare.
+
+
+\begin{thebibliography}{10}
+
+\bibitem{AHK02}
+R.~Alur, T.~A. Henzinger, and O.~Kupferman.
+\newblock Alternating-time temporal logic.
+\newblock {\em Journal of the ACM (JACM)}, 49(5):672--713, September 2002.
+
+\bibitem{Axelrod80}
+R.~Axelrod.
+\newblock Effective choice in the prisoner's dilemma.
+\newblock {\em Journal of conflict resolution}, 24(1):3--25, 1980.
+
+\bibitem{BBGK07}
+C.~Baier, T.~Br\'azdil, M.~Gr\"oser, and A.~Kucera.
+\newblock Stochastic game logic.
+\newblock In {\em QEST}, pages 227--236. IEEE Computer Society, 2007.
+
+\bibitem{BL69a}
+J.~B\"uchi and L.~Landweber.
+\newblock Definability in th emonadic second-order theory of successor.
+\newblock {\em Journal of Symbolic Logic}, 34(2):166--170, 1969.
+
+\bibitem{BL69}
+J.~B\"uchi and L.~Landweber.
+\newblock Solving sequential conditions by finite-state strategies.
+\newblock {\em Trans. AMS}, 138(4):295--311, 1969.
+
+\bibitem{Chatterjee+Henzinger/12/Buchi}
+K.~Chatterjee and M.~Henzinger.
+\newblock An $O(n^2)$ time algorithm for alternating
+  B{\"u}chi games.
+\newblock In {\em Proceedings of the Twenty-Third Annual ACM-SIAM Symposium on
+  Discrete Algorithms (SODA 2012), Kyoto, Japan, January 17-19, 2012}, pages
+  1386--1399. SIAM, 2012.
+
+\bibitem{CHP10}
+K.~Chatterjee, T.~A. Henzinger, and N.~Piterman.
+\newblock Strategy logic.
+\newblock {\em Information and Computation}, 208:677--693, 2010.
+
+\bibitem{CE81}
+E.~M. Clarke and E.~A. Emerson.
+\newblock Design and synthesis of synchronization skeletons using
+  branching-time temporal logic.
+\newblock In {\em Workshop on Logic of Programs}, volume LNCS 131.
+  Springer-Verlag, 1981.
+
+\bibitem{CLM10}
+A.~D. Costa, F.~Laroussinie, and N.~Markey.
+\newblock Atl with strategy contexts: Expressiveness and model checking.
+\newblock In {\em IARCS Annual Conference on Foundations of Software Technology
+  and Theoretical Computer Science (FSTTCS 2010)}, volume~8 of {\em Leibniz
+  International Proceedings in Informatics (LIPIcs)}, pages 120--132. Schloss
+  Dagstuhl--Leibniz-Zentrum fuer Informatik, 2010.
+
+\bibitem{FS10}
+B.~Finkbeiner and S.~Schewe.
+\newblock Coordination logic.
+\newblock In {\em CSL}, pages 305--319, 2010.
+
+\bibitem{Holzmann97}
+G.~J. Holzmann.
+\newblock The model checker spin.
+\newblock {\em IEEE Trans. Software Eng.}, 23(5), 1997.
+
+\bibitem{Immerman81}
+N.~Immerman.
+\newblock Number of quantifiers is better than number of tape cells.
+\newblock {\em Journal of Computer and System Sciences}, 22(3):65--72, 1981.
+
+\bibitem{KVW00}
+O.~Kupferman, M.~Y. Vardi, and P.~Wolper.
+\newblock An automata-theoretic approach to branching-time model checking.
+\newblock {\em Journal of ACM}, 47(2):312--360, 2000.
+
+\bibitem{MMPV12}
+F.~Mogavero, A.~Murano, G.~Perelli, and M.~Y. Vardi.
+\newblock What makes atl$^*$ decidable ? a decidable fragment of strategy
+  logic.
+\newblock In {\em Concurrency theory (CONCUR 2012)}, volume LNCS 7454, pages
+  193--208. Springer-Verlag, 2012.
+
+\bibitem{MMV10}
+F.~Mogavero, A.~Murano, and M.~Y. Vardi.
+\newblock Reasoning about strategies.
+\newblock In {\em IARCS Annual Conference on Foundations of Software Technology
+  and Theoretical Computer Science (FSTTCS 2010)}, LIPIcs 8, pages 133--144, 2010.
+
+\bibitem{Muller+Schupp/95/Alternating}
+D.~E. Muller and P.~E. Schupp.
+\newblock Simulating alternating tree automata by nondeterministic automata:
+  new results and new proofs of the theorems of {Rabin}, {McNaughton} and
+  {Safra}.
+\newblock {\em Theoretical Computer Science}, 141(1-2):69--107, 1995.
+
+\bibitem{Pnueli77}
+A.~Pnueli.
+\newblock The temporal logic of programs.
+\newblock In {\em 18th annual IEEE-CS Symposium on Foundations of Computer
+  Science}, pages 45--57, 1977.
+
+\bibitem{Schewe/07/parity}
+S.~Schewe.
+\newblock Solving parity games in big steps.
+\newblock In {\em Proceedings of the 27th Conference on Foundations of Software
+  Technology and Theoretical Computer Science (FSTTCS 2007), 12--14 December,
+  New Delhi, India}, volume 4805 of {\em Lecture Notes in Computer Science},
+  pages 449--460. Springer-Verlag, 2007.
+
+\bibitem{SC79}
+L.~J. Stockmeyer and A.~K. Chandra.
+\newblock Provably difficult combinatorial games.
+\newblock {\em SIAM Journal on Computing (SICOMP)}, 8(2):151--174, 1979.
+
+\bibitem{Vardi+Stockmeyer/85/CTL}
+M.~Vardi and L.~Stockmeyer.
+\newblock Improved upper and lower bounds for modal logics of programs:
+  Preliminary report.
+\newblock In {\em Proceedings of the 17th Annual ACM Symposium on Theory of
+  Computing (STOC '85), May 6-8, Providence, Rhode Island, USA}, pages
+  240--251, 1985.
+
+\bibitem{WHY11}
+F.~Wang, C.-H. Huang, and F.~Yu.
+\newblock A temporal logic for the interaction of strategies.
+\newblock In {\em 22nd Concurrency Theory (CONCUR)}, volume LNCS 6901.
+  Springer-Verlag, Sept. 2011.
+
+\bibitem{Wilke01}
+T.~Wilke.
+\newblock Alternating tree automata, parity games, and modal $\mu$-calculus.
+\newblock {\em Bulletin of the Belgian Mathematical Society}, 8(2), May 2001.
+
+\end{thebibliography}
+\end{document}

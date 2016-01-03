@@ -1,74 +1,76 @@
 \contentsline {chapter}{Abstract}{i}{chapter*.1}
 \contentsline {chapter}{Contents}{iii}{chapter*.2}
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}
-\contentsline {chapter}{\numberline {2}Software Resilience against Dense Errors}{6}{chapter.2}
-\contentsline {section}{\numberline {2.1}Two-player concurrent game structures}{7}{section.2.1}
-\contentsline {section}{\numberline {2.2}Motivation}{7}{section.2.2}
-\contentsline {subsection}{\numberline {2.2.1}Background}{7}{subsection.2.2.1}
-\contentsline {subsection}{\numberline {2.2.2}Resilience in a Nutshell}{7}{subsection.2.2.2}
-\contentsline {section}{\numberline {2.3}Safety resilience games}{7}{section.2.3}
-\contentsline {section}{\numberline {2.4}Alternating-time $\mu $-calculus with events}{7}{section.2.4}
-\contentsline {subsection}{\numberline {2.4.1}Syntax}{7}{subsection.2.4.1}
-\contentsline {subsection}{\numberline {2.4.2}semantics}{7}{subsection.2.4.2}
-\contentsline {section}{\numberline {2.5}Resilience level checking algorithm}{7}{section.2.5}
-\contentsline {subsection}{\numberline {2.5.1}High-level description of the algorithm}{7}{subsection.2.5.1}
-\contentsline {subsection}{\numberline {2.5.2}Realization with AMCE model-checking}{7}{subsection.2.5.2}
-\contentsline {subsubsection}{Base case, sfrch0(S)}{7}{section*.3}
-\contentsline {subsubsection}{Inductive cases, sfrchk(S)}{7}{section*.4}
-\contentsline {subsubsection}{Algorithm for the set of k-resilient states}{7}{section*.5}
-\contentsline {subsection}{\numberline {2.5.3}Complexity}{7}{subsection.2.5.3}
-\contentsline {section}{\numberline {2.6}Tool implementation and experimental results}{7}{section.2.6}
-\contentsline {subsection}{\numberline {2.6.1}Benchmarks}{7}{subsection.2.6.1}
-\contentsline {subsection}{\numberline {2.6.2}Modeling of the fault-tolerant systems}{7}{subsection.2.6.2}
-\contentsline {subsection}{\numberline {2.6.3}Performance data}{7}{subsection.2.6.3}
-\contentsline {section}{\numberline {2.7}Related works}{7}{section.2.7}
-\contentsline {chapter}{\numberline {3}Basic Strategy-interaction Logic}{8}{chapter.3}
-\contentsline {section}{\numberline {3.1}Existed Logics about Game and Strategy}{9}{section.3.1}
-\contentsline {subsection}{\numberline {3.1.1}Prior to Strategy Logics}{9}{subsection.3.1.1}
-\contentsline {subsection}{\numberline {3.1.2}With Strategy Logics}{9}{subsection.3.1.2}
-\contentsline {section}{\numberline {3.2}Running Example}{9}{section.3.2}
-\contentsline {subsection}{\numberline {3.2.1}Trying to Write Down a Correct Formal Specification}{9}{subsection.3.2.1}
-\contentsline {subsection}{\numberline {3.2.2}Resorting to General Strategy Logics for a Correct Specification}{9}{subsection.3.2.2}
-\contentsline {subsection}{\numberline {3.2.3}BSIL: New Strategy Modalities Expressive Enough for the Specification}{9}{subsection.3.2.3}
-\contentsline {subsection}{\numberline {3.2.4}Symbolic Strategy Names and Path Obligations}{9}{subsection.3.2.4}
-\contentsline {subsection}{\numberline {3.2.5}Passing Down the Path Obligations While Observing the Restrictions Among S-Profiles}{9}{subsection.3.2.5}
-\contentsline {subsection}{\numberline {3.2.6}Finding Finite Satisfying Evidence for a Formula in a Computation Tree}{9}{subsection.3.2.6}
-\contentsline {section}{\numberline {3.3}Game Graphs}{9}{section.3.3}
-\contentsline {subsection}{\numberline {3.3.1}Concurrent Games}{9}{subsection.3.3.1}
-\contentsline {subsection}{\numberline {3.3.2}Turn-Based Games}{9}{subsection.3.3.2}
-\contentsline {section}{\numberline {3.4}BSIL}{9}{section.3.4}
-\contentsline {subsection}{\numberline {3.4.1}Syntax}{9}{subsection.3.4.1}
-\contentsline {subsection}{\numberline {3.4.2}semantics}{9}{subsection.3.4.2}
-\contentsline {subsection}{\numberline {3.4.3}ATL+}{9}{subsection.3.4.3}
-\contentsline {subsection}{\numberline {3.4.4}Memory}{9}{subsection.3.4.4}
-\contentsline {section}{\numberline {3.5}Expressive Power of BSIL}{9}{section.3.5}
-\contentsline {subsection}{\numberline {3.5.1}Comparison with GL}{9}{subsection.3.5.1}
-\contentsline {subsection}{\numberline {3.5.2}Comparison with AMC}{9}{subsection.3.5.2}
-\contentsline {subsubsection}{Comparison with ATL*}{9}{section*.6}
-\contentsline {section}{\numberline {3.6}Algorithm and Complexity}{9}{section.3.6}
-\contentsline {subsection}{\numberline {3.6.1}Computing Path Obligations and Passing Them Down the Computation Tree}{9}{subsection.3.6.1}
-\contentsline {subsection}{\numberline {3.6.2}Procedures for Checking BSIL Properties}{9}{subsection.3.6.2}
-\contentsline {subsection}{\numberline {3.6.3}Correctness Proof of the Algorithm}{9}{subsection.3.6.3}
-\contentsline {subsection}{\numberline {3.6.4}Complexities of the Algorithm}{9}{subsection.3.6.4}
-\contentsline {subsection}{\numberline {3.6.5}Lower Bound and Completeness}{9}{subsection.3.6.5}
-\contentsline {section}{\numberline {3.7}Automata for BSIL Model Checking}{9}{section.3.7}
-\contentsline {subsection}{\numberline {3.7.1}Alternating Automata}{9}{subsection.3.7.1}
-\contentsline {subsection}{\numberline {3.7.2}Model Checking with AAs}{9}{subsection.3.7.2}
-\contentsline {section}{\numberline {3.8}BSIL Satisfiability}{9}{section.3.8}
-\contentsline {section}{\numberline {3.9}Experiment}{9}{section.3.9}
-\contentsline {subsection}{\numberline {3.9.1}Implementation}{9}{subsection.3.9.1}
-\contentsline {subsection}{\numberline {3.9.2}Benchmarks and Their Experiment Report}{9}{subsection.3.9.2}
-\contentsline {subsection}{\numberline {3.9.3}Discussion of the Experiments}{9}{subsection.3.9.3}
-\contentsline {chapter}{\numberline {4}Temporal Cooperation Logic}{10}{chapter.4}
-\contentsline {section}{\numberline {4.1}TCL}{10}{section.4.1}
-\contentsline {subsection}{\numberline {4.1.1}Syntax}{10}{subsection.4.1.1}
-\contentsline {subsection}{\numberline {4.1.2}semantics}{10}{subsection.4.1.2}
-\contentsline {section}{\numberline {4.2}Expressive Power of TCL}{10}{section.4.2}
-\contentsline {subsection}{\numberline {4.2.1}Comparison with CTL* and LTL}{10}{subsection.4.2.1}
-\contentsline {subsection}{\numberline {4.2.2}Comparison with AMC, ATL* and GL}{10}{subsection.4.2.2}
-\contentsline {section}{\numberline {4.3}Complexity}{10}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}TCL Model-checking}{10}{subsection.4.3.1}
-\contentsline {subsection}{\numberline {4.3.2}TCL Satisfiability}{10}{subsection.4.3.2}
-\contentsline {section}{\numberline {4.4}Experiment}{10}{section.4.4}
-\contentsline {chapter}{\numberline {5}Conclusions}{11}{chapter.5}
-\contentsline {chapter}{Bibliography}{12}{chapter.5}
+\contentsline {chapter}{\numberline {2}Software Resilience against Dense Errors}{11}{chapter.2}
+\contentsline {section}{\numberline {2.1}Two-player concurrent game structures}{11}{section.2.1}
+\contentsline {section}{\numberline {2.2}Motivation}{12}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Background}{12}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}Resilience in a Nutshell}{15}{subsection.2.2.2}
+\contentsline {section}{\numberline {2.3}Safety resilience games}{19}{section.2.3}
+\contentsline {paragraph}{\bf Remark.}{23}{section*.3}
+\contentsline {section}{\numberline {2.4}Alternating-time $\mu $-calculus with events}{23}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Syntax}{25}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}semantics}{26}{subsection.2.4.2}
+\contentsline {section}{\numberline {2.5}Resilience level checking algorithm}{28}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}High-level description of the algorithm}{28}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}Realization with AMCE model-checking}{29}{subsection.2.5.2}
+\contentsline {subsubsection}{Base case, sfrch0(S)}{29}{section*.4}
+\contentsline {subsubsection}{Inductive cases, sfrchk(S)}{30}{section*.5}
+\contentsline {subsubsection}{Algorithm for the set of k-resilient states}{33}{section*.6}
+\contentsline {subsection}{\numberline {2.5.3}Complexity}{34}{subsection.2.5.3}
+\contentsline {paragraph}{Simple safety resilience game structures.}{35}{section*.7}
+\contentsline {paragraph}{Hardness for general safety resilience game structures.}{37}{section*.8}
+\contentsline {section}{\numberline {2.6}Tool implementation and experimental results}{37}{section.2.6}
+\contentsline {subsection}{\numberline {2.6.1}Benchmarks}{38}{subsection.2.6.1}
+\contentsline {subsection}{\numberline {2.6.2}Modeling of the fault-tolerant systems}{39}{subsection.2.6.2}
+\contentsline {subsection}{\numberline {2.6.3}Performance data}{44}{subsection.2.6.3}
+\contentsline {section}{\numberline {2.7}Related works}{45}{section.2.7}
+\contentsline {section}{\numberline {2.8}Conclusion }{47}{section.2.8}
+\contentsline {chapter}{\numberline {3}Basic Strategy-interaction Logic}{48}{chapter.3}
+\contentsline {section}{\numberline {3.1}Existed Logics about Game and Strategy}{48}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}Prior to Strategy Logics}{48}{subsection.3.1.1}
+\contentsline {subsection}{\numberline {3.1.2}With Strategy Logics}{49}{subsection.3.1.2}
+\contentsline {section}{\numberline {3.2}Running Example}{49}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Trying to Write Down a Correct Formal Specification}{49}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}Resorting to General Strategy Logics for a Correct Specification}{51}{subsection.3.2.2}
+\contentsline {subsection}{\numberline {3.2.3}BSIL: New Strategy Modalities Expressive Enough for the Specification}{52}{subsection.3.2.3}
+\contentsline {subsection}{\numberline {3.2.4}Symbolic Strategy Names and Path Obligations}{52}{subsection.3.2.4}
+\contentsline {subsection}{\numberline {3.2.5}Passing Down the Path Obligations While Observing the Restrictions Among S-Profiles}{53}{subsection.3.2.5}
+\contentsline {subsection}{\numberline {3.2.6}Finding Finite Satisfying Evidence for a Formula in a Computation Tree}{55}{subsection.3.2.6}
+\contentsline {section}{\numberline {3.3}Game Graphs}{56}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}Concurrent Games}{56}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}Turn-Based Games}{58}{subsection.3.3.2}
+\contentsline {section}{\numberline {3.4}BSIL}{58}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}Syntax}{58}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}semantics}{59}{subsection.3.4.2}
+\contentsline {subsection}{\numberline {3.4.3}ATL+}{60}{subsection.3.4.3}
+\contentsline {subsection}{\numberline {3.4.4}Memory}{61}{subsection.3.4.4}
+\contentsline {section}{\numberline {3.5}Expressive Power of BSIL}{61}{section.3.5}
+\contentsline {subsection}{\numberline {3.5.1}Comparison with GL}{62}{subsection.3.5.1}
+\contentsline {subsection}{\numberline {3.5.2}Comparison with AMC}{64}{subsection.3.5.2}
+\contentsline {subsection}{\numberline {3.5.3}Comparison with ATL*}{68}{subsection.3.5.3}
+\contentsline {section}{\numberline {3.6}Algorithm and Complexity}{68}{section.3.6}
+\contentsline {subsection}{\numberline {3.6.1}Computing path obligations and passing them down the computation tree }{69}{subsection.3.6.1}
+\contentsline {subsection}{\numberline {3.6.2}Procedures for checking BSIL properties}{75}{subsection.3.6.2}
+\contentsline {subsection}{\numberline {3.6.3}Correctness proof of the algorithm }{77}{subsection.3.6.3}
+\contentsline {subsection}{\numberline {3.6.4}Complexities of the algorithm }{79}{subsection.3.6.4}
+\contentsline {subsection}{\numberline {3.6.5}Lower bound and completeness }{80}{subsection.3.6.5}
+\contentsline {section}{\numberline {3.7}Automata for BSIL model-checking }{83}{section.3.7}
+\contentsline {subsection}{\numberline {3.7.1}Alternating Automata (AA)}{84}{subsection.3.7.1}
+\contentsline {subsection}{\numberline {3.7.2}Model Checking with AA's}{85}{subsection.3.7.2}
+\contentsline {subsubsection}{Turn-based Games}{86}{section*.14}
+\contentsline {subsubsection}{Concurrent Games}{90}{section*.15}
+\contentsline {section}{\numberline {3.8}BSIL Satisfiability}{91}{section.3.8}
+\contentsline {section}{\numberline {3.9}Experiment}{94}{section.3.9}
+\contentsline {subsection}{\numberline {3.9.1}Implementation}{94}{subsection.3.9.1}
+\contentsline {subsection}{\numberline {3.9.2}Benchmarks and their experiment report}{94}{subsection.3.9.2}
+\contentsline {subsection}{\numberline {3.9.3}Discussion of the experiments }{96}{subsection.3.9.3}
+\contentsline {chapter}{\numberline {4}Temporal Cooperation Logic}{97}{chapter.4}
+\contentsline {section}{\numberline {4.1}TCL}{97}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}Syntax}{97}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}semantics}{99}{subsection.4.1.2}
+\contentsline {paragraph}{\bf Definition: Computation Tree.}{100}{section*.16}
+\contentsline {section}{\numberline {4.2}Expressive Power of TCL}{102}{section.4.2}
+\contentsline {section}{\numberline {4.3}Complexity of TCL}{104}{section.4.3}
+\contentsline {section}{\numberline {4.4}Implementation and Experiment }{107}{section.4.4}
+\contentsline {chapter}{\numberline {5}Conclusions}{111}{chapter.5}

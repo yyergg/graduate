@@ -1,0 +1,108 @@
+\begin{thebibliography}{10}
+
+\bibitem{CES86}
+
+
+\bibitem{AHK02}
+R.~Alur, T.~A. Henzinger, and O.~Kupferman.
+\newblock Alternating-time temporal logic.
+\newblock {\em Journal of the ACM (JACM)}, 49(5):672--713, September 2002.
+
+\bibitem{BBGK07}
+C.~Baier, T.~Br\'azdil, M.~Gr\"oser, and A.~Kucera.
+\newblock Stochastic game logic.
+\newblock In {\em QEST}, pages 227--236. IEEE Computer Society, 2007.
+
+\bibitem{BPM83}
+M.~Ben-Ari, A.~Pnueli, and Z.~Manna.
+\newblock The temporal logic of branching time.
+\newblock {\em Acta Informatica}, 20:207--226, 1983.
+
+\bibitem{CHP10}
+K.~Chatterjee, T.~A. Henzinger, and N.~Piterman.
+\newblock Strategy logic.
+\newblock {\em Information and Computation}, 208:677--693, 2010.
+
+\bibitem{CLM10}
+A.~D. Costa, F.~Laroussinie, and N.~Markey.
+\newblock Atl with strategy contexts: Expressiveness and model checking.
+\newblock In {\em IARCS Annual Conference on Foundations of Software Technology
+  and Theoretical Computer Science (FSTTCS 2010)}, volume~8 of {\em Leibniz
+  International Proceedings in Informatics (LIPIcs)}, pages 120--132. Schloss
+  Dagstuhl--Leibniz-Zentrum fuer Informatik, 2010.
+
+\bibitem{EC80}
+E.~A. Emerson and E.~M. Clarke.
+\newblock Characterizing correctness properties of parallel programs as
+  fixpoints.
+\newblock In {\em 7th Colloquium on Automata, Language, and Programming},
+  volume LNCS 85. Springer-Verlag, 1980.
+
+\bibitem{EH85}
+E.~A. Emerson and J.~Y. Halpern.
+\newblock Decision procedures and expressiveness in the temporal logic of
+  branching time.
+\newblock {\em Journal of Computer and System Sciences}, 30(1):1--24, Feb.
+  1985.
+
+\bibitem{EH86}
+E.~A. Emerson and J.~Y. Halpern.
+\newblock `sometimes' and `not never' revisited: On branching versus linear
+  time temporal logic.
+\newblock {\em Journal of ACM}, 33(1):151--178, Jan. 1986.
+
+\bibitem{EL87}
+E.~A. Emerson and C.-L. Lei.
+\newblock Modalities for model checking: Branching time logic strikes back.
+\newblock {\em Science of Computer Programming}, 8:275--306, 1987.
+
+\bibitem{GJ79}
+M.~R. Garey and D.~S. Johnson.
+\newblock {\em Computers and Intractability: A Guide to the Theory of
+  NP-Completeness}.
+\newblock W. H. Freeman \& Company, 1979.
+
+\bibitem{Immerman81}
+N.~Immerman.
+\newblock Number of quantifiers is better than number of tape cells.
+\newblock {\em Journal of Computer and System Sciences}, 22(3):65--72, 1981.
+
+\bibitem{Kirsten02}
+D.~Kirsten.
+\newblock Alternating tree automata and parity games.
+\newblock In E.~Gradel, W.~Thomas, and T.~Wilke, editors, {\em Automata,
+  Logics, and Infinite Games}, volume LNCS 2500, pages 3?V--21. Springer, 2002.
+
+\bibitem{Lamport80}
+L.~Lamport.
+\newblock Sometimes is sometimes ``not never''-on the temporal logic of
+  programs.
+\newblock In {\em 7th Annual ACM Symp. on Principles of Programming Languages},
+  pages 174--185, 1980.
+
+\bibitem{MMV10}
+F.~Mogavero, A.~Murano, and M.~Y. Vardi.
+\newblock Reasoning about strategies.
+\newblock In {\em IARCS Annual Conference on Foundations of Software Technology
+  and Theoretical Computer Science (FSTTCS 2010)}, volume~8 of {\em Leibniz
+  International Proceedings in Informatics (LIPIcs)}, pages 133--144. Schloss
+  Dagstuhl--Leibniz-Zentrum fuer Informatik, 2010.
+
+\bibitem{SC85}
+A.~Sistla and E.~Clarke.
+\newblock The complexity of propositional linear temporal logics.
+\newblock {\em JACM}, 32, 1985.
+
+\bibitem{Stockmeyer74}
+L.~J. Stockmeyer.
+\newblock {\em The complexity of decision problems in automata theory and
+  logic}.
+\newblock MIT, 1974.
+
+\bibitem{Zappe02}
+J.~Zappe.
+\newblock Modal $\mu$-calculus and alternating tree automata.
+\newblock In E.~Gradel, W.~Thomas, and T.~Wilke, editors, {\em Automata,
+  Logics, and Infinite Games}, volume LNCS 2500, pages 3?V--21. Springer, 2002.
+
+\end{thebibliography}

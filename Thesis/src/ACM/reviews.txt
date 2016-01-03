@@ -1,0 +1,168 @@
+From: palsberg@ucla.edu
+To: farn@cc.ee.ntu.edu.tw
+CC: podelski@informatik.uni-freiburg.de, aclestis@gmail.com
+Subject: TOPLAS-00005-2013 Decision
+Body: [ a copy of this message has been sent to the anonymous reviewers ] 
+
+Dear Prof. Farn Wang, 
+¡@¡@¡@¡@Based on the reviews and recommendation of Prof. Andreas Podelski, I ask that you prepare a major revision of your paper and submit it as a revision to the current manuscript. Please be advised that while this paper does have promise, due to TOPLAS' very high standards, there is no guarantee that a revised version of the paper will be accepted. If you have any questions on what is required, please correspond with Prof. Andreas Podelski and CC Ms. Aubrey Hooser aclestis@gmail.com, so we can include your correspondence in the paper trail. 
+¡@¡@¡@¡@
+¡@¡@¡@¡@Your revision consists of two parts: 1) the revised PDF that you will submit via the web site, and 2) a log of changes to your paper. Please read over the reviews carefully. In preparing the revision, please log the changes you have made to your paper by coping the reviewers' and associate editor's comments into the log. Under each comment, state how you have addressed whatever problems or concerns they point out. 
+¡@¡@¡@¡@
+¡@¡@¡@¡@Please try to provide your revision in three months or less so that the reviewers can still have your work in mind when they read the revision. 
+¡@¡@¡@¡@
+¡@¡@¡@¡@Best regards, 
+¡@¡@¡@¡@Jens Palsberg 
+¡@¡@¡@¡@Editor-in-Chief ACM TOPLAS 
+¡@¡@¡@¡@
+¡@¡@¡@¡@- - - - - - - - - - 
+¡@¡@¡@¡@
+¡@¡@¡@¡@From the Associate Editor Andreas Podelski: 
+¡@¡@¡@¡@
+¡@¡@¡@¡@Recommendation #1: Major Revision 
+¡@¡@¡@¡@
+¡@¡@¡@¡@Associate Editor 
+¡@¡@¡@¡@Comments for Author: 
+¡@¡@¡@¡@The reviewers appreciate the contribution of the work. However, they all agree that the paper is not ready for publication in its present form and that a major rewriting is required. The reviews indicate the problems that need to be resolved, examples of which are: 
+¡@¡@¡@¡@- explaining the relevance of the work in a way which is accessible for the wider Toplas audience 
+¡@¡@¡@¡@- stating crisply what is the most interesting contribution (e.g., in terms of the trade-off between the expressiveness of the logic and the complexity of model checking) 
+¡@¡@¡@¡@- the added value above the conference version 
+¡@¡@¡@¡@- more extensive comparison with other (new) logics 
+¡@¡@¡@¡@- improvement of the presentation 
+¡@¡@¡@¡@- spelling out of the proofs in a way that is expected of a journal version. 
+¡@¡@¡@¡@
+¡@¡@¡@¡@- - - - - - - - - - 
+¡@¡@¡@¡@
+¡@¡@¡@¡@From the reviewers: 
+¡@¡@¡@¡@
+Referee: 1 
+Comments to the Author 
+¡@¡@**General evaluation 
+¡@¡@
+¡@¡@The authors propose a logic that extends the composition of strategies 
+¡@¡@of ATL-ATL* following the idea - proposed in logics ATLsc and SL - to 
+¡@¡@compose strategies in case strategy quantifiers are nested in a 
+¡@¡@formula. They propose a syntax that extends ATL in two ways: on the 
+¡@¡@one hand they allow boolean combination of path formulas (this 
+¡@¡@provides the logic they call ATL+), on the other hand, they propose a 
+¡@¡@specific strategy quantifier that allows to compose strategies 
+¡@¡@together (providing the logic BSIL). 
+¡@¡@
+¡@¡@They give a quite complete comparison of BSIL expressive power with 
+¡@¡@respect to ATL*, GL, and AMC, which are all "incomparable" with BSIL 
+¡@¡@(meaning BSIL is not as much expressive as them and they are not as 
+¡@¡@much expressive as BSIL either). They prove the model-checking problem 
+¡@¡@is PSPACE-complete (and provide a model-checking algorithm) and the 
+¡@¡@satisfiability problem is 2EXPTIME. 
+¡@¡@
+¡@¡@According to me, the interest of BSIL does not rely on its expressive 
+¡@¡@power (ATLsc and SL are strictly more expressive) but on the trade-off 
+¡@¡@between expressive power and the complexity of the model-checking 
+¡@¡@problem. Moreover, I appreciate the effort to provide an alternative 
+¡@¡@model-checking algorithm that establishes the polynomial complexity 
+¡@¡@wrt the model and the pragmatic approach which consists in 
+¡@¡@implementing the algorithm and providing some benchmarks. 
+¡@¡@
+¡@¡@However, I think the contribution of this article is not fully in the 
+¡@¡@scope of TOPLAS (programming languages) and would better fit a journal 
+¡@¡@on logic / formal verification. 
+¡@¡@
+¡@¡@**Technical remarks 
+¡@¡@
+¡@¡@The proof of Lemma 4.2 (ATL* is not as much expressive as BSIL) is 
+¡@¡@useless since it can be deduced from Lemma 4.4 or from Lemma 4.6 (both 
+¡@¡@GL and AMC are more expressive than ATL* cf [Alur, Henzingern, 
+¡@¡@Kupferman JACM 2002]). 
+¡@¡@
+¡@¡@The paper only considers a turn-based game graphs semantics. It would 
+¡@¡@be interesting to have some insight about a more general semantics 
+¡@¡@based on Concurrent Game Structures. Do we expect the results on BSIL 
+¡@¡@expressive power to stand with such semantic structures? (I would say 
+¡@¡@they do.) To what extent the model-checking algorithm (and its 
+¡@¡@complexity) can be extended? 
+¡@¡@
+¡@¡@Clarification about <+> operator (without any agency in its scope). I 
+¡@¡@think the paper needs either to clarify the semantics of the "<+>" 
+¡@¡@operator ("no collaboration is needed" as explained informally in the 
+¡@¡@introduction) or to avoid its usage. Indeed, according to the 
+¡@¡@definition of the semantics of theta (there is a strategy Pi 
+¡@¡@s.t. for all plays rho compatible with Pi, rho |=_Pi theta) the fact 
+¡@¡@no collaboration is needed outside A seems to be already encoded by 
+¡@¡@"all plays rho compatible with Pi". So, <+> seems unnecessary, in the 
+¡@¡@sense that "<1><+> next p" seems to be equivalent to "<1> next p". In 
+¡@¡@case I am wrong, this aspect of the semantics semantics should at 
+¡@¡@least be clarified. 
+¡@¡@
+¡@¡@** Some typos: 
+¡@¡@- page 1 line "this falls short of the is far from" -> this is far from 
+¡@¡@- page 2 line 44: "establish" -> establishes 
+¡@¡@- page 2 line 48: "Such game can formalized" -> can be formalized 
+¡@¡@- page 4 line 40: "a simple example that" -> a simple example in which 
+¡@¡@- page 4 line 40: "is is" -> is 
+¡@¡@- page 6 line 37: "quantificaitons" -> quantifications 
+¡@¡@- page 8 line 41: "subformulas formulas" -> subformulas 
+¡@¡@- page 17 line 31: "simulation theorem []" -> missing reference 
+¡@¡@¡@¡@
+¡@¡@
+Referee: 2 
+Comments to the Author 
+¡@¡@¡@¡@In this work, the authors propose a new logic, BSIL, to model coalitional power in multagent systems. BSIL can be viewed from two perspectives. On one hand, it extends ATL with a finer grained strategy operator. More specifically, in ATL each group operator in a formula re-binds all the agents with new strategies, BSIL introduces a new operator which allows to selectively bind just some of them. This allows to express that an agent (or a group of agents) is forced to maintain a unique coherent strategy in different coalition formation processes; or, which is similar from a syntactical point of view, that an agent can see to a certain goal without preventing the other agents from achieving their own goals. 
+¡@¡@¡@¡@On the other hand, BSIL aims at reducing the expressivity of Strategy Logic in order to get a "reasonable" computational complexity. More specifically, BSIL does not allow to refer to strategies as first-class objects and freely bind them to agents. In other words, each strategy involved in a formula is immediately bound to an agent. Moreover, selective group operators can be existential ones only. This in particular means that we cannot express that no unilateral deviation from a given strategy profile is profitable, i.e. we cannot express Nash equilibrium or one of its variants (e.g. strong Nash equilibrium or perfect subgame equilibrium). 
+¡@¡@¡@¡@The paper focuses on turn-based-games and shows the following results: (i) BSIL is incomparable with ATL*, GL and alternating mu calculus; (ii) model checking is PSPACE-complete (in particular model complexity is P-complete); (iii) satisfiability is EXPTIME-complete; (iv) a concrete algorithm is provided for the model checking problem together with an automata based formulation of both the model checking and the satisfiability problem; (v) an experimental analysis of a first model-checking prototype. 
+¡@¡@¡@¡@General issues 
+¡@¡@¡@¡@According to me, the paper introduces a new extension of ATL which definitely deserve attention. Moreover, the analysis includes almost all relevant aspects: a comparison with other logics; a complexity analysis; a concrete algorithm with the relative experimental analysis. 
+¡@¡@¡@¡@Never the less, the overall impression is that the paper is not yet complete for a journal and the *delta* from its conference version is too small. 
+¡@¡@¡@¡@- First, even if turn-based games can be used in several applicative scenarios, this limitation makes me a bit disappointed (especially when the most of your "competitors" naturally refers to concurrent game structures). 
+¡@¡@¡@¡@- The paper needs to be better motivated. The introduction should give a general description of what someone earns with BSIL (w.r.t. ATL) and why this is important for applications. Examples should be extended and moved to another section where you describe some motivating scenarios. 
+¡@¡@¡@¡@- the paper lacks of a running example. For instance, the Bank example could be formalized and used as running example. 
+¡@¡@¡@¡@- the proofs of Lemma 5.1, 5.2, 5.3, 5.4 are only sketched. This can be allowed in a conference paper due to space limitations, but a journal version requires to properly describe the technical details (moreover, sometimes "it is straightforward to see that" may hide some errors). 
+¡@¡@¡@¡@- the model checking algorithm is a bit hard to follow. Perhaps, a top-down description would be easier to follow. 
+¡@¡@¡@¡@-also the experimental analysis is simply sketched. In particular, since the implementation is just a first prototype, experiments should reveal where the computation slows down and give some advice on possible optimizations. This requires to individuate all the aspects that can affect the computation (e.g. number of nodes, connectivity, nesting of modal operators) and design a testing session where these parameters vary one at a time. 
+¡@¡@- conclusions seem a telegraphic message 
+Minor issues 
+¡@¡@-pag1, row 26: I would say that the verification community is interested in game theory. 
+¡@¡@-pag 2, row 50: P ==> \mathcal{P} 
+¡@¡@-pag 3, row 34: what is M? 
+¡@¡@-pag 3, row 53: why you redefine /\ ? 
+¡@¡@-pag 4, fig 2: some parenthesis are missing in the formula 
+¡@¡@-pag 4, Lemma 4.2: the statement is informal 
+¡@¡@-pag 11, row 18: I do not understand this statement very well. In particular, is it sufficient \omega(q)\in Def(\Lambda)\cap Def(\Lambda¡¦)? It seems that \Lambda(\omega(q))= \Lambda¡¦(\omega(q)) is required too. 
+¡@¡@-pag 11, row 18: \psi? 
+¡@¡@-pag 12, row 30: V->G, do you mean V ->Q? 
+¡@¡@-pag 12, row 34: C=\beta(r) 
+¡@¡@- pag 13, row 13: indicate in Suc_set the statements which assure C¡¦\subseteq C 
+¡@¡@-pag 15, row 14: if and only if ==> if? 
+¡@¡@-pag 15, row 20: \Xi? 
+¡@¡@-pag 15, row 52: triple ==> quadruple 
+¡@¡@- pag 17, row 31:[] 
+¡@¡@
+¡@¡@
+¡@¡@Referee: 3 
+¡@¡@Comments to the Author 
+¡@¡@This work introduces and studies a new logic for the strategic reasoning, named strategy-interaction logic (BSIL, for short). The aim of this logic is to have a powerful formalism to specifiy interesting system properties that cannot be expressed with classical logics such as ATL*, GL, and AMC, while maintaining a model-checking problem complexity low. 
+¡@¡@Specifically, BSIL extends the well known logic ATL (restricted to the turned-based setting) with the ability for agents to express cooperation on achieving a determinate target. This is done by adding to a logic ATL based a new modal operator, called strategy interaction quantifier (SIQ), that allows specifying in a formula new agents that can collaborate with previous acting ones. BSIL, also uses the classical ATL agents' strategy quantifiers (SQ) and SIQ operators can only appear in a scope of a SQ (i.e., inside a path subformula where other agents have been already named). As further limitations, SIQ operators cannot cross path modal operators and both SQ and SIQ operators are only used in the existential version. 
+¡@¡@It turns out that BSIL is more expressive than ATL+ (which extends ATL to have Boolean connectives following path quantifiers) , but incomparable with the logics ATL*, GL, and AMC. On the other hand, BSIL is included in recent investigated logic for strategic reasoning such as those proposed by Costa, Laroussinie, Markey [4], Chatterjee, Henzinger, Piterman [3], Mogavero, Murano, and Vardi [9] (the references are those from the paper). 
+¡@¡@Regarding the decision problems for BSIL, it has been showed that the model model-checking can be performed in polynomial space, while the satisfiability is 2EXPTIME-complete. All the results seem correct to me although not surprisingly. 
+¡@¡@
+¡@¡@I think that the logic is interesting and the work presents several new results in a very attracting area of research, but, in my personal opinion, I do not think that it is enough (at least in the current shape for the paper) for a good journal as TOPLAS. 
+¡@¡@First recall that BSIL can be easily rewritten in terms of the strategy logics presented in [3],[4], and [5], and the the good complexity results for BSIL mainly come from the restriction imposed to the SQ and SIQ operators. Therefore, an investigation of those logics under the same restriction would lead to the same complexity as well, while maintaining a stronger specification language. I think that, before introducing a new logic, the authors should give an evidence that the former ones are not good for the purpose of this work. In particular, recent works at CONCUR 2012 and LICS 2013 have introduced interesting fragments of the logic named Strategy Logic that may get the same results of this paper with simply adaptations of the logic and the relative algorithms. 
+¡@¡@
+¡@¡@Other comments regard the overall shape of the paper. I would have seen a broader introduction and conclusion with several connections with the work recently done in this matter. First, the authors could mention and compare another well known framework for the turned-based game setting, which is module checking, and discuss whether any positive aspect of the proposed logic can be extended to module checking as well. Overall module checking is a simplified version of turned-base ATL and has been investigated in several extensions. Then, the authors should take into account recent works done by Laroussinie and Markey regarding Strategy Logic in the turned-based setting. The authors may also give a look at a paper in this matter that is going to appear at GandALF 2013. Another part that is missing is a comparison with Strategy Logic, not only in terms of the complexity of the related decision problems, but also in terms of positive and negative properties they share/not share. Regarding the experiment section, which is an important contribution of this work, it is definitively too short. Several details are missing here. Also, it would be worth discussing why the authors considered to extend REDLIB instead of a multi-agent model checker one. Finally, I would have seen some more additional and realistic (system verification) examples, as well as some additional intuitions about the proofs along the paper. 
+¡@¡@¡@¡@ 
+¡@¡@¡@¡@
+¡@¡@¡@¡@Date Sent:
+¡@¡@¡@¡@ 
+¡@¡@¡@¡@23-Aug-2013
+¡@¡@¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@
+¡@¡@

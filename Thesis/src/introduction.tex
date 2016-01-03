@@ -154,5 +154,246 @@ that can be achieved of the system.
 The evaluation is constructive:  
 it provides a control strategy  
 for the protagonist, which can be used to control a system 
-to meet this predefined resilience level.  
+to meet this predefined resilience level.
+
+In the second part of this thesis, I try to push the game strategy concept further.
+The idea is to create a temporal logic which include strategy quantifier in the syntax.
+At the moment, there are various logic that express such properties of strategic power of agents,
+including {\em ATL} ({\em alternating-time logic}), 
+{\em ATL}$^*$, {\em AMC} ({\em alternating $\mu$-calculus}),
+{\em GL} ({\em game logic}) \cite{AHK02}, 
+and {\em SL} ({\em strategy logics}) \cite{CLM10,CHP10,MMV10}, 
+for the specification of open systems.  
+Each language also comes with a verification algorithm that helps to decide whether or not a winning strategy for the system exists.
+There is, however, a gap between the industrial need for efficient algorithms (and solvers) and the available technology offered from previous research.
+Frankly speaking, none of those languages represents a proper combination of expressiveness for close interaction among agent strategies and efficiency for specification verification.  
+ATL, ATL$^*$, AMC, and GL \cite{AHK02} allow us to specify that some players together have a strategy to satisfy some fully temporalised objective: strategy quantifiers mark the start of a state formula.
+As exemplified below, this is far from\label{reply1.falls.short.far.from} what the industry needs in specification.  
+
+
+Consider the example of a bank that need specify their information system 
+embodied as a system security strategy and 
+allowing a client to use a strategy to withdraw money, 
+to use a strategy to deposit money, and to use a strategy to query for balance.  
+Moreover, the same system strategy should forbid any illegal 
+operation on the banking system.  
+Specifically, the same system strategy must accommodate all strategies 
+of the client for `good behavior' 
+(i.e, behavior in line with the specification), 
+while blocking all strategies of the client that refer to undesired behavior, 
+and thus preventing the client from damaging the system.
+We will show that 
+{\em ATL} %({\em alternating-time logic}),
+{\em ATL}$^*$, %{\em AMC} ({\em alternating $\mu$-calculus}),
+and 
+{\em GL} %({\em game logic})
+\cite{AHK02}  
+do not support such specifications.  
+For example, it is not possible to specify in those languages that 
+the system strategies used both in a withdrawal transaction and 
+in a deposit transaction must be the same.  
+Consequently, verification techniques for specifications in those languages 
+cannot capture such real-world objectives for open systems.  
+
+\label{reply2.motive1} 
+To solve the expressiveness problem in the above example, 
+strategy logics were proposed in \cite{CLM10,CHP10,MMV10} that 
+allow for the flexible quantification of high-order 
+strategy variables in logic formulas.  
+However, their verification complexities are prohibitively high 
+and hinder them from practical application.  
+In retrospect, the strategy profiles in such strategy logics 
+can be combined in unrestricted ways.  
+For example, in \cite{MMV10}, we can 
+write down the following artificial and hypothetical property.  
+\begin{center} 
+$\ldabrac X\rdabrac \ldbrac Y\rdbrac\ldabrac Z\rdabrac 
+\square ((((1,X)\diamond p) \wedge \bigcirc (2,Y) \diamond q)\rightarrow
+(((2,Z)\diamond q)\wedge\neg(3,Z)\square q))$
+\end{center} 
+Here $\ldabrac X\rdabrac$ and $\ldabrac Z\rdabrac$ declare the 
+existence of strategies named $X$ and $Y$ respectively.  
+$\ldbrac Y\rdbrac$ is a universal quantification on a strategy named $Y$.  
+Then operator $(1,X)$, $(2,Y)$, $(2,Z)$, and $(3,Z)$ 
+respectively bind strategy $X, Y, Z$, and $Z$ to agents $1, 2, 2$, and $3$.  
+As can be seen, the language is very free in style.  
+According to the experiences in temporal logic development, 
+usually proper restrictions in the modal operations can lead to 
+a spectrum of sub-logics with different expressiveness and model-checking efficiency.  
+The following are two examples: 
+\begin{itemize} 
+\item The validity problem of $\cal L$ (the first-order langauge of 
+  unary predicate symbols and the binary predicate symbol $\leq$) 
+  is non-elementary \cite{Stockmeyer74} while 
+  PTL, with the same expressiveness as $\cal L$, is only PSPACE-complete \cite{SC85}.  
+\item Between CTL \cite{CES86} and CTL* \cite{EH85,EH86}, there are many subclasses of CTL* with various balances 
+  between expressiveness and verification efficiency.  
+  Fair CTL \cite{EL87}, as a natural class between CTL and CTL*, 
+  is expressive enough for many practical specifications and 
+  still enjoys a polynomial time model-checking complexity.  
+  There are also other subclasses of CTL* with various balance considerations \cite{BPM83,EC80,EH86,Lamport80}.  
+\end{itemize} 
+As can be seen, subclasses of temporal logics with proper balance between 
+expressiveness and verification efficiency are not only theoretically interesting and 
+can also be practically useful.  
+Indeed, most specifications in real-world projects come 
+in simple structures, for example, safety, liveness, etc. 
+Thus it would be interesting to see what ``natural" subclasses of strategy logics 
+can be identified with a proper balance between expressiveness and model-checking efficiency.  
+Moreover, it would be practical and appealing if the subclass 
+can be characterized with elegant syntax.  
+Indeed it is the purpose of this manuscript to propose new natural modal operators 
+for strategy collaborations and extend ATL for a subclass of strategy logic.  
+\label{reply2.motive2}
+
+In the following, we use the classical prisoner's dilemma to explain how we can 
+design new modal operators for structured strategy collaboration to 
+achieve a balance between expressiveness and model-checking efficiency.
+
+{\example1 \label{exmp.pd} 
+\underline{\bf Prisoner's dilemma}} 
+Suppose the police is interrogating 
+three suspects (prisoners).  
+The police has very little evidence.  
+A prisoner may cooperate (with his/her peers) and deny all charges made by the police. 
+If all deny, they are all acquitted of all charges.  
+However, each prisoner may choose to betray his/her peers
+and provide the police with evidence.
+If more than one prisoner choose to betray their peers, all will be sentenced and stay in jail.
+If only one chooses to betray, then the other prisoners will stay in jail, while (s)he will be a `dirty witness' and all charges against him/her will be dropped.
+
+We may want to specify that the three prisoners can cooperate with each other (by denying all charges), and will not be in jail.  
+Let $j_a$ be the proposition for prisoner $a$ in jail.  
+This can be expressed in Alur, Henzinger, and Kupferman's 
+ATL$^*$,  
+GL, or AMC \cite{AHK02}, respectively, as follows.\footnote{Note 
+that the three example formulas are not equivalent.}  
+\begin{center} 
+\begin{tabular}{lll} 
+ATL$^*$: 
+& &  $\langle 1,2,3\rangle\bigwedge_{a\in[1,3]}\pevt \neg j_a$ \\
+GL: 
+& & $\existsb\{1,2,3\}.\bigwedge_{a\in[1,3]}\forall\pevt\neg j_a$ \\
+AMC: 
+& & $\emlfp x.\langle 1,2,3\rangle \nxt 
+\bigwedge_{a\in[1,3]}(x\vee \neg j_a)$
+\end{tabular} 
+\end{center} 
+Here ``$\langle 1,2,3\rangle$" and 
+``$\existsb\{1,2,3\}$" are both existential 
+quantifiers on the collaborative strategy among prisoners $1,2$, and $3$.  
+Such a quantifier is called a {\em strategy quantifier} ({\em SQ}) 
+for convenience.  
+Operator `$\emlfp$' is the least fixpoint operator.  
+Even though we can specify strategies employed by sets of prisoners and 
+there is a natural relationship (containment) between sets with such logics, 
+there is no way to relate strategies to each other.  
+For example, if prisoners 1 and 2 are really loyal to prisoner 3, 
+they can both deny the charges,  
+make sure that prisoner 3 will not be in jail, and let prisoner 3 
+to decide whether they will be in jail. 
+\qed 
+
+The research of strategies for related properties has a long tradition in game theory.  
+It is easy to 
+see the similarity and link between the specification problems for the prisoner's dilemma and the banking system. 
+This observation suggests that finding a language with an appropriate and natural 
+balance between the expressive power and the verification complexity of a specification language is a central challenge.
+% yet to be overcome. 
+
+To meet this challenge, we propose an extension of ATL,
+called {\em BSIL} ({\em basic strategy-interaction logic}).
+In a first step, we extend ATL to ATL$^+$, where ATL$^+$ is the natural extension obtained by allowing for Boolean connectives of path quantifiers.
+(Cf.~\cite{BPM83,EC80} for the similar extension of CTL to CTL$^+$.)
+We then introduce a new modal operator 
+called {\em strategy interaction quantifier} ({\em SIQ}). 
+In the following, we use several examples in the prisoner's dilemma 
+to explain BSIL, starting with the following specification for the property discussed at the end of Example~\ref{exmp.pd}. 
+\begin{center} 
+\hfill $\langle 1,2\rangle((\langle+\rangle\pevt\neg j_3)\wedge 
+	(\langle +3\rangle \pevt\neg (j_1\vee j_2))
+	\wedge \langle+3\rangle \pfrr (j_1\wedge j_2))
+$\hfill (A) 
+\end{center} 
+Here ``$\langle+3\rangle$'' is an existential SIQ that reasons over 
+strategies of Prisoner 3 for collaborating with the strategies  
+of Prisoners 1 and 2 introduced by the parent SQ ``$\langle 1,2\rangle$''. 
+Similarly, ``$\langle+\rangle$'' means that 
+no collaboration of any prisoner is needed. 
+(For conciseness, we omit ``$\langle+\rangle$'' in the following.)  \label{reply1.null.siq1} 
+We also call an SIQ an SQ.  
+In BSIL formulas, we specifically require that no SIQ can appear 
+as a topmost SQ in a path subformula.  
+
+As can be seen, SIQ imposes a hierarchical style of strategy collaboration 
+which seems natural for practical specification.  
+Consider another example.  
+If Prisoner 1 really hates the others, 
+(s)he can always betray other prisoners,  
+making sure that Prisoners 2 and 3 will be in jail, and let them 
+decide whether (s)he will be in jail, too.  
+This property can be expressed in BSIL as follows. 
+\begin{center} 
+\hfill 
+$\langle 1\rangle((\pfrr (j_2\wedge j_3))\wedge 
+	(\langle +2,3\rangle \pevt\neg j_1)
+	\wedge \langle+2,3\rangle \pfrr j_1)
+$
+\hfill (B) 
+\end{center} 
+
+\label{reply2.motive3} 
+One restriction of BSIL is that no negation between an SIQ and its parent SIQ or SQ is allowed. 
+This restriction then also forbids universal SIQ.  
+While at first glance, it seems less than elegant in mathematics, 
+it is both necessary for verification complexity and 
+compatible with practical specification styles.  
+When we take a closer look, in fact, there is an implicit universal SIQ 
+at the end of every maximal syntax path from an SQ to its descendant SIQ.  
+Thus, BSIL allows for the specification of the ways in combining system strategy profiles that 
+can be computed statically to enforce the system policy against 
+any hostile strategy profile of those agents not participating in the the system strategy 
+profiles.  
+If we explicitly allow for universal SIQs in BSIL, 
+then the strategy profiles associated with existential SIQs in the scope of a universal SIQs 
+may have to be computed dynamically.  
+Thus the explicit universal SIQs will not only necessarily blow up the verification complexity, 
+but also contradict the main-stream of game theory for statically calculable strategies.  
+In contrast, some strategy logics \cite{MMV10} 
+allow for the specification of strategy profiles that are not statically calculable.  
+
+In this work, 
+we establish that BSIL is incomparable with ATL$^*$, GL, and AMC 
+in expressiveness.  
+Although the strategy logics \cite{CHP10,CLM10,MMV10} are superclasses to BSIL  
+with their flexible quantification of 
+strategies and binding to strategy variables, 
+their model-checking\footnote{A 
+model-checking problem is to check whether a given model 
+(game graphs in this work) satisfies a logic formulas 
+(in ATL and its extensions in this work).}  
+complexity are all doubly exponential time hard.  
+In contrast, BSIL enjoys a PSPACE-complete model-checking complexity for 
+turn-based and concurrent game graphs.  
+This may imply that BSIL could be a better balance between 
+expressiveness and verification efficiency 
+than ATL$^*$, GL, AMC \cite{AHK02}, and SL \cite{CHP10,MMV10}.
+Further related work is the stochastic game logic (SGL) by Baier, Br\'azdil,
+Gr\"o{\ss}er, and Kucera \cite{BBGK07}, which allows for expressing strategy interaction.
+However, for memoryful strategies, the model-checking problem of SGL is undecidable. 
+
+
+We also establish some other properties of BSIL. 
+We show that the strategies  
+for BSIL properties against turn-based games need to be memoryful. 
+We prove that the BSIL model-checking problem is PSPACE-complete.  
+However, the PSPACE model-checking algorithm need enumerate the 
+labelings on computation trees and may suffer from high time complexity.  
+We thus also present an alternative model-checking algorithm 
+with time complexity quadratic in the size of a game graph and 
+exponential only in the size of a BSIL specification. 
+We also establish that the BSIL realisability problem is complete for
+doubly exponential time.  
+
+
 

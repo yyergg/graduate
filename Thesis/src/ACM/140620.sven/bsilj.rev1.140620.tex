@@ -1,376 +1,857 @@
-\chapter{Basic Strategy-interaction Logic}
-\label{c:bsil}
 
-\section{Existed Logics about Game and Strategy}
-\subsection{Prior to Strategy Logics}
-Kupferman, Vardi, and Wolper proposed 
-Module checking, a famous framework for checking 
-whether open systems can satisfy temporal logic properties \cite{KVW01}.  
-\label{reply3.module.checking}   
-In the framework, the open systems are modeled as a 2-agent 
-turn-based games, one agent is the system and the other is the environment. 
-The specification properties can be in CTL, CTL*, and LTL.  
-Since there are only two agents, non-trivial strategy collaboration 
-does not exist and the techniques in our model-checking algorithms
-cannot contribute to the improvement of their algorithms. 
+%%%% Uncomment the first group of lines for llncs formatting
+%%%% Uncomment the second group of lines for non-llncs formatting
 
-Alur, Henzinger, and Kupferman 
-presented ATL (alternating-time temporal logic), 
-ATL$^*$, AMC (alternating-time $\mu$-calculus), and GL (game logic)
-with strategy quantifier $\ldabrac M\rdabrac$ \cite{AHK02}.  
- 
-Brihaye, Lopes, Laroussinie, and Markey introduced a very expressive 
-extension to ATL$^*$ \label{reply3.laroussinie}
-with other players' stratregies and memory constraints \cite{BLLM09}.  
-They also showed that the model-checking problem of this extension is 
-decidable. 
+% not sim(s1,s2,e1) iff
+% either there is a delta <= C
+%     exec(s1,e1,delta) and not ||{e2} exec(s2, e2,delta)j=
+% or there is a delta > C
+%
+%
 
-Pinchinat introduced a way to specify expressive constraints on strategies 
-in concurrent games by extending $\mu$-calculus with decision modalities 
-\cite{Pinchinat07}. 
-Laroussinie and Markey reported decidability of satisfiability problems 
-in this direction with new context constraints, \label{reply3.gandalf13} 
-e.g., the number of moves by agents are bound \cite{LM13}. 
-\subsection{With Strategy Logics}
-Chatterjee, Henzinger, and Piterman introduced a strategy logic allowing for 
-first-order quantification over strategies \cite{CHP10}.  
-The decision procedure is however non-elementary.  
-
-Mogavero, Murano, Perelli, Sauro, Vardi et al also identified fragments of 
-strategy logics with 
-enjoys a doubly exponential time complexity model-checking algorithm 
-\cite{MMV10,MMPV12,MMS13}.  \label{reply3.2recent} 
-For example, in \cite{MMS13}, conjunction 
-and disjunction cannot happen in the same scope of 
-strategy quantification.  
-BSIL is also a fragment of strategy logic with restriction 
-on the hierarchy of SIQs and sometimes can be handy in expressing 
-Boolean relation among strategies.  
-Moreover, the restriction on BSIL results in a much lower model-checking complexity of PSPACE.
+% \documentclass[10pt, twocolumn]{article}
+\documentclass[11pt]{article}
+% \documentclass[10pt, conference, compsocconf]{IEEEtran}
+% \newcommand{\usellncs}[2]{{#1}}
+% \documentclass[11pt]{llncs}
 
 
-\section{Running Example}
-We use the banking example in the introduction to explain 
-the idea of this work. 
-Suppose that a bank want to provide the following services. 
+\usepackage[T1]{fontenc}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{complexity}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{slashbox}
+\usepackage{tabularx}
+
+% \newdef{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+% \newtheorem{lemma}{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{example}[theorem]{Example}
+\newtheorem{definition}{Definition}
+% \newdef{definition}{Definition}
+\newtheorem{example}{Example}
+% \newenvironment{proof}{\noindent\par{\bf Proof: }}{\nopagebreak\rule{1 ex}{0.8 em}\medskip}
+\addtolength{\textheight}{1.0in}
+\addtolength{\textwidth}{2.0in}
+\addtolength{\topmargin}{-0.5in}
+\addtolength{\evensidemargin}{-1in}
+\addtolength{\oddsidemargin}{-1in}
+% \setlength\parindent{0in}
+% \setlength\parskip{0in}
+
+
+
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{psfig}
+\usepackage{epsfig}
+\usepackage{color}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The following definitions are to extend the LaTex algorithmic 
+%% package with SWITCH statements and one-line structures.  
+%% The extension is by 
+%%   Prof. Farn Wang 
+%%   Dept. of Electrical Engineering, 
+%%   National Taiwan University. 
+%% 
+\newcommand{\IFNLINE}[1]{\STATE {\bf if} #1 {\bf then} }
+\newcommand{\IFLINE}[1]{{\bf if} #1 {\bf then} }
+\newcommand{\ELSELINE}{\textbf{else} }
+\newcommand{\ELSNLINE}{\STATE \textbf{else} }
+\newcommand{\ENDIFLINE}{\textbf{end if}}
+\newcommand{\ENDIFNLINE}{\STATE \textbf{end if}}
+\newcommand{\ELSIFLINE}[1]{\textbf{else if} #1 {\bf then}}
+\newcommand{\ELSIFNLINE}[1]{\STATE \textbf{else if} #1 {\bf then}}
+\newcommand{\FORNLINE}[1]{\STATE {\bf for} #1 {\bf do} }
+\newcommand{\FORLINE}[1]{{\bf for} #1 {\bf do} }
+\newcommand{\ENDFORLINE}{\textbf{end for}}
+\newcommand{\ENDFORNLINE}{\STATE \textbf{end for}}
+\newcommand{\WHILELINE}[1]{\STATE {\bf while} #1 {\bf do} }
+\newcommand{\ENDWHILELINE}{\textbf{end while}}
+\newcommand{\RETLINE}{\textbf{return} }
+
+\newcommand{\SWITCH}[1]{\STATE \textbf{switch} (#1)} 
+\newcommand{\ENDSWITCH}{\STATE \textbf{end switch}} 
+\newcommand{\CASE}[1]{\STATE \textbf{case} #1\textbf{:} \begin{ALC@g}} 
+\newcommand{\ENDCASE}{\end{ALC@g}} 
+\newcommand{\CASELINE}[1]{\STATE \textbf{case} #1\textbf{:} } 
+\newcommand{\DEFAULT}{\STATE \textbf{default:} \begin{ALC@g}} 
+\newcommand{\ENDDEFAULT}{\end{ALC@g}} 
+\newcommand{\DEFAULTLINE}[1]{\STATE \textbf{default:} } 
+%% 
+%% End of the LaTex algorithmic package extension. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \newcommand{\procbegin}{\vspace*{3mm}\hrule\vspace{2mm}\noindent}
+\newcommand{\procbegin}{\vspace*{3mm}\hrule\noindent}
+% \newcommand{\procend}{\vspace*{2mm}\hrule\vspace{3mm}}
+\newcommand{\procend}{\vspace*{1mm}\hrule\vspace{3mm}}
+
+
+\renewcommand{\topfraction}{1.00}
+\renewcommand{\dbltopfraction}{1.00}
+
+\newcommand{\emsimpn}{\mbox{\tt simPN}}
+\newcommand{\empnf}{\mbox{\tt PNF}}
+\newcommand{\emsint}{\textit{SInt}}
+\newcommand{\ttsynsuc}{\textit{sucSet}}
+\newcommand{\constr}{\textit{Cons}}
+
+\newcommand{\ttchksil}{\mbox{\tt checkBSIL}}
+\newcommand{\ttsyntree}{\mbox{\tt checkTree}}
+\newcommand{\ttrecsyn}{\mbox{\tt recTree}}
+\newcommand{\ttsynset}{\mbox{\tt checkSetOfBSIL}}
+\newcommand{\tteval}{\mbox{\tt eval}}
+\newcommand{\ttnxt}{\mbox{\tt next}}
+\newcommand{\emltl}{\textit{LTL}}
+\newcommand{\empob}{\textit{U}}
+\newcommand{\ttsynltl}{\mbox{\tt Syn\_LTL}}
+\newcommand{\ttdfssyn}{\mbox{\tt DFS\_syn}}
+\newcommand{\emsuc}{\textit{suc}}
+\newcommand{\embnd}{\textit{bnd}}
+\newcommand{\eminh}{\textit{inh}}
+\newcommand{\emseq}{\textit{seq}}
+\newcommand{\emset}{\textit{set}}
+\newcommand{\emopp}{\textit{opp}}
+\newcommand{\emclos}{\textit{Cl}}
+\newcommand{\embf}{\textit{bf}}
+\newcommand{\emdef}{\textit{def}}
+\newcommand{\emnewv}{\textit{newVar}}
+\newcommand{\ttset}{\mbox{\tt set}}
+\newcommand{\ttnext}{\mbox{\tt next}}
+\newcommand{\rg}{\mbox{\em RG}}
+\newcommand{\calI}{{\cal I}}
+\newcommand{\tctl}{\mbox{TCTL}}
+\newcommand{\tctlf}{\mbox{TECTL$^{f}$}}
+\newcommand{\etctl}{\mbox{TECTL}}
+\newcommand{\emproj}{\textit{proj}}
+\newcommand{\emdqnf}{\textit{dqnf}}
+\newcommand{\emewk}{\textit{break}}
+\newcommand{\existsb}{\mbox{$\exists\!\!\exists$}}
+\newcommand{\emconna}{\textit{conn}_\forall}
+\newcommand{\emconne}{\textit{conn}_\exists}
+\newcommand{\emstr}{\textit{str}}
+\newcommand{\emstp}{\textit{SP}}
+\newcommand{\emetctl}{\mbox{\em TECTL}}
+\newcommand{\emtctl}{\mbox{\em TCTL}}
+\newcommand{\embros}{\textit{BrObs}_\forall}
+\newcommand{\emxagree}{\mbox{\em xtion\_agree}}
+\newcommand{\emsvalues}{\mbox{\em \scriptsize values}}
+\newcommand{\emtvalues}{\mbox{\em \tiny values}}
+\newcommand{\emsevents}{\mbox{\em \scriptsize events}}
+\newcommand{\emstime}{\mbox{\em \scriptsize time}}
+\newcommand{\emtevents}{\mbox{\em \tiny events}}
+\newcommand{\emprecond}{\mbox{\em precond}}
+
+\newcommand{\emscsynx}{\textit{\scriptsize SynNext}}
+\newcommand{\emsynx}{\textit{SynNext}}
+\newcommand{\emewkn}{\textit{WNext}^\exists}
+
+\newcommand{\tttbck}{\mbox{\tt Tbck}}
+\newcommand{\ttxbck}{\mbox{\tt Xbck}}
+\newcommand{\ttsetzero}{\mbox{\tt reset}}
+\newcommand{\ttreplace}{\mbox{\tt replace}}
+\newcommand{\ldbrac}{[\![}
+\newcommand{\rdbrac}{]\!]}
+\newcommand{\ldabrac}{\langle\!\langle}
+\newcommand{\rdabrac}{\rangle\!\rangle}
+\newcommand{\emgfp}{\mbox{\bf gfp}}
+\newcommand{\emlfp}{\mbox{\bf lfp}}
+\newcommand{\emsim}{\mbox{\em sim}}
+\newcommand{\emnls}{\textit{NLSet}}
+\newcommand{\emnl}{\textit{NL}}
+\newcommand{\emlast}{\textit{last}}
+\newcommand{\emforced}{\mbox{\em forced}}
+\newcommand{\emplay}{\mbox{\em play}}
+\newcommand{\emplayi}{\mbox{\em play}_{(e,f)}}
+\newcommand{\emplayei}{\mbox{\em play}_{f}}
+\newcommand{\emplayii}{\mbox{\em play}_{(e,g)}}
+\newcommand{\emplayeii}{\mbox{\em play}_{g}}
+\newcommand{\emmatchi}{\mbox{\em match}_{(e,f)}}
+\newcommand{\emmatchei}{\mbox{\em match}_{f}}
+\newcommand{\emmatchii}{\mbox{\em match}_{(e,g)}}
+\newcommand{\emmatcheii}{\mbox{\em match}_{g}}
+\newcommand{\emevti}{\mbox{\em not\_bisim}_{(e,f)}}
+\newcommand{\emevtii}{\mbox{\em not\_bisim}_{(e,g)}}
+\newcommand{\emsrc}{\mbox{\em src}}
+\newcommand{\emdst}{\mbox{\em dst}}
+\newcommand{\ttplayi}{\mbox{\tt Play}_{(e,f)}}
+\newcommand{\ttplayei}{\mbox{\tt Play}_{f}}
+\newcommand{\ttplayii}{\mbox{\tt Play}_{(e,g)}}
+\newcommand{\ttplayeii}{\mbox{\tt Play}_{g}}
+\newcommand{\ttnzplayi}{\mbox{\tt NZ\_Play}_{(e,f)}}
+\newcommand{\ttnzplayii}{\mbox{\tt NZ\_Play}_{(e,g)}}
+\newcommand{\ttmatchi}{\mbox{\tt Match}_{(e,f)}}
+\newcommand{\ttmatchei}{\mbox{\tt Match}_{f}}
+\newcommand{\ttmatchii}{\mbox{\tt Match}_{(e,g)}}
+\newcommand{\ttmatcheii}{\mbox{\tt Match}_{g}}
+\newcommand{\ttevti}{\mbox{\tt Not\_sim}_{(e,f)}}
+\newcommand{\ttevtei}{\mbox{\tt Not\_sim}_{f}}
+\newcommand{\ttevtii}{\mbox{\tt Not\_sim}_{(e,g)}}
+\newcommand{\ttevteii}{\mbox{\tt Not\_sim}_{g}}
+\newcommand{\ttnzevti}{\mbox{\tt Not\_nZsim}_{(e,f)}}
+\newcommand{\ttnzevtii}{\mbox{\tt Not\_nZsim}_{(e,g)}}
+\newcommand{\emnzevti}{\mbox{\em Not\_nZsim}_{(e,f)}}
+\newcommand{\emnzevtii}{\mbox{\em Not\_nZsim}_{(e,g)}}
+\newcommand{\emuplay}{\mbox{\em uplay}_{e1}}
+\newcommand{\emomatch}{\mbox{\em omatch}_{e_1}}
+\newcommand{\emuevt}{\mbox{\em under\_not\_sim}_{e_1}}
+\newcommand{\ttuplay}{\mbox{\tt UPlay}_{e_1}}
+\newcommand{\ttomatch}{\mbox{\tt OMatch}_{e_1}}
+\newcommand{\ttuevt}{\mbox{\tt UNot\_sim}_{e_1}}
+\newcommand{\bfsone}{\mbox{\bf S1} }
+\newcommand{\bfstwo}{\mbox{\bf S2} }
+\newcommand{\empmtch}{\mbox{\em pre-match}}
+\newcommand{\empmtchi}{\mbox{\em pre-match}_{\calmdl}}
+\newcommand{\empmtchii}{\mbox{\em pre-match}_{\calspc}}
+\newcommand{\empath}{\mbox{\em path}}
+\newcommand{\emspms}{{\mbox{\em SP}^\calmdl_\calspc}}
+\newcommand{\emepms}{{\mbox{\em EP}^\calmdl_\calspc}}
+\newcommand{\emsepms}{{\mbox{\scriptsize \em EP}^\calmdl_\calspc}}
+\newcommand{\emufms}{{\mbox{\em UF}^\calmdl_\calspc}}
+\newcommand{\emzp}{\mbox{\em ZP}}
+\newcommand{\emnz}{\mbox{\em NZ}}
+\newcommand{\emmtime}{\mbox{\em minT}_{e_1}}
+\newcommand{\emmmt}{\mbox{\em maxminT}_{e_1}}
+\newcommand{\ttpath}{\mbox{\tt path}}
+
+\newcommand{\emclks}{\mbox{\em clks}}
+\newcommand{\emprps}{\mbox{\em props}}
+\newcommand{\emevts}{\mbox{\em evts}}
+\newcommand{\emplbl}{\mbox{\em prop}}
+\newcommand{\emmods}{\mbox{\em modes}}
+\newcommand{\emini}{\mbox{\em init}}
+\newcommand{\eminv}{\mbox{\em inv}}
+\newcommand{\emxtns}{\mbox{\em xtions}}
+\newcommand{\emxtp}{\mbox{\em src\_dst}}
+\newcommand{\emelbl}{\mbox{\em event}}
+\newcommand{\emtrg}{\mbox{\em trigger}}
+\newcommand{\emass}{\mbox{\em reset}}
+\newcommand{\cala}{{\cal A}}
+\newcommand{\calb}{{\cal B}}
+\newcommand{\calc}{{\cal C}}
+\newcommand{\cald}{{\cal D}}
+\newcommand{\cale}{{\cal E}}
+\newcommand{\calg}{{\cal G}}
+\newcommand{\cali}{{\cal I}}
+\newcommand{\calp}{{\cal P}}
+\newcommand{\calq}{{\cal Q}}
+\newcommand{\calr}{{\cal R}}
+\newcommand{\calsp}{{\cal SP}}
+\newcommand{\calv}{{\cal V}}
+\newcommand{\caln}{{\cal N}}
+\newcommand{\calw}{{\cal W}}
+\newcommand{\calab}{{\cal A\times B}}
+\newcommand{\calenv}{{\cal E}}
+\newcommand{\calmdl}{{\cal M}}
+\newcommand{\cals}{{\cal S}}
+\newcommand{\calspc}{{\cal S}}
+\newcommand{\calsys}{{\cal S}}
+\newcommand{\calflu}{{\cal F}}
+\newcommand{\calemdl}{{\calenv\times\calmdl}}
+\newcommand{\calespc}{{\calenv\times\calspc}}
+\newcommand{\scalenv}{{\scriptsize \cal E}}
+\newcommand{\scalmdl}{{\scriptsize \cal M}}
+\newcommand{\scalspc}{{\scriptsize \cal S}}
+
+\newcommand{\nzf}{\mbox{\em NZF}}
+\newcommand{\pevtf}{\stackrel{\infty}{\Diamond}}
+\newcommand{\pfrrf}{\stackrel{\infty}{\Box}}
+\newcommand{\true}{\mbox{\em true}}
+\newcommand{\false}{\mbox{\em false}}
+\newcommand{\strue}{{\mbox{\scriptsize \em true}}}
+\newcommand{\sfalse}{{\mbox{\scriptsize \em false}}}
+\newcommand{\ttrbck}{\mbox{\tt Rbck}}
+\newcommand{\ttrbcke}{\mbox{\tt R$^\epsilon$\_bck}}
+\newcommand{\ttrbckave}{\mbox{\tt R\_aux\_vars$^\epsilon$\_bck}}
+\newcommand{\datom}{\mbox{\em REDatom}}
+\newcommand{\hst}{\\\hspace*{4mm}}
+\newcommand{\hstt}{\\\hspace*{8mm}}
+\newcommand{\hsttt}{\\\hspace*{12mm}}
+\newcommand{\hstttt}{\\\hspace*{16mm}}
+\newcommand{\hsttttt}{\\\hspace*{20mm}}
+\newcommand{\hstttttt}{\\\hspace*{24mm}}
+\newcommand{\hsttttttt}{\\\hspace*{28mm}}
+\newcommand{\hstttttttt}{\\\hspace*{32mm}}
+\newcommand{\lcm}{\mbox{\rm lcm}}
+\newcommand{\slcm}{\mbox{\rm \scriptsize lcm}}
+\newcommand{\mgu}{\mbox{mgu}}
+\newcommand{\ehgh}{\mbox{height}}
+\newcommand{\etop}{\mbox{top}}
+\newcommand{\epush}{\mbox{push}}
+\newcommand{\epop}{\mbox{pop}}
+\newcommand{\etick}{\mbox{inc}}
+\newcommand{\exec}{\mbox{exec}}
+\newcommand{\proc}{\mbox{proc}}
+\newcommand{\arity}{\mbox{arity}}
+\newcommand{\pf}{\noindent\mbox{\bf Proof : }}
+\newcommand{\depth}{\mbox{\it depth}}
+\newcommand{\sdepth}{\mbox{\it\tiny depth}}
+\newcommand{\defn}{\stackrel{\mbox{\tiny def}}{=}}
+\newcommand{\frr}{\bigtriangledown}
+\newcommand{\strall}{\bigtriangledown}
+\newcommand{\evt}{\bigtriangleup}
+\newcommand{\pfrr}{\Box}
+\newcommand{\until}{\textrm{U}} % {\textsf{U}} % \textup{U}\textsc{U}\textmd{U}}
+\newcommand{\wntil}{\textrm{W}} % {\textsf{W}} % \textup{W}\textsc{W}\textmd{W}}
+\newcommand{\pevt}{\Diamond}
+\newcommand{\nxt}{\bigcirc}
+\newcommand{\upa}{\!\!\uparrow\!\!}
+\newcommand{\dna}{\!\!\downarrow\!\!}
+\newcommand{\aptl}{\mbox{APTL}}
+\newcommand{\ld}{\mbox{\em LD}}
+\newcommand{\syn}{\mbox{ \em \underline{sync} }}
+\newcommand{\sst}{\mbox{\em SSet}}
+\newcommand{\mi}{\mbox{\em MIdx}}
+\newcommand{\trth}{\mbox{\em truth}}
+\newcommand{\off}{^{\mbox{off}}}
+\newcommand{\on}{^{\mbox{on}}}
+\newcommand{\emdcsts}{\mbox{$V\langle Rnv,\calmdl\rangle\stackrel{\delta}{\times}V\langle Rnv,\calspc\rangle$}}
+\newcommand{\pg}{\mbox{\em pgraph}_{\neg r}}
+\newcommand{\thg}{\mbox{\em thgraph}_{\neg r}}
+\newcommand{\sren}{\mbox{\bf r}}
+\newcommand{\fren}{\neg\mbox{\bf r}}
+\newcommand{\ttmode}{\mbox{\tt mode}}
+
+\newcommand{\bbbbb}{{\mathbb B}}
+\newcommand{\bbbbc}{{\mathbb C}}
+\newcommand{\bbbbd}{{\mathbb D}}
+\newcommand{\inneg}{{{\mathbb I}^{\mathbb N}_{\mathbb N}}}
+\newcommand{\gnneg}{{{\mathbb I}^{\mathbb N}_0}}
+\newcommand{\rnall}{{\mathbb R}}
+\newcommand{\rnneg}{{{\mathbb R}^{\geq 0}}}
+\newcommand{\nnneg}{{\mathbb N}}
+\newcommand{\bbbbp}{{\mathbb P}}
+\newcommand{\bbbbs}{{\mathbb S}}
+\newcommand{\nnify}{{\cal N}^{\{\infty\}}}
+\newcommand{\nnstar}{{\cal N}^{\{*\}}}
+\newcommand{\bbbzz}{{\mathbb Z}}
+\newcommand{\aoat}{{(\calmdl,\calspc)}}
+\newcommand{\clkcd}{{\Omega^t}}% {\langle \caoat-\delta\rangle}
+\newcommand{\ccmfs}{{C^\calmdl_\calspc}}
+\newcommand{\caoat}{C^{\calmdl,\calspc}_Rnv}
+\newcommand{\caoate}{C^{\calmdl,\calspc}_\emptyset}
+\newcommand{\izc}{{[0,\caoat]}}
+\newcommand{\izce}{{[0,\caoate]}}
+\newcommand{\izcinf}{{(\caoat,\infty)}}
+\newcommand{\relsim}{\equiv_{\mbox{\scriptsize\em sim}}}
+\newcommand{\hdline}[1]{\begin{center}\underline{\bf #1}\end{center}}
+\newcommand{\quoline}[1]{\begin{quote}\em ``#1''\end{quote}}
+\newcommand{\edge}[1]{\stackrel{#1}{\longrightarrow}}
+\newcommand{\patt}[1]{^{#1}}
+\newcommand{\nrpatt}[1]{^{#1}_{\neg r}}
+\newcommand{\ratt}[1]{^{\langle #1\rangle}}
+\newcommand{\nrratt}[1]{^{\langle #1\rangle}_{\neg r}}
+\newcommand{\satt}[1]{_{(#1)}}
+\newcommand{\ccnr}[1]{\mbox{\circle{8}#1}}
+
+\newcommand{\llrarrow}{{\rule[2pt]{8mm}{0.5pt}\!\!\!\longrightarrow}}
+\newcommand{\lllrarrow}{{\rule[2pt]{10mm}{0.5pt}\!\!\!\longrightarrow}}
+\newcommand{\dlrarrow}{{\rule[1.5pt]{20mm}{0.5pt}\!\!\!\longrightarrow}}
+
+
+\def\qed{\ifmmode\|\else{\unskip\nobreak\hfil
+\penalty50\hskip1em\null\nobreak\hfil$\blacksquare$
+\parfillskip=0pt\finalhyphendemerits=0\endgraf}\fi}
+
+
+
+
+\newenvironment{list1}{\begin{list}{$\bullet$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0 pt}}{\end{list}}
+\newenvironment{list2}{\begin{list}{$-$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0 pt}}{\end{list}}
+\newenvironment{list3}{\begin{list}{$*$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0 pt}}{\end{list}}
+\newenvironment{list4}{\begin{list}{$\cdot$}
+{\topsep 0 pt \parsep 0 pt \partopsep 0 pt \itemsep 0 pt}}{\end{list}}
+
+
+\newcounter{sequent1}
+\newcounter{sequent2}
+\newcounter{sequent3}
+\newcounter{sequent4}
+\newenvironment{stmt1}{\begin{list}{(\arabic{sequent1})}
+  {\usecounter{sequent1}
+    \topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0 pt
+} }{\end{list}}
+\newenvironment{stmt2}{\begin{list}{(\arabic{sequent2})}
+  {\usecounter{sequent2}
+    \topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0 pt
+} }{\end{list}}
+\newenvironment{stmt3}{\begin{list}{(\arabic{sequent3})}
+  {\usecounter{sequent3} 
+    \topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0 pt
+} }{\end{list}}
+
+\newcounter{cabbage1}
+\newenvironment{rson1}{\begin{list}{\arabic{cabbage1}).}
+{\usecounter{cabbage1}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep
+0 pt}}{\end{list} \}}
+
+\newcounter{cabbage2}
+\newenvironment{rson2}{\begin{list}{\arabic{cabbage2}).}
+{\usecounter{cabbage2}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep
+0 pt}}{\end{list} \}}
+
+\newcounter{cabbage3}
+\newenvironment{rson3}{\begin{list}{\arabic{cabbage3}).}
+{\usecounter{cabbage3}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep
+0 pt}}{\end{list} \}}
+
+
+\newcounter{bean1}
+\newenvironment{pblk1}{\{ \begin{list}{(\arabic{bean1})}
+{\usecounter{bean1}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list} \}}
+
+\newcounter{bean2}
+\newenvironment{pblk2}{\{ \begin{list}{(\arabic{bean2})}
+{\usecounter{bean2}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list} \}}
+
+\newcounter{bean3}
+\newenvironment{pblk3}{\{ \begin{list}{(\arabic{bean3})}
+{\usecounter{bean3}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list} \}}
+
+\newcounter{bean4}
+\newenvironment{pblk4}{\{ \begin{list}{(\arabic{bean4})}
+{\usecounter{bean4}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list} \}}
+
+\newcounter{bean5}
+\newenvironment{pblk5}{\{ \begin{list}{(\arabic{bean5})}
+{\usecounter{bean5}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list} \}}
+
+\newcounter{bean6}
+\newenvironment{pblk6}{\{ \begin{list}{(\arabic{bean6})}
+{\usecounter{bean6}\topsep 0 pt \parsep 2 pt \partopsep 0 pt \itemsep 0
+pt}}{\end{list} \}}
+
+
+\newenvironment{construction}{
+        \noindent {\bf Construction: }}{ \qed}
+
+%===================================================================
+%-------------------------------------------------------------------------
+% take the % away on next line to produce the final camera-ready version
+\pagestyle{empty}
+
+%-------------------------------------------------------------------------
+\begin{document}
+
+\title{ATL$^+$ With Strategy Interaction\thanks{
+The work is partially supported by NSC (Grant NSC 97-2221-E-002-129-MY3, Taiwan, ROC),
+by the Research Center for Information Technology Innovation, Academia Sinica,
+Taiwan, ROC, and by the
+Engineering and Physical Science Research Council (EPSRC), grant EP/H046623/1, UK}  
+% \thanks{The authors would like to thank Prof.\ Moshe Vardi for his valuable 
+% suggestions.}
+}
+
+\author{Chung-Hao Huang$^{1}$ \hspace*{5mm} 
+Sven Schewe{$^2$} \hspace*{5mm} 
+Farn Wang$^{1,3}$ \hspace*{5mm} 
+Fang Yu$^{4}$ \\[5mm] 
+1: Graduate Institute of Electronic Engineering, National Taiwan University\\
+2: Dept.\ of Computer Sciences, University of Liverpool\\
+3: Dept.\ of Electrical Engineering, National Taiwan University \\
+4: Dept.\ of Management Information Systems, National Chengchi University
+}
+
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{plain}
+\baselineskip 18pt
+
+\begin{abstract}
+We propose an extension to {\em ATL$^+$} ({\em alternating-time logic}), 
+called {\em BSIL} ({\em basic strategy-interaction logic}), 
+for the specification of collaboration among the strategies of agents in a multi-agent system.  
+Via the introduction of new modal operators for hierarchical strategy collaboration, 
+BSIL allows for the specifications of a system strategy 
+that can cooperate with several strategies of the environment for different objectives.  
+We argue that such properties are important in practice 
+and show that such properties are not expressible in 
+{\em ATL$^*$}, 
+{\em GL} ({\em game logic}), and 
+{\em AMC} ({\em alternating $\mu$-calculus}). 
+Specifically, we show that BSIL is strictly more expressive than ATL$^+$, 
+but incomparable with ATL$^*$, GL, and AMC in expressiveness.  
+We show that a memoryful strategy is
+necessary for fulfilling a specification in BSIL.  
+%
+We also study the complexity of the model and satisfiability checking problems 
+of ATL$^+$ and BSIL.
+We show that BSIL model-checking can be performed in polynomial space and establish a matching PSPACE lower bound for model-checking the syntactic fragment ATL$^+$ of BSIL.
+The model complexity, however, is much lower: BSIL model-checking can be performed in time quadratic in the model (and exponential in the formula), and is P─complete for fixed formulas.
+Finally, we show that BSIL (and hence ATL$^+$) satisfiability is 2-EXPTIME complete, where the lower bound is inherited from CTL$^+$.
+Thus, the additional expressive power of BSIL does not come to additional computational cost.
+\end{abstract}
+
+
+\noindent {\bf Keywords:}
+games, concurrent, turn-based, multi-agent, strategy,  
+logic, model-checking, expressiveness, realisability, satisfiability 
+
+
+\section{Introduction}
+
+The specification and verification of open systems
+focuses on the design of system interfaces that allow 
+for the fulfillment of some objectives of the users while 
+enforce certain safety policies of the systems.
+The theoretical challenges in designing such systems 
+have drawn the attention of researchers from the game theory community.  
+From the game theoretical perspective, the design problem 
+of such open systems can be modeled as multi-agent games.  
+Some agents represent the system, while 
+other agents represent the environment (or the users).  
+An agent may have several objectives that may conflict with the other agents' objectives. 
+On one hand, if a user objective is not in conflict with the system's objectives, then 
+the user should be allowed to achieve the objective. 
+On the other hand, if a user objective conflicts with the system's, 
+then the user objective should be forbidden from fulfillment.  
+For example, in a banking system, a user is allowed to withdraw money from her/his bank account, check balances of her/his account, etc. 
+The user may also have other objectives forbidden by the system, 
+including withdrawing money from others' accounts, 
+checking balances of others' accounts, etc.  
+The system wins the game in an execution 
+(or a {\em play} in the jargon of game theory) 
+if on one hand, the user's objectives allowed by the system are indeed fulfilled 
+and on the other hand, her/his disallowed objectives do not happen.  
+The goal of system design is, from the game theoretical perspective, 
+to design a computable strategy of the system that 
+enforces all the system objectives and also allows the users to 
+achieve those objectives consistent with the system objectives.  
+Such a strategy is called a {\em winning strategy} for the system.  
+
+At the moment, there are various logic that express such properties of strategic power of agents,
+including {\em ATL} ({\em alternating-time logic}), 
+{\em ATL}$^*$, {\em AMC} ({\em alternating $\mu$-calculus}),
+{\em GL} ({\em game logic}) \cite{AHK02}, 
+and {\em SL} ({\em strategy logics}) \cite{CLM10,CHP10,MMV10}, 
+for the specification of open systems.  
+Each language also comes with a verification algorithm that 
+helps to decide whether or not a winning strategy for the system exists.  
+There is, however, a gap between the industrial need 
+for efficient algorithms (and solvers) and the available technology offered from previous research.  
+Frankly speaking, 
+none of those languages represents a proper combination of 
+expressiveness for close interaction among agent strategies 
+and efficiency for specification verification.  
+ATL, ATL$^*$, AMC, and GL \cite{AHK02} allow 
+us to specify that some players together have a strategy to 
+satisfy some fully temporalised objective: strategy quantifiers mark the start of a state formula.
+As exemplified below, this falls short of what the industry needs in specification.  
+
+Consider the example of a bank that need specify their information system 
+embodied as a system security strategy and 
+allowing a client to use a strategy to withdraw money, 
+to use a strategy to deposit money, and to use a strategy to query for balance.  
+Moreover, the same system strategy should forbid any illegal 
+operation on the banking system.  
+Specifically, the same system strategy must accommodate all strategies 
+of the client for `good behavior' 
+(i.e, behavior in line with the specification), 
+while blocking all strategies of the client that refer to undesired behavior, 
+and thus preventing the client from damaging the system.
+We will show that 
+{\em ATL} %({\em alternating-time logic}),
+{\em ATL}$^*$, %{\em AMC} ({\em alternating $\mu$-calculus}),
+and 
+{\em GL} %({\em game logic})
+\cite{AHK02}  
+do not support such specifications.  
+For example, it is not possible to specify in those languages that 
+the system strategies used both in a withdrawal transaction and 
+in a deposit transaction must be the same.  
+Consequently, verification techniques for specifications in those languages 
+cannot capture such real-world objectives for open systems.  
+
+To solve the expressiveness problem in the above example, 
+strategy logics were proposed in \cite{CLM10,CHP10,MMV10} that 
+allow for the flexible quantification of high-order 
+strategy variables in logic formulas.  
+However, their verification complexities are prohibitively high 
+and hinder them from practical application.  
+In retrospect, the strategy profiles in such strategy logics 
+can be combined in unrestricted ways.  
+For example, in \cite{MMV10}, we can 
+write down the following artificial and hypothetical property.  
+\begin{center} 
+$\ldabrac X\rdabrac \ldbrac Y\rdbrac\ldabrac Z\rdabrac 
+\pfrr ((((1,X)\pevt p) \wedge \nxt (2,Y) \pfrr q)\rightarrow
+(((2,Z)\pevt q)\wedge\neg(3,Z)\pfrr q))$
+\end{center} 
+Here $\ldabrac X\rdabrac$ and $\ldabrac Z\rdabrac$ declare the 
+existence of strategies named $X$ and $Y$ respectively.  
+$\ldbrac Y\rdbrac$ is a universal quantification on a strategy named $Y$.  
+Then operator $(1,X)$, $(2,Y)$, $(2,Z)$, and $(3,Z)$ 
+respectively bind strategy $X, Y, Z$, and $Z$ to agents $1, 2, 2$, and $3$.  
+As can be seen, the language is very free in style.  
+According to the experiences in temporal logic development, 
+usually proper restrictions in the modal operations can lead to 
+a spectrum of sub-logics with different expressiveness and model-checking efficiency.  
+The following are two examples: 
 \begin{list1} 
-\item Depositing to an account by a client from the root screen. 
-\item Transferring money from an account in the bank to an account 
-  in another bank, also from the root screen. 
+\item The validity problem of $\cal L$ (the first-order langauge of 
+  unary predicate symbols and the binary predicate symbol $\leq$) 
+  is non-elementary \cite{Stockmeyer74} while 
+  PTL, with the same expressiveness as $\cal L$, is only PSPACE-complete \cite{SC85}.  
+\item Between CTL \cite{CES86} and CTL* \cite{EH85,EH86}, there are many subclasses of CTL* with various balances 
+  between expressiveness and verification efficiency.  
+  Fair CTL \cite{EL87}, as a natural class between CTL and CTL*, 
+  is expressive enough for many practical specifications and 
+  still enjoys a polynomial time model-checking complexity.  
+  There are also other subclasses of CTL* with various balance considerations \cite{BPM83,EC80,EH86,Lamport80}.  
 \end{list1} 
-As we can see, the deposit service involves the interaction 
-between a client and the bank while 
-the transfer service involves at least three parties:  
-a client, the bank, and a partner bank. 
-Also in the meantime, the bank wants to forbid any client and partner
-from checking sensitive information of other clients, .e.g., 
-checking the password of another client.  
-\subsection{Trying to Write Down a Correct Formal Specification}
+As can be seen, subclasses of temporal logics with proper balance between 
+expressiveness and verification efficiency are not only theoretically interesting and 
+can also be practically useful.  
+Indeed, most specifications in real-world projects come 
+in simple structures, for example, safety, liveness, etc. 
+Thus it would be interesting to see what ``natural" subclasses of strategy logics 
+can be identified with a proper balance between expressiveness and model-checking efficiency.  
+Moreover, it would be practical and appealing if the subclass 
+can be characterized with elegant syntax.  
+Indeed it is the purpose of this manuscript to propose new natural modal operators 
+for strategy collaborations and extend ATL for a subclass of strategy logic.  
 
-To develop the services, the bank manager in charge of the project 
-need specify the 
-services and make sure that the specification is not erroneous.  
-If they turn to the literature, 
-the bank manager may choose ATL or its extensions, e.g., 
-fair ATL, ATL*, AMC, GL, etc., to specify the services. 
-The choice is plausible at first glance since 
-ATL and fair ATL both have a polynomial time model-checking algorithm 
-and could support the verification of the services. 
-So the manager could easily specify the services with 
-the following formula. 
-\begin{center} \hfill 
-$\langle 1\rangle\left(\begin{array}{cl}
-		& \pfrr\neg \mbox{\sl checkOthersPassword}\\
-\wedge 	& \langle 2\rangle \pevt \mbox{\sl depositDone} \\
-\wedge  & \langle 2, 3\rangle\pevt\mbox{\sl transferDone} 
-\end{array}\right)$
-\hfill (C) 
-\end{center}   
-Here we use agent index 1 for the bank, 
-2 for the client, and 3 for the partner bank. 
-But on a second look, we can see that 
-that this specification is too restrictive.  
-Subformula $\langle 2\rangle\pevt \mbox{\sl depositDone}$ 
-says that the client can force a deposit transaction
-no matter how the banking system responds. 
-In practice, there are many factors beyond the control of the client for the success of a
-transaction.  
-For example, when the banking system is in maintenance or out of order, 
-then the transaction may fail.  
 
-After realizing the problem with formula (C), 
-the manager decides to rewrite the specification as follows. 
-\begin{center} \hfill 
-$\begin{array}{cl}
-		& \langle 1\rangle \pfrr\neg \mbox{\sl checkOthersPassword}\\
-\wedge 	& \langle 1,2\rangle \pevt \mbox{\sl depositDone} \\
-\wedge  & \langle 1,2, 3\rangle\pevt\mbox{\sl transferDone} 
-\end{array}$
-\hfill (D) 
-\end{center}   
-This specification fixes the issue observed in formula (C) since 
-now $\langle 1,2\rangle\pevt\mbox{\sl depositDone}$ 
-says with the collaboration of the banking system, 
-the client can finish a deposit transaction.  
-However, there is a subtle issue which nullifies the formula.  
-In the collaboration between the banking system and the client 
-for property $\langle 1,2\rangle\pevt\mbox{\sl depositDone}$, 
-the banking system is no longer required to maintain property 
-$\pfrr\neg \mbox{\sl checkOthersPassword}$ 
-since according to the semantics of ATL, 
-the specification does not require the banking system to 
-use the same strategy to enforce 
-both $\langle 1\rangle \pfrr\neg \mbox{\sl checkOthersPassword}$ and 
-$\langle 1,2\rangle \pevt \mbox{\sl depositDone}$.  
-The same issue also appears in $\langle 1,2,3\rangle\pevt\mbox{\sl transferDone}$.  
-That is, the banking system's strategy in enforcing 
-$\langle 1,2,3\rangle\pevt\mbox{\sl transferDone}$ is not required to be the same one 
-in enforcing $\langle 1\rangle \pfrr\neg \mbox{\sl checkOthersPassword}$.  
-Thus, if the bank cannot sue their contractors for developing the service system if 
-the systems leaks clients' passwords in transferring funds. 
-\subsection{Resorting to General Strategy Logics for a Correct Specification}
-After several trials, the manager eventually finds out that 
-the specification cannot be expressed in ATL, ATL*, GL, and AMC \cite{AHK02}.  
-Then the manager turns to strategy logics \cite{CHP10,MMV10} in the literature and 
-finds out that the specification can be expressed as follows. 
-\begin{center} \hfill 
-$\langle x\rangle \langle y\rangle\langle z\rangle \langle w\rangle \left(\begin{array}{cl}
-		& (1,x)\pfrr\neg \mbox{\sl checkOthersPassword}\\
-\wedge 	& (1,x)(2,y)\pevt \mbox{\sl depositDone} \\
-\wedge  & (1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone} 
-\end{array}\right)$
-\hfill (E) 
-\end{center}   
-This formula declares four existentially quantified strategies: $x,y,z$, and $w$,  
-and says the following. 
-\begin{list1} 
-\item On using strategy $x$, the banking system can enforce $\pfrr\neg \mbox{\sl checkOthersPassword}$.  
-\item On using strategy $x$ and $y$ respectively, the banking system and a client can 
-  finish the deposit transaction.  
-\item On using strategy $x$, $z$, and $w$ respectively, the banking system, the client, and 
-  a partner bank can also finish a fund transfer transaction.  
-\end{list1} 
-The manager is happy with the elegant specification and wants to 
-verify the specification on the model of the development delivery.  
-Then he finds out that there is no tractable algorithm and 
-working tools for checking this specification or synthesize the strategies. 
-In fact, the complexity reported in the literature is at best doubly exponential \cite{CHP10,MMV10}. 
-So the manager finds himself in the dilemma between expressiveness and verification efficiency.  
+In the following, we use the classical prisoner's dilemma to explain how we can 
+design new modal operators for structured strategy collaboration to 
+achieve a balance between expressiveness and model-checking efficiency.
 
-But when the manager bangs his head to the theoretical challenges, 
-he soon realizes that strategy logics offer more expressiveness than he expects.  
-For example, he could write down the following formula. 
+{\example \label{exmp.pd} 
+\underline{\bf Prisoner's dilemma}} 
+Suppose the police is interrogating 
+three suspects (prisoners).  
+The police has very little evidence.  
+A prisoner may cooperate (with his/her peers) and deny all charges made by the police. 
+If all deny, they are all acquitted of all charges.  
+However, each prisoner may choose to betray his/her peers
+and provide the police with evidence.
+If more than one prisoner choose to betray their peers, all will be sentenced and stay in jail.
+If only one chooses to betray, then the other prisoners will stay in jail, while (s)he will be a `dirty witness' and all charges against him/her will be dropped.
+
+We may want to specify that the three prisoners can cooperate with each other (by denying all charges), and will not be in jail.  
+Let $j_a$ be the proposition for prisoner $a$ in jail.  
+This can be expressed in Alur, Henzinger, and Kupferman's 
+ATL$^*$,  
+GL, or AMC \cite{AHK02}, respectively, as follows.\footnote{Note 
+that the three example formulas are not equivalent.}  
+\begin{center} 
+\begin{tabular}{lll} 
+ATL$^*$: 
+& &  $\langle 1,2,3\rangle\bigwedge_{a\in[1,3]}\pevt \neg j_a$ \\
+GL: 
+& & $\existsb\{1,2,3\}.\bigwedge_{a\in[1,3]}\forall\pevt\neg j_a$ \\
+AMC: 
+& & $\emlfp x.\langle 1,2,3\rangle \nxt 
+\bigwedge_{a\in[1,3]}(x\vee \neg j_a)$
+\end{tabular} 
+\end{center} 
+Here ``$\langle 1,2,3\rangle$" and 
+``$\existsb\{1,2,3\}$" are both existential 
+quantifiers on the collaborative strategy among prisoners $1,2$, and $3$.  
+Such a quantifier is called a {\em strategy quantifier} ({\em SQ}) 
+for convenience.  
+Operator `$\emlfp$' is the least fixpoint operator.  
+Even though we can specify strategies employed by sets of prisoners and 
+there is a natural relationship (containment) between sets with such logics, 
+there is no way to relate strategies to each other.  
+For example, if prisoners 1 and 2 are really loyal to prisoner 3, 
+they can both deny the charges,  
+make sure that prisoner 3 will not be in jail, and let prisoner 3 
+to decide whether they will be in jail. 
+\qed 
+
+The research of strategies for related properties has a long tradition in game theory.  
+It is easy to 
+see the similarity and link between the specification problems for the prisoner's dilemma and the banking system. 
+This observation suggests that finding a language with an appropriate and natural 
+balance between the expressive power and the verification complexity of a specification language is a central challenge.
+% yet to be overcome. 
+
+To meet this challenge, we propose an extension of ATL,
+called {\em BSIL} ({\em basic strategy-interaction logic}).
+In a first step, we extend ATL to ATL$^+$, where ATL$^+$ is the natural extension obtained by allowing for Boolean connectives of path quantifiers.
+(Cf.~\cite{BPM83,EC80} for the similar extension of CTL to CTL$^+$.)
+We then introduce a new modal operator 
+called {\em strategy interaction quantifier} ({\em SIQ}). 
+In the following, we use several examples in the prisoner's dilemma 
+to explain BSIL, starting with the following specification for the property discussed at the end of Example~\ref{exmp.pd}. 
+\begin{center} 
+\hfill $\langle 1,2\rangle((\langle+\rangle\pevt\neg j_3)\wedge 
+	(\langle +3\rangle \pevt\neg (j_1\vee j_2))
+	\wedge \langle+3\rangle \pfrr (j_1\wedge j_2))
+$\hfill (A) 
+\end{center} 
+Here ``$\langle+3\rangle$'' is an existential SIQ that reasons over 
+strategies of Prisoner 3 for collaborating with the strategies  
+of Prisoners 1 and 2 introduced by the parent SQ ``$\langle 1,2\rangle$''. 
+Similarly, ``$\langle+\rangle$'' means that 
+no collaboration of any prisoner is needed. 
+(For conciseness, we omit ``$\langle+\rangle$'' sometimes.)  
+We also call an SIQ an SQ.  
+In BSIL formulas, we specifically require that no SIQ can appear 
+as a topmost SQ in a path subformula.  
+
+As can be seen, SIQ imposes a hierarchical style of strategy collaboration 
+which seems natural for practical specification.  
+Consider another example.  
+If Prisoner 1 really hates the others, 
+(s)he can always betray other prisoners,  
+making sure that Prisoners 2 and 3 will be in jail, and let them 
+decide whether (s)he will be in jail, too.  
+This property can be expressed in BSIL as follows. 
 \begin{center} 
 \hfill 
-$\langle x\rangle \langle y\rangle[ z] \langle w\rangle \left(\begin{array}{cl}
-		& (1,x)\pfrr\neg \mbox{\sl checkOthersPassword}\\
-\wedge 	& (1,x)\pfrr (2,y)\pevt \mbox{\sl depositDone} \\
-\wedge  & (1,x)\pfrr (2,z)(3,w)\pevt\mbox{\sl transferDone} 
-\end{array}\right)$
-\hfill (F) 
-\end{center}  
-Here $[z]$ universally quantifies a strategy named $z$.  
-Thus subformula $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$ in fact says that 
-the banking system has a strategy $x$ such that for all strategies $z$ of the client, 
-the partner bank have a strategy $w$ to help enforcing 
-$\pevt\mbox{\sl transferDone}$.  
-Considering that a strategy is an action decision function on the history, 
-this in fact means that strategy $w$ is clairvoyant and contradicts the implementation assumption 
-of all practical banking systems.  
-Indeed the huge verification complexity of strategy logics 
-can be attributed to such free-style binding operations of strategy names to agents.   
-Thus, the manager asks himself whether there is a subclass of strategy logics that 
-allows for elegant expressions of natural and practical specifications while supporting 
-verification with less complexity.  
-Similar examples in fact can appear in different projects with services that rely on collaboration of 
-multiple agents.
-\subsection{BSIL: New Strategy Modalities Expressive Enough for the Specification}
-In fact, in conceivable applications, the developers cannot implement and are not interested at 
-clairvoyant strategies.  
-In other words, for practical specifications, it is likely that 
-existential SIQs are expressive enough.  
-In BSIL, formula (E) can be rewritten as follows.  
-\begin{center} \hfill 
-$\langle 1\rangle \left(\begin{array}{cl}
-		& \pfrr \neg \mbox{\sl checkOthersPassword}\\
-\wedge 	& \langle +2\rangle\pevt \mbox{\sl depositDone} \\
-\wedge  & \langle+2,3\rangle\pevt\mbox{\sl transferDone} 
-\end{array}\right)$
-\hfill (G) 
-\end{center}   
-This formula says that the banking system has a strategy that 
-at any instant, the system can ensure that no password is leaked, 
-the system allows a client to finish a deposit transaction, and 
-the system allows a client to transfer funds from or to a partner bank. 
-\subsection{Symbolic Strategy Names and Path Obligations}
-\label{reply2.alg.exp} 
-But to verify such a BSIL property, we need new techniques to check that along plays, 
-the same decision is made for the same strategy.  
-Consider the model of the banking system in figure~\ref{fig.model.bank}.  
-%\begin{figure*}[t] 
-%\begin{center} 
-%\epsfig{file=bank.eps,width=120mm} 
-%\caption{Game graph of a banking system} 
-%\label{fig.model.bank}
-%\end{center} 
-%\end{figure*} 
-We need to find strategies of the agents to fulfill 
-$\pfrr \neg \mbox{\sl checkOthersPassword}$, 
-$\pevt \mbox{\sl depositDone}$, and 
-$\pevt\mbox{\sl transferDone}$.  
-To assist in our explanation of our verification algorithms, 
-we use symbolic strategy names $x,y,z,w$ and the binding notations in formula (F).  
-In fact, formula (G) is exactly the same as formula (E).  
-Thus by interpreting all symbolic strategy names as existential quantified, 
-formula (G) can be rewritten as follows.  
-\begin{center} \hfill 
-$((1,x) \pfrr \neg \mbox{\sl checkOthersPassword})
-\wedge ((1,x)(2,y)\pevt \mbox{\sl depositDone})
-\wedge ((1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone})$
-\hfill (H) 
-\end{center}   
-Note that since we only allow explicit existential strategy quantification, 
-the number of strategy bindings are exactly determined by the number and sizes of SQs and SIQs 
-in the formula.  
+$\langle 1\rangle((\pfrr (j_2\wedge j_3))\wedge 
+	(\langle +2,3\rangle \pevt\neg j_1)
+	\wedge \langle+2,3\rangle \pfrr j_1)
+$
+\hfill (B) 
+\end{center} 
+
+One restriction of BSIL is that no negation between an SIQ and its parent SIQ or SQ is allowed. 
+This restriction then also forbids universal SIQ.  
+While at first glance, it seems less than elegant in mathematics, 
+it is both necessary for verification complexity and 
+compatible with practical specification styles.  
+When we take a closer look, in fact, there is an implicit universal SIQ 
+at the end of every maximal syntax path from an SQ to its descendant SIQ.  
+Thus, BSIL allows for the specification of the ways in combining system strategy profiles that 
+can be computed statically to enforce the system policy against 
+any hostile strategy profile of those agents not participating in the the system strategy 
+profiles.  
+If we explicitly allow for universal SIQs in BSIL, 
+then the strategy profiles associated with existential SIQs in the scope of a universal SIQs 
+may have to be computed dynamically.  
+Thus the explicit universal SIQs will not only necessarily blow up the verification complexity, 
+but also contradict the main-stream of game theory for statically calculable strategies.  
+In contrast, some strategy logics \cite{MMV10} 
+allow for the specification of strategy profiles that are not statically calculable.  
+
+In this work, 
+we establish that BSIL is incomparable with ATL$^*$, GL, and AMC 
+in expressiveness.  
+Although the strategy logics \cite{CHP10,CLM10,MMV10} are superclasses to BSIL  
+with their flexible quantification of 
+strategies and binding to strategy variables, 
+their model-checking\footnote{A 
+model-checking problem is to check whether a given model 
+(game graphs in this work) satisfies a logic formulas 
+(in ATL and its extensions in this work).}  
+complexity are all doubly exponential time hard.  
+In contrast, BSIL enjoys a PSPACE-complete model-checking complexity for 
+turn-based and concurrent game graphs.  
+This may imply that BSIL could be a better balance between 
+expressiveness and verification efficiency 
+than ATL$^*$, GL, AMC \cite{AHK02}, and SL \cite{CHP10,MMV10}.
+Further related work is the stochastic game logic (SGL) by Baier, Br\'azdil,
+Gr\"o{\ss}er, and Kucera \cite{BBGK07}, which allows for expressing strategy interaction.
+However, for memoryful strategies, the model-checking problem of SGL is undecidable. 
 
 
-If we label $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$, 
-$(1,x)(2,y)\pevt \mbox{\sl depositDone}$, and $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$
-on nodes of a computation tree in a labeling procedure, 
-then the symbolic names precisely reflect the the constraints on the decisions along plays. 
-For example, 
-suppose that both $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ and 
-$(1,x)(2,y)\pevt \mbox{\sl depositDone}$ are labeled on 
-a state of location {\em dep}.   
-This state has three successor states: for convenience 
-C1 of location {\em idle} via $[\mbox{\rm fail},\mbox{\rm commit},\perp]$, 
-C2 of location {\em idle} via $[\mbox{\rm succ}, \mbox{\rm cancel}, \perp]$, and 
-C3 of location {\em depDone} via $[\mbox{\rm succ}, \mbox{\rm commit}, \perp]$.  
-If strategy $x$ chooses action succ, then obligation $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ 
-will be passed down to C2 and C3.  
-In this situation, 
-whether obligation $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ 
-is labeled on C2 or C3 relies on the action decision of strategy $y$.  
-But the constraint on strategy decision is that 
-if $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is labeled on C2, 
-then $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ must also be labeled on C2; 
-and if  $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is labeled on C3, 
-then $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ must also be labeled on C3.  
-The reason is that the path obligations are enforced by the same strategy of the bank.  
-\subsection{Passing Down the Path Obligations While Observing the Restrictions Among S-Profiles}
-The above observation points out how to judge whether a passing-down scheme of path obligations 
-from a parent state to its child states are consistent with the strategy quantifications.  
-For example, suppose that we have the following characteristics of the strategy profile 
-$(1,x)(2,y)(2,z)(3,w)$.
-\begin{list1} 
-\item Strategy $x$ of the banking system never issues action fail. 
-\item Strategy $y$ and $z$ never cancel transactions for its client. 
-\item Strategy $w$ never shows busy message for the partner bank. 
-\end{list1} 
-Then the verification problem of strategy interaction can be visualized as
-finding strategies $x,y,z$, and $w$ that selecting paths in a computation tree 
-to satisfy three path obligations: 
-$\pfrr \neg \mbox{\sl checkOthersPassword}$, 
-$\pevt \mbox{\sl depositDone}$, and $\pevt\mbox{\sl transferDone}$.  
-Figure~\ref{fig.ctree} shows part of a computation tree when 
-strategy $x$ for the banking system is fixed with the following restriction. 
-%\begin{figure*}[t] 
-%\begin{center} 
-%\epsfig{file=ctree.eps,width=120mm} 
-%\caption{Part of the computation tree of the banking system} 
-%\label{fig.ctree}
-%\end{center} 
-%\end{figure*} 
-\begin{list1} 
-\item At location {\em idle}, {\em depDone}, and {\em xferDone}, always issue action $\perp$.  
-\item At location {\em dep} and {\em xferCfm}, only issue action {\sf succ}.  
-\end{list1} 
-The leaves of the tree all end at location {\em idle} at which 
-the same tree structure can be replicated.  
-We can start synthesizing strategy $y,z$, and $w$ in the context 
-of this strategy $x$ which, for convenience of explanation, is memoryless 
-(or positional). 
+We also establish some other properties of BSIL. 
+We show that the strategies  
+for BSIL properties against turn-based games need to be memoryful. 
+We prove that the BSIL model-checking problem is PSPACE-complete.  
+However, the PSPACE model-checking algorithm need enumerate the 
+labelings on computation trees and may suffer from high time complexity.  
+We thus also present an alternative model-checking algorithm 
+with time complexity quadratic in the size of a game graph and 
+exponential only in the size of a BSIL specification. 
+We also establish that the BSIL realisability problem is complete for
+doubly exponential time.  
+% Finally, by lifting the restriction that no SIQ may appear as a topmost SQ in 
+% a path subformula, we can extend BSIL to 
+% {\em strategy interaction logic} ({\em SIL}) by 
+% allowing the SIQs to be used directly after temporal modal operators.  
+% For example, we may have the following SIL formula.   
+% \begin{center} 
+% $\langle 1\rangle \pfrr((p\rightarrow \langle+2\rangle \nxt q)
+% \wedge(\neg p\rightarrow [+2]\nxt \neg q))$
+% \end{center} 
+% Here ``$[+2]$'' is a universal SIQ that says ``for all strategies that 
+% may interact with the strategies declared with the ancestor formulas.''  
+% SIL has the expressiveness for the interaction of a player's stratregy 
+% with infinitely many strategies used by players at different 
+% states along a play.  
+% We also show that SIL is strictly more expressive than ATL$^*$ and 
+% its model-checking problem is doubly exponential time hard. 
 
-As we have suggested, we can label the path obligations on the nodes of 
-the computation tree and examine whether a strategy profile can fulfill 
-all the path obligations. 
-In the literature, we can name the nodes by their branching paths.  
-For example, the root is named $\varepsilon$ which is the empty string. 
-Then the node at location {\em xferDone} is named `100' and 
-the rightmost {\em idle} node is named `12.' 
-We begin by label node `$\varepsilon$ with the three path obligations: 
-$(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$, 
-$(1,x)(2,y)\pevt \mbox{\sl depositDone}$, and $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$.  
-Then we can pass the path obligations to the children in the following way. 
-\begin{list1} 
-\item We must pass $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ to 
-  both child `0' and `1' of the root since the two children 
-  are both selected by action $\perp$ of the banking system. 
-\item We can pass $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ 
-	and $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$ respectively to 
-	child `0' and `1' of the root since 
-	the two children are selected with the same strategy $x$ of the banking system 
-	and different strategies ($y$ and $z$) of the client.  
-\end{list1} 
-Note that we can check whether the passing down of the path obligation 
-is consistent with the 
-strategy quantifications in the input formula (G) just by 
-checking the labeling of path obligations with 
-strategy name bindings since 
-all consistency information are maintained there. 
-
-Similarly, from node `0', strategy $x$ and $y$ can together choose to pass 
-$(1,x)(2,y)\pevt \mbox{\sl depositDone}$ to node `00' while 
-strategy $x$ must unilaterally pass 
-$(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ 
-to both `00' and `01.'  
-Then at node `00,' $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is fulfilled 
-eventually and no longer need be passed down.  
-The passing down of path obligations from node `1' and fulfillment of 
-$(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$ can then be reasoned similarly.  
-\subsection{Finding Finite Satisfying Evidence for a Formula in a Computation Tree}
-As we can see, the existence of the tree top in figure~\ref{fig.ctree} is 
-sufficient for synthsizing strategy profile $(1,x)(2,y)(2,z)(3,w)$ to satisfy 
-formula $(G)$.  
-From this example, it is easy to see that the requirement for such a tree top.  
-First, all eventual-formulas (or until-formulas) from the root SQ to the 
-next level of SQs have to be fulfilled by the strategy profile.  
-Second, the leaves of the tree top do not contain any eventual-formula (or until-formula) labels.  
-Thus our PSPACE algorithm for model-checking BSIL formulas is actually 
-a nondeterministic one that guess and check the consistency of 
-the tree top and strategic actions at the nodes 
-in the tree top.  
-
-Then the final question regarding our algorithms is the terminating condition 
-for searching the tree tops and strategy profiles. 
-Let us consider a tree node labeled with path obligations and how to 
-(nondeterministically) explore for a tree top and a strategy profile.  
-Note that the path obligations labeled on a child will 
-be no more than those of its parent.  
-In fact, the path obligations can stop being passed down in a path when it is fulfilled. 
-Path obligations are simply passed down and not generated along the paths.  
-As a result, along a path longer than the size of the game graph, 
-either the number of path obligations decreases or 
-two nodes, say $v$ and $v'$ 
-(for convenience, we assume $v$ is an ancestor of $v'$), 
-with identical location and labels must appear. 
-If the tree top is an evidence of existence of a strategy profile 
-and the latter happens, 
-then we can replace the the subtree rooted at $v$ with the one rooted at 
-$v'$ and the result tree top is still an evidence.  
-This observation implies that 
-we can focus on tree top such that along any path, no duplication of 
-nodes with the same location and the same path obligation labels.  
-This implies that we only have to explore tree tops of depth no greater 
-than the size of the game graph times the number of temporal modalities 
-in the given BSIL formula.  
+The article is organized as follows. 
+% Section~\ref{sec.relwork} discusses related work. 
+Section~\ref{sec.tb.gg} explains concurrent and 
+turn-based game graphs for
+the description of multi-agent systems.
+Section~\ref{sec.bsil} 
+presents BSIL and ATL$^+$, and establishes the need of memoryful strategies. 
+Section~\ref{sec.exp} discusses the expressiveness of BSIL. 
+Section~\ref{sec.mck.psp} establishes the PSPACE-completeness 
+of model-checking problem.  
+In Section~\ref{sec.mck.gen}, we present the alternative 
+model-checking algorithm based on weak alternating automata construction.  
+Section~\ref{sec.sat} discusses the complexity of 
+the BSIL realisability problem.  
+% Section~\ref{sec.sil} extends BSIL to SIL.  
+% Section~\ref{sec.conc} is the conclusion.
 
 
-\section{Game Graphs}
-\subsection{Concurrent Games}
+
+
+% \section{Related work \label{sec.relwork}}
+% 
+% Alur et al presented ATL (alternating-time temporal logic), 
+% ATL$^*$, AMC (alternating-time $\mu$-calculus), and GL (game logic)
+% with strategy quantifier $\ldabrac M\rdabrac$ \cite{AHK02}.  
+% 
+% Brihaye et al. introduced an extension to ATL and ATL$^*$ 
+% with other players' stratregies and memory constraints \cite{BLLM09}.  
+% 
+% Pinchinat introduced a way to specify expressive constraints on strategies 
+% in concurrent games by extending $\mu$-calculus with decision modalities 
+% \cite{Pinchinat07}. 
+% 
+% Chatterjee et al introduced a strategy logic allowing for 
+% first-order quantification over strategies \cite{CHP10}.  
+% Mogavero et al proposed another strategy logic that 
+% enjoys a doubly exponential time complexity model-checking algorithm 
+% \cite{MMV10}.  
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Game graphs \label{sec.tb.gg}} 
+
+
+\subsection{Concurrent games} 
+
 A {\em concurrent game} is played by many agents 
 that make their moves concurrently.  
-Such a game can be formalized \label{reply1.be.formalized} with the following definition.  
+Such a game can formalized with the following definition.  
 
 \begin{definition}
 A concurrent game graph is a tuple 
@@ -406,13 +887,13 @@ Otherwise, the matching transition takes place.
 
 
 In Figure~\ref{fig.cg}, we have the graphical representation of a concurrent game graph.  
-%\begin{figure}[!ht]
-%\begin{center}
-%\epsfig{file=cg.eps,width=80mm} 
-%\end{center}
-%\caption{A concurrent game graph}
-%\label{fig.cg}
-%\end{figure} 
+\begin{figure}[!ht]
+\begin{center}
+\epsfig{file=cg.eps,width=80mm} 
+\end{center}
+\caption{A concurrent game graph}
+\label{fig.cg}
+\end{figure} 
 The ovals represent states while the arcs represent 
 state transitions.  
 We also put down the $\lambda$ values inside the corresponding states. 
@@ -426,7 +907,7 @@ agent 2 has to choose $b$.
 
 
 
-\label{reply2.calp} 
+
 For convenience, in the remaining part of the 
 manuscript, we assume that we are always in the context 
 of a given game graph
@@ -488,21 +969,25 @@ $\sigma$ of an agent $a\in [1,m]$
 iff for every $k\in [0,\infty)$,
 $\delta((\rho(k),\rho(k+1)),a)=\sigma(\rho[0,k])$.
 The play is compatible with an S-profile $\Sigma$ of agency $A$
-iff for every $a\in A$,\label{reply2.M2A} 
+iff for every $a\in A$,
 the play is compatible with $\Sigma(a)$ of agent $a$.
-\subsection{Turn-Based Games}
+
+
+
+\subsection{Turn-based games} 
+
 Another popular game structure is {\em turn-based game} 
 in which at each state, at most one agent gets to decide the next state. 
 For example, in figure~\ref{fig.tg}, we have the graphical representation of 
 a turn-based game graph with initial state $v$.  
-%\begin{figure}[!ht]
-%\begin{center}
-%\epsfig{file=tg.eps,width=80mm} \\
-%$\bigcirc$ belongs to Agent 1 and $\pfrr$ belongs to Agent 2.
-%\end{center}
-%\caption{A turn-based game graph}
-%\label{fig.tg}
-%\end{figure} 
+\begin{figure}[!ht]
+\begin{center}
+\epsfig{file=tg.eps,width=80mm} \\
+$\bigcirc$ belongs to Agent 1 and $\pfrr$ belongs to Agent 2.
+\end{center}
+\caption{A turn-based game graph}
+\label{fig.tg}
+\end{figure} 
 The ovals and squares represent states respectively of 
 agent 1 and agent 2. 
 The arcs represent state transitions.  
@@ -533,8 +1018,12 @@ turn-based game graphs are easier to handle than concurrent game graphs.
 So in latter sections, we sometimes use turn-based game graphs 
 in examples and explanation of the theory as we see fit. 
 
-\section{BSIL}
-\subsection{Syntax}
+
+
+\section{Basic Strategy Interaction Logic (BSIL) \label{sec.bsil}} 
+
+\subsection{BSIL syntax \label{subsec.bsil.syntax}}
+
 For concurrent game graph $\calg$ of $m$ agents, 
 we have three types of formulas: {\em state formulas}, {\em tree formulas}, 
 and {\em path formulas}.  
@@ -572,8 +1061,7 @@ Intuitively, they mean that there exists an S-profile of $B$
 that collaborates with the strategies declared 
 with ancestor formulas to make $\psi_1$ true. 
 For convenience, we view SQs as special cases of SIQs. 
-Also, for conciseness, we omit null SIQs $\langle+\rangle$.  
- \label{reply1.null.siq2} 
+
 
 State formulas $\phi$ are called {\em BSIL} {\em formulas}. 
 From now on, we assume that we are always in the context of 
@@ -586,22 +1074,23 @@ then enforce the interaction along all paths from this state.
 
 For convenience, we also use the common shorthands.
 \begin{center}
-\label{reply2.conj.redundancy} 
-$
+$\begin{array}{rclcrcl}
 \true
-\equiv p\vee(\neg p) 
-\hspace*{10mm} 
+& \equiv & p\vee(\neg p) 
+& \hspace*{10mm} & % \\
 \false
-\equiv \neg\true 
-\hspace*{10mm} 
+& \equiv & \neg\true \\
+\psi_1\wedge \psi_2
+& \equiv & \neg((\neg\psi_1)\vee(\neg\psi_2)) 
+& \hspace*{10mm} & % \\
 \psi_1\Rightarrow \psi_2
-\equiv (\neg \psi_1)\vee \psi_2$ \\
-$\pevt \phi_1
-\equiv \true\;\until \phi_1 
-\hspace*{20mm} 
+& \equiv & (\neg \psi_1)\vee \psi_2 \\
+\pevt \phi_1
+& \equiv & \true\;\until \phi_1 
+& \hspace*{10mm} & % \\
 \pfrr \phi_1
-\equiv \neg\pevt\neg\phi_1 
-$
+& \equiv & \neg\pevt\neg\phi_1 \\
+\end{array}$
 \end{center} 
 The SQs and SIQs introduced above are 
 all existential in that they are satisfied with one S-profile.  
@@ -617,7 +1106,13 @@ $\langle \{a_1,\ldots,a_n\}\rangle$ and
 $\langle+ \{a_1,\ldots,a_n\}\rangle$ as 
 $\langle a_1,\ldots,a_n\rangle$ and  
 $\langle+a_1,\ldots,a_n\rangle$, respectively.
-\subsection{semantics}
+
+
+
+
+\subsection{BSIL semantics 
+\label{subsec.bsil.semantics}}
+
 BSIL subformulas are interpreted with respect to S-profiles.  
 A state or a tree formula $\phi$ is satisfied 
 at a state $q$ with S-profile $\Sigma$, denoted $\calg,q\models_\Sigma\phi$, if,
@@ -691,8 +1186,10 @@ For convenience, we let $\perp$ be a null S-profile,
 i.e., a function that is undefined on everything. 
 If $\phi_1$ is a BSIL (state) formula and $\calg,q\models_\perp\phi_1$,
 then we may simply write $\calg,q\models\phi_1$.  
-If $\calg,r\models\phi_1$, then we also write $\calg\models\phi_1$.
-\subsection{ATL+}
+If $\calg,r\models\phi_1$, then we also write $\calg\models\phi_1$.  
+
+
+\subsection{ATL$^+$}
 ATL$^+$ is the syntactic fragment of BSIL given by the following grammar
 
 \begin{center}
@@ -710,16 +1207,18 @@ ATL$^+$ can also be viewed as an extension of ATL \cite{AHK02} that, similar to 
 As such, all complexities of ATL$^+$ must reside between those of BSIL and ATL as well as between those of BSIL and CTL$^+$, which we will use to establish the lower bounds for ATL$^+$ and BSIL.
 
 \subsection{Memory}
-In this subsection, we show a simple example in which \label{reply1.in.which}  
+
+In this subsection, we show a simple example that 
 the agents need memory to achieve their objective for ATL$^+$ 
 specifications.
-This is\label{reply1.is.is} exemplified by the simplest possible case: 
+This is is exemplified by the simplest possible case: 
 the turn based game in Figure~\ref{fig.gg.fin} 
 with one agent, two states, one atomic proposition, 
 and two memoryless strategies 
 that do not count the unreached states in the histories.
-For the ATL$^+$ sentence \label{reply2.mem.fin.parenthesis} 
-$\langle 1 \rangle ((\neg \nxt p)\wedge \pevt p)$, 
+For the ATL$^+$ sentence 
+$\langle 1 \rangle (\langle + \rangle \neg \nxt p) 
+\wedge \langle + \rangle \pevt p$, 
 apparently agent 1 needs memory to enforce it.  
 \begin{figure}[t]
 \begin{center} 
@@ -737,15 +1236,182 @@ This even holds for the single agent case.
 }
 
 
-\section{Expressive Power of BSIL}
+\section{Expressive Power of BSIL \label{sec.exp}}
+
 In this section, we establish that BSIL is incomparable with ATL$^*$, 
 AMC, and GL \cite{AHK02} in expressiveness.
-In fact, we shall first establish the incomparability between BSIL with 
-GL and AMC.  
-Then the imcomparability with BSIL follows since GL and AMC are super-classes of 
-ATL$^*$ \cite{AHK02}.
-\subsection{Comparison with GL}
-GL separates strategy quantifications\label{reply1.quantificaitons} from path quantifications.  
+
+
+
+\subsection{Comparision with ATL$^*$ \label{subsec.exp.atl} }
+
+It is easy to see that BSIL is a super-class of ATL.
+Thus we have the following lemma.
+
+{\lemma \label{lemma.atl.less}
+BSIL is at least as expressive as ATL.  
+}
+% \\\pf The lemma is true since BSIL without SIQs coincides with ATL.  
+\qed
+
+Lemmas~\ref{lemma.atl.cant} and \ref{lemma.atl.incomp} establish  
+that ATL$^*$ and BSIL are incomparable. 
+
+
+{\lemma \label{lemma.atl.cant} 
+For every ATL$^*$ formula $\phi$,
+there are two game graphs that
+$\phi$ cannot distinguish while
+$\langle 1\rangle ((\langle+ 2\rangle\pfrr p)
+    \wedge \langle+ 2\rangle\pfrr q)$ can.
+}\\\pf 
+The proof is by an inductive construction of 
+two families $G_0,\ldots,G_k,\ldots$ 
+and $H_0,\ldots,$ $H_k,\ldots$ of turn-based game graphs that 
+no ATL$^*$ formula with $k$ SQs can distinguish $G_k$ and $H_k$.  
+We prove the lemma by induction on $k$.  
+
+\noindent 
+{\bf Base case:} Assume that we have an ATL$^*$ formula 
+$\phi$ with at most one SQ.  
+Then we have the two game graphs in Figure~\ref{fig.gg.exp}
+for three agents.
+\begin{figure}[t]\begin{center}
+\input{gg.expba100.tex}\\
+(a) $G_0$, a game graph for base case.\\
+\input{gg.expbb100.tex}\\
+(b) $H_0$, another game graph for base case.\\
+$\bigcirc$ belongs to Agent  1; $\pfrr$ belongs to Agent 2; and 
+$\triangle$ belongs to Agent 3.
+\end{center}
+\caption{Base cases for the expressiveness of BSIL over ATL$^*$}
+\label{fig.gg.exp}
+\end{figure}
+Note that the two game graphs have the same set of traces.
+Thus they cannot be distinguished by path formulas.
+Then there are the following case analysis of ATL$^*$ formulas.
+\begin{list1}
+\item {\bf Case 1:} {\em $\phi$ is $\langle A\rangle\phi_1$
+    where $\phi_1$ is a Boolean combination of path formulas.}
+    Note that $\phi_1$ characterizes a set of traces.
+    For convenience of discussion,
+    we call a trace that stabilizes to $\{p\}$ a $p$-trace.
+    A trace that stabilizes to $\{q\}$ is called a $q$-trace.
+    Also, for a path formula $\theta$,
+    we let $\ldbrac\theta\rdbrac$ denote the
+    set of traces characterized by $\theta$.
+    For the two game graphs in figure~\ref{fig.gg.exp},
+    there are only two types of traces.
+    Thus there are only the following
+    four different subsets of traces.
+    \begin{list1}
+    \item The set of no trace, denoted $\emptyset$.
+    \item The set of $p$-traces, denoted $\{\pfrr p\}$.
+    \item The set of $q$-traces, denoted $\{\pfrr q\}$.
+    \item The set of $p$-traces and $q$-traces,
+        denoted $\{\pfrr p,\pfrr q\}$.
+    \end{list1}
+    The following case analysis shows that, for every
+    trace subset $S$ and every agency $A$,
+    there exists a strategy of $A$ to characterize
+    $S$ in figure~\ref{fig.gg.exp}(a) iff
+    there exists a strategy for $A$ to characterize
+    $S$ in figure~\ref{fig.gg.exp}(b).
+    \begin{list2}
+    \item {\bf Case 1a:} {\em $\phi$ is $\langle\emptyset\rangle\phi_1$.}
+        In this case, there is no strategy and the sets of traces
+        imposed by no strategy in the two state graphs are
+        both $\{\pfrr p,\pfrr q\}$.
+        Thus, $\langle\emptyset\rangle\phi_1$ cannot distinguish the trace sets of the
+        two state graphs.
+    \item {\bf Case 1b:} {\em $\phi$ is $\langle 1\rangle\phi_1$.}
+        From figure~\ref{fig.gg.exp}, no matter what strategies
+        agency $\{1\}$ may choose, the
+        trace sets for the two game graphs are both
+        $\{\pfrr p,\pfrr q\}$.
+        Thus, $\langle 1\rangle\phi_1$ cannot distinguish the trace sets of the
+        two state graphs.
+    \item {\bf Case 1c:} {\em $\phi$ is
+        $\langle 2\rangle\phi_1$.}
+        This case is similar to case 1b.
+    \item {\bf Case 1d:} {\em $\phi$ is
+        $\langle 3\rangle\phi_1$.}
+        This case is similar to case 1b.
+    \item {\bf Case 1e:} {\em $\phi$ is
+        $\langle 1,2\rangle\phi_1$.}
+        Agency $\{1, 2\}$ can cooperate to force three trace sets:
+        $\{\pfrr p\}, \{\pfrr q\}, \{\pfrr p,\pfrr q\}$
+        in both of the game graphs in figure~\ref{fig.gg.exp}.
+        Thus, $\langle 1,2\rangle\phi_1$ cannot distinguish the trace sets of the
+        two state graphs.
+    \item {\bf Case 1f:} {\em $\phi$ is
+        $\langle 1,3\rangle\phi_1$.}
+        This case is similar to case 1e.
+    \item {\bf Case 1g:} {\em $\phi$ is
+        $\langle 2,3\rangle\phi_1$.}
+        This case is similar to case 1e.
+    \item {\bf Case 1h:} {\em $\phi$ is
+        $\langle 1,2,3\rangle\phi_1$.}
+        Agency $\{1, 2,3\}$ can cooperate to force three trace sets:
+        $\{\pfrr p\}, \{\pfrr q\}, \{\pfrr p,\pfrr q\}$
+        in both of the game graphs in figure~\ref{fig.gg.exp}.
+        Thus, $\langle 1,2,3\rangle\phi_1$ cannot distinguish the trace sets of the
+        two state graphs.
+    \end{list2}
+\item {\bf Case 2:} {\em $\phi$ is a Boolean combination of
+    formulas in case 1.}
+    Since case 1 does not distinguish the two game graphs,
+    this case can neither do it.
+\end{list1}
+Thus the base case is proven.
+
+\noindent {\bf Induction step:}
+We use structural induction on ATL$^*$ formulas to prove the step.
+If $\phi$ has $k$ SQs,
+then we can construct the two graphs in figure~\ref{fig.gg.expi}.
+\begin{figure}[t]\begin{center}
+\input{gg.expi100.tex}\\
+$\bigcirc$ belongs to Agent  1; $\pfrr$ belongs to Agent 2; and 
+$\triangle$ belongs to Agent 3.
+\end{center}
+\caption{Inductive cases for the expressiveness of BSIL over ATL$^*$}
+\label{fig.gg.expi}
+\end{figure}
+It is clear that
+$\langle 1\rangle ((\langle+ 2\rangle \pfrr p)
+    \wedge (\langle+ 2\rangle \pfrr q))$ can distinguish
+$G_k$ and $H_k$.
+However, to tell the difference between the two graphs,
+we need a modal subformula of $\phi$ that can tell the difference
+of $G_{k-1}$ and $H_{k-1}$.
+But according to the inductive hypothesis, this is impossible.
+Thus the lemma is proven.  
+\qed 
+
+Lemmas~\ref{lemma.atl.less} and \ref{lemma.atl.cant} together establish  
+that ATL is strictly less expressive than BSIL. 
+
+
+{\lemma \label{lemma.atl.incomp}
+ATL$^*$ formula $\langle 1\rangle\pfrr\pevt p$
+is not equivalent to any BSIL formula.
+} 
+\\\pf 
+The proof is similar to the proof for the inexpressibility of 
+$\langle 1\rangle\pfrr\pevt p$ with ATL \cite{AHK02}.  
+\qed 
+
+Lemmas~\ref{lemma.atl.cant} and \ref{lemma.atl.incomp}
+together establish  
+that ATL$^*$ and BSIL are not comparable in expressiveness. 
+
+
+
+
+
+\subsection{Comparision with GL\label{subsec.exp.gl}} 
+
+GL separates strategy quantificaitons from path quantifications.  
 In comparison, ATL$^*$ and BSIL combines these two quantifications 
 into SQs and SIQs.  
 Thus with GL, we can specify that, for all S-profiles of $A$, 
@@ -757,49 +1423,22 @@ $\forall\pfrr, \forall\until, \exists\pfrr$, and
 $\exists\until$.  
 
 The following two lemmas show the relation between GL and BSIL.  
-Lemma~\ref{lemma.gl.cant} uses two inductive families of game graphs 
-to show that GL is not as expressive as BSIL. 
-The base cases, $G_1$ and $H_1$, are in figure~\ref{fig.gg.exp}
-for three agents.
-\begin{figure}[t]\begin{center}
-\input{gg.expba100.tex}\\
-(a) $G_1$, a game graph for base case.\\
-\input{gg.expbb100.tex}\\
-(b) $H_1$, another game graph for base case.\\
-$\bigcirc$ belongs to Agent  1; $\pfrr$ belongs to Agent 2; and 
-$\triangle$ belongs to Agent 3.
-\end{center}
-\caption{Base cases for the expressiveness of BSIL over ATL$^*$}
-\label{fig.gg.exp}
-\end{figure}
-The inductive cases, $G_{k+1}$ and $H_{k+1}$, are 
-respectively constructed out of $G_k$ and $H_k$ as 
-in figure~\ref{fig.gg.expi}.
-\begin{figure}[t]\begin{center}
-\input{gg.expi100.tex}\\
-$\bigcirc$ belongs to Agent  1; $\pfrr$ belongs to Agent 2; and 
-$\triangle$ belongs to Agent 3.
-\end{center}
-\caption{Inductive cases for the expressiveness of BSIL over ATL$^*$}
-\label{fig.gg.expi}
-\end{figure}
-
 
 {\lemma \label{lemma.gl.cant}
-Every GL formula $\phi$ with $k$ ($k>0$) SQs cannot distinguish 
-$G_k$ and $H_k$ while 
+For every GL formula $\phi$,
+there are two game graphs that
+$\phi$ cannot distinguish while \linebreak 
 $\langle 1\rangle ((\langle+ 2\rangle\pfrr p)
     \wedge \langle+ 2\rangle\pfrr q)$ can.
 }
 \\\pf 
-It is clear that
-$\langle 1\rangle ((\langle+ 2\rangle \pfrr p)
-    \wedge (\langle+ 2\rangle \pfrr q))$ can $G_k$ and $H_k$ 
-no matter what value $k$ is.  
-The proof continues by an induction $k$, the numbrer of SQs in $\phi$. 
+The proof is similar to the one for Lemma~\ref{lemma.atl.cant} 
+and is by induction on the number of modal operators $k$.  
 
 \noindent 
 {\bf Base case:} Assume that $\phi$ has only one modal operator.
+Then we have the two game graphs in figure~\ref{fig.gg.exp}
+for three agents.
 Then there are the following case analysis of GL formulas.
 \begin{list1}
 \item {\bf Case 1:} {\em $\phi$ is $\existsb  A.\phi_1$
@@ -864,8 +1503,14 @@ Then there are the following case analysis of GL formulas.
 Thus the base case is proven.
 
 \noindent {\bf Induction step:}
+We use structural induction on GL formulas to prove the step.
 If $\phi$ has $k$ modal operators,
-to tell the difference between $G_k$ and $H_k$,
+then we can use the two graphs in figure~\ref{fig.gg.expi}.
+It is clear that
+$\langle 1\rangle ((\langle+ 2\rangle \pfrr p)
+    \wedge (\langle+ 2\rangle \pfrr q))$ can distinguish
+the two graphs.
+However, to tell the difference between the two graphs,
 we need a modal subformula of $\phi$ that can tell the difference
 of $G_{k-1}$ and $H_{k-1}$.
 But according to the inductive hypothesis, this is impossible.
@@ -887,7 +1532,14 @@ any ATL$^*$ formula.
 Lemmas~\ref{lemma.gl.cant} and 
 \ref{lemma.gl.incomp} together show that 
 GL and BSIL are not comparable in expressiveness.  
-\subsection{Comparison with AMC}
+
+
+
+
+
+
+\subsection{Comparision with AMC\label{subsec.exp.amc}} 
+
 AMC is an extension from $\mu$-calculus and allows 
 for multiple fixpoints interleaved together \cite{AHK02}.  
 An AMC formula contains fixpoint operators on state set variables.  
@@ -1053,24 +1705,24 @@ We use an induction on $k$ to prove the lemma.
 {\bf Base case:} 
 When $\phi$ is in case 1a through 1d, the lemma follows straightforwardly.
 In case 1e,
-$(\emlfp x.\psi)^{G_1}(\nu)$ can be expanded as follows.
+$(\emlfp x.\psi)^{G_0}(\nu)$ can be expanded as follows.
 We let
 \begin{list1}
-\item $\psi^{G_1,\nu,(0)}$ be $(\psi[x\mapsto \false])^{G_1}(\nu)$ and
+\item $\psi^{G_0,\nu,(0)}$ be $(\psi[x\mapsto \false])^{G_0}(\nu)$ and
 \item for each $h>0$,
-    $\psi^{G_1,\nu,(h)}$ be $(\phi[x\mapsto \psi_1^{G_1,(h-1)}])(\nu)$.
+    $\psi^{G_0,\nu,(h)}$ be $(\phi[x\mapsto \psi_1^{G_0,(h-1)}])(\nu)$.
 \end{list1}
-Then $(\emlfp x.\phi)^{G_1}(\nu)=\bigcup_{h\geq 0}\psi^{G_1,\nu,(h)}$
+Then $(\emlfp x.\phi)^{G_0}(\nu)=\bigcup_{h\geq 0}\psi^{G_0,\nu,(h)}$
 according to the semantics of AMC.
 Similarly, \linebreak 
-$(\emlfp x.\phi)^{H_1}(\nu')=\bigcup_{h\geq 0}\psi^{H_1,\nu',(h)}$.
+$(\emlfp x.\phi)^{H_0}(\nu')=\bigcup_{h\geq 0}\psi^{H_0,\nu',(h)}$.
 According to the same argument for cases 1a through 1d,
 for each $h\geq 0$,
-$r_0\in \psi^{G_1,\nu,(h)}$ iff
-$s_0\in \psi^{H_1,\nu',(h)}$.
+$r_0\in \psi^{G_0,\nu,(h)}$ iff
+$s_0\in \psi^{H_0,\nu',(h)}$.
 Thus it is clear that
-$r_0\in (\emlfp x.\phi)^{G_1}(\nu)$ iff
-$s_0\in (\emlfp x.\phi)^{H_1}(\nu')$.
+$r_0\in (\emlfp x.\phi)^{G_0}(\nu)$ iff
+$s_0\in (\emlfp x.\phi)^{H_0}(\nu')$.
 Thus the lemma is proven in this case.
 
 \noindent
@@ -1122,63 +1774,30 @@ is strictly less expressive than $\mu$-calculus.
 
 
 
-A comment on Lemmas~\ref{lemma.gl.cant} and \ref{lemma.amc.cant} 
+A comment on Lemmas~\ref{lemma.atl.cant}, 
+\ref{lemma.gl.cant}, and \ref{lemma.amc.cant} 
 is that the path modal formulas in the lemmas can be changed 
 independently to $\pevt \neg p$ and $\pevt \neg q$ without affecting the validity of 
 the lemma.  
 This can be used to show that the example properties in the introduction 
 are indeed inexpressible in ATL$^*$, GL, and AMC.  
 
-\subsection{Comparison with ATL*}
-It is easy to see that BSIL is a super-class of ATL.
-Thus we have the following lemma.
-
-{\lemma \label{lemma.atl.less}
-BSIL is at least as expressive as ATL.  
-}
-% \\\pf The lemma is true since BSIL without SIQs coincides with ATL.  
-\qed
-
-Then Lemmas~\ref{lemma.gl.cant} and \ref{lemma.amc.cant} 
-lead to the 
-fact that there are some BSIL properties that 
-ATL$^*$ cannot express 
-since GL and AMC are both super-class of ATL$^*$ \cite{AHK02}.  
 
 
 
-{\lemma \label{lemma.atl.cant} 
-For every ATL$^*$ formula $\phi$, 
-there are two game graphs that
-$\phi$ cannot distinguish while
-$\langle 1\rangle ((\langle+ 2\rangle\pfrr p)
-    \wedge \langle+ 2\rangle\pfrr q)$ can.
-}\qed 
+\section{BSIL and ATL$^+$ model-checking are PSPACE complete 
+\label{sec.mck.psp}}
 
-Lemmas~\ref{lemma.atl.less} and \ref{lemma.atl.cant} together establish  
-that ATL is strictly less expressive than BSIL. 
-Then the following lemma shows the reverse direction.  
 
-{\lemma \label{lemma.atl.incomp}
-ATL$^*$ formula $\langle 1\rangle\pfrr\pevt p$
-is not equivalent to any BSIL formula.
-} 
-\\\pf 
-The proof is similar to the proof for the inexpressibility of 
-$\langle 1\rangle\pfrr\pevt p$ with ATL \cite{AHK02}.  
-\qed 
 
-Lemmas~\ref{lemma.atl.cant} and \ref{lemma.atl.incomp}
-together establish  
-that ATL$^*$ and BSIL are not comparable in expressiveness. 
 
-\section{Algorithm and Complexity}
+
 The model-checking problem of BSIL is contained in 
 PSPACE mainly due to the restriction that disallows 
 negation in tree formulas.
 As in the model-checking algorithms 
-of ATL \cite{AHK02}, we can evaluate the proper state subformulas \label{reply1.subformulas.formulas} 
-independently and then treat them as auxiliary propositions.  
+of ATL \cite{AHK02}, we can evaluate the proper state subformulas  
+formulas independently and then treat them as auxiliary propositions.  
 Moreover, as in the evaluation of $\pevt$-formulas in 
 ATL model-checking, 
 if a $\pevt$-formula can be enforced with an S-profile, it can be enforced 
@@ -1187,25 +1806,6 @@ the strategy in a computation tree.
 Once a bound $b$ for this finite number of steps is determined, 
 we can enumerate all strategies embedded in the computation 
 tree up to depth $b$ and try to find one that enforces a BSIL formula.  
-
-\label{reply2.exp.alg2} 
-As explained in section~\ref{sec.running}, 
-our algorithm also labels subformulas and their symbolic S-profiles 
-on the nodes in a computation tree. 
-The formula is satisfied if and only if we can 
-find a finite tree top with labels consistent with the SQs and SIQs in the input formula 
-and can be extended to an infinite computation tree. 
-In Subsection~\ref{subsec.children.ltl.ob},
-we derive the labels, i.e., subformulas and their symbolic S-profiles, that are 
-sufficient for our model-checking algorithm and 
-present two procedures: 
-\begin{list1} 
-\item \tteval() that checks whether the satisfaction of formulas at a state 
-	can be decided locally.  
-\item \ttsynsuc() that nondeterministically chooses a scheme to 
-	pass down the subformulas and their symbolic S-profiles to the child nodes 
-	without violating the restrictions on the S-profiles declared with the SQs and SIQs. 
-\end{list1} 
 
 There are, however, severe differences between exploring 
 a computation tree for 
@@ -1226,8 +1826,11 @@ This can be conceptualized as passing the obligations of $\pevt p$ and
 $\pfrr q\vee\pevt r$ along the path from the root to $v$.  
 Then, at node $v$, the two strategies may differ in their decisions 
 and pass down the two obligations to different branches. 
+In Subsection~\ref{subsec.children.ltl.ob},
+we explain some basic concepts in labeling the children with
+path obligations passed down from their parent in a computation tree
+to obey the interaction among the strategies declared in a BSIL formula.
 
-\label{reply2.exp.alg3} 
 Then, in Subsection~\ref{subsec.alg.proc},
 we present our algorithm in two parts,
 one for model-checking BSIL state formulas
@@ -1251,8 +1854,6 @@ We use $\{a_1 \mapsto s_1,\ldots,a_n\mapsto s_n\}$ to denote
 a partial function that maps $a_i$ to $s_i$ for each $i\in[1,n]$.  
 Given a partial function $f$, 
 we denote the domain of $f$ by $\emdef(f)$.
-Inheriting the notations in \cite{MMV10}, 
-we may also represent the the mapping as $(a_1,s_1)(a_2,s_2)\ldots(a_n,s_n)$.  
 % be the set of domain elements that 
 % is defined with $\zeta$.  
 
@@ -1261,7 +1862,7 @@ We adopt the concept of strategy variables from \cite{CHP10,MMV10}.
 A {\em strategy variable binding} ({\em SV-binding} for short) 
 is a partial function from $[1,m]$ to strategy variables.  
 Given an SV-binding $\Lambda$, 
-$\Lambda\circ(a_1, s_1)\ldots(a_n, s_n)$ 
+$\Lambda\circ\{a_1 \mapsto s_1,\ldots,a_n\mapsto s_n\}$ 
 is the SV-binding that is identical to $\Lambda$ 
 except that Agent $a_i$ is bound to $s_i$ for every $i\in[1,n]$.  
 % Given an agency $A\subseteq[1,m]$, 
@@ -1292,8 +1893,8 @@ For example, the property
 $\langle 1\rangle((\langle+ 2\rangle\pevt p)\wedge 
 \langle+ 2\rangle(\pfrr q\vee\pevt r))$ 
 can be rewritten as BB-formula 
-$((1, s_1)(2,s_2)\pevt p)\wedge 
-(1, s_1)(2, s_3)\pfrr q\vee\pevt r$, which says that 
+$(\{1\mapsto s_1,2\mapsto s_2\}\pevt p)\wedge 
+\{1\mapsto s_1,2\mapsto s_3\}\pfrr q\vee\pevt r$, which says that 
 Agent 1 must use the same strategy to fulfill  
 both $\pevt p$ and $\pfrr q\vee\pevt r$, while 
 Agent 2 may use different strategies to fulfill these two path 
@@ -1374,45 +1975,37 @@ with the semantics of BSIL formulas.
 
 
 {\lemma \label{lemma.bbf.fwd}
-Suppose we are given a state $q$, 
-a BSIL subformula $\psi$, and 
-a S-profile $\Sigma$ such that $\calg,q\models_\Sigma\psi$.  
-There exist an SV-binding $\Lambda$ and a function $\pi$ such that 
-$\calg,q\models^\pi\embf(\Lambda\psi)$.  
+Suppose we are given a state $q$,
+BSIL subformulas $\psi_1,\ldots,\psi_n$, and  
+S-profiles $\Sigma_1,\ldots,\Sigma_n$ such that, 
+for all $i\in[1,n]$, $\calg,q\models_{\Sigma_i}\psi_i$. 
+Then there exist SV-bindings $\Lambda_1,\ldots,\Lambda_n$ that 
+match $\Sigma_1,\ldots,\Sigma_n$ and a function $\pi$ such that 
+for all $i\in[1,n]$, $\calg,q\models^\pi\embf(\Lambda_i\psi_i)$.  
 } 
 \\\pf 
-We construct $\Lambda$ and $\pi$ as follows. 
-Without loss of generality, 
-we assume $\psi$ is unique in the input formula. 
-For every $a\in\emdef(\Sigma)$, 
-we let $\Lambda(a)=s_a^\psi$ and $\pi(s_a^\psi)=\Sigma(a)$.  
-It is clear that the functional composition of $\Lambda$ and $\pi$ is actually $\Sigma$.   
-Then, according to the semantics of 
-$\calg,q\models^\pi\embf(\Lambda\psi)$ presented in the above, 
-$\calg,q\models^\pi\embf(\Lambda\psi)$ since 
-for all play $\rho$ compatible with $\Sigma$ from $q$, 
-$\rho\models_\Sigma\psi$.  
-Thus the lemma is proven. 
+First, it is obvious that we can define 
+$\Lambda_1,\ldots,\Lambda_n$ that match $\Sigma_1,\ldots,\Sigma_n$.  
+Then the lemma can be proven 
+by defining, for each $a\in[1,m]$ and $i\in[1,n]$ 
+with $a\in\emdef(\Lambda_i)$, that $\pi(\Lambda_i(a))=\Sigma_i(a)$.  
 \qed 
 
 {\lemma \label{lemma.bbf.bkd}
 Suppose we are given a state $q$,
-a BSIL subformula $\psi$, 
-a SV-bindings $\Lambda$, 
-and a function $\pi$ such that  
-$\calg,q\models^\pi\embf(\Lambda\psi)$.  
-Then there exist an S-profile $\Sigma$ 
-such that $\calg,q\models_\Sigma\psi$. 
+BSIL subformulas $\psi_1,\ldots,\psi_n$, 
+SV-bindings $\Lambda_1,\ldots,\Lambda_n$, 
+and a function $\pi$ such that, for all $i\in[1,n]$, 
+$\calg,q\models^\pi\embf(\Lambda_i\psi_i)$.  
+Then there exist S-profiles $\Sigma_1,\ldots,\Sigma_n$ 
+such that, for all $i\in[1,n]$, $\calg,q\models_{\Sigma_i}\psi_i$. 
 }
 \\\pf 
-We can construct $\Sigma$ by 
-defining, for all $a\in \emdef(\Lambda)$, 
-$\Sigma(a)=\pi(\Lambda(a))$.  
-Thus, $\Sigma$ is the functional composition of $\Lambda$ and $\pi$.  
-Then according to the semantics of  
-$\calg,q\models^\pi\embf(\Lambda\psi)$ presented in the above, 
-$\calg,q\models^\pi\embf(\Lambda\psi)$ implies $\calg,q\models_\Sigma \psi$.  
-Thus the lemma is proven.  
+For each $i\in[1,n]$, we can construct $\Sigma_i$ by 
+defining, for all $a\in \emdef(\Lambda_i)$, 
+$\Sigma_i(a)=\pi(\Lambda_i(a))$.  
+Then by a structural induction on $\psi_1,\ldots,\psi_n$, 
+we can prove the lemma.  
 \qed 
 
 
@@ -1442,7 +2035,7 @@ $\begin{array}{ll}
   \right) \right) }\\ 
 
 \equiv	&  
-\embf\left((1,s_1)(2,s_2)\left( 
+\embf\left(\{1\mapsto s_1,2\mapsto s_2\}\left( 
     	\langle+3\rangle(\pfrr p\vee \pevt q
     	) 
   \wedge \langle+3\rangle(\langle+2\rangle \pevt r\vee \langle+ 4\rangle\pfrr q)
@@ -1450,38 +2043,38 @@ $\begin{array}{ll}
 
 \equiv & % \begin{array}{ll}  
 % &  
-\embf((1, s_1)(2,s_2)\langle+3\rangle(\pfrr p\vee \pevt q)) % \\
+\embf(\{1\mapsto s_1,2\mapsto s_2\}\langle+3\rangle(\pfrr p\vee \pevt q)) % \\
 \wedge % & 
-  \embf((1,s_1)(2,s_2)\langle+3\rangle(
+  \embf(\{1\mapsto s_1,2\mapsto s_2\}\langle+3\rangle(
     \langle+2\rangle \pevt r\vee \langle+ 4\rangle\pfrr q
   ))
 % \end{array}
 \\ 
-\equiv & \embf((1, s_1)(2,s_2)(3,s_3)(
+\equiv & \embf(\{1\mapsto s_1,2\mapsto s_2,3\mapsto s_3\}(
 	    \pfrr p\vee \pevt q
 	    )) 
 	\wedge  
-	  \embf((1,s_1)(2,s_2)(3,s_4)
+	  \embf(\{1\mapsto s_1,2\mapsto s_2, 3\mapsto s_4\}
 	    (\langle+ 2\rangle \pevt r\vee \langle+ 4\rangle\pfrr q))
 	\\ 
-\equiv & (1,s_1)(2,s_2)(3,s_3)(
+\equiv & \{1\mapsto s_1,2\mapsto s_2,3\mapsto s_3\}(
 	    \pfrr p\vee \pevt q
 	    )\\ 
 	& \wedge \left(
-	  (1,s_1)(2,s_5)(3,s_4)
+	  \{1\mapsto s_1, 2\mapsto s_5,3\mapsto s_4\}
 	    \pevt r
 	  \vee 
-	  (1,s_1)(2,s_2)(3,s_4)(4,s_6)
+	  \{1\mapsto s_1,2\mapsto s_2,3\mapsto s_4, 4\mapsto s_6\}
 	     \pfrr q\right)
 	\\ 
-\equiv & \left((1,s_1)(2,s_2)(3,s_3)(
+\equiv & \left(\{1\mapsto s_1,2\mapsto s_2,3\mapsto s_3\}(
 	    \pfrr p\vee \pevt q
-	    )\wedge (1,s_1)(2,s_5)(3,s_4)
+	    )\wedge \{1\mapsto s_1, 2\mapsto s_5,3\mapsto s_4\}
 	    \pevt r\right)\\ 
-	& \vee \left((1,s_1)(2,s_2)(3,s_3)(
+	& \vee \left(\{1\mapsto s_1,2\mapsto s_2,3\mapsto s_3\}(
 	    \pfrr p\vee \pevt q
 	    )\wedge  
-	  (1,s_1)(2,s_2)(3,s_4)(4,s_6)
+	  \{1\mapsto s_1,2\mapsto s_2,3\mapsto s_4, 4\mapsto s_6\}
 	     \pfrr q\right)
 	\\ 
 \end{array}$
@@ -1493,18 +2086,18 @@ outermost disjuncts is satisfied.
 Without loss of generality, we examine the first disjunct: 
 %  in the following.
 \begin{center}
-$\eta_1\equiv (1,s_1)(2,s_2)(3,s_3)(
+$\eta_1\equiv \{1\mapsto s_1,2\mapsto s_2,3\mapsto s_3\}(
 	    \pfrr p\vee \pevt q
-	    )\wedge (1,s_1)(2,s_5)(3,s_4)
+	    )\wedge \{1\mapsto s_1, 2\mapsto s_5,3\mapsto s_4\}
 	    \pevt r$
 \end{center}
 There are the following
 two S-profiles involved in the satisfaction of the formula.
 \begin{list1}
-\item $\Sigma_1$ for $(1,s_1)(2,s_2)(3,s_3)$ 
+\item $\Sigma_1$ for $\{1\mapsto s_1,2\mapsto s_2,3\mapsto s_3\}$ 
 	of $\{1,2,3\}$ 
 	used to satisfy $\pfrr p\vee \pevt q$.
-\item $\Sigma_2$ for  $(1,s_1)(2,s_5)(3,s_4)$ 
+\item $\Sigma_2$ for  $\{1\mapsto s_1, 2\mapsto s_5,3\mapsto s_4\}$ 
 	of $\{1,2,3\}$ used to satisfy $\pevt r$.
 \end{list1}
 This disjunct imposes the restrictions that 
@@ -1513,15 +2106,15 @@ $\Sigma_1$ and $\Sigma_2$ must agree in their moves by agent 1.
 owned by Agent 1.)  
 Similarly, we can examine 
 \begin{center}
-$\eta_2\equiv (1,s_1)(2,s_2)(3,s_3)(
+$\eta_2\equiv \{1\mapsto s_1,2\mapsto s_2,3\mapsto s_3\}(
 	    \pfrr p\vee \pevt q
 	    )\wedge  
-	  (1,s_1)(2,s_2)(3,s_4)(4,s_6)
+	  \{1\mapsto s_1,2\mapsto s_2,3\mapsto s_4, 4\mapsto s_6\}
 	     \pfrr q$
 \end{center}
 There is a new S-profile introduced. 
 \begin{list1}
-\item $\Sigma_3$ for  $(1,s_1)(2,s_2)(3,s_4)(4,s_6)$ 
+\item $\Sigma_3$ for  $\{1\mapsto s_1,2\mapsto s_2,3\mapsto s_4, 4\mapsto s_6\}$ 
 	of $\{1,2,3,4\}$ used to satisfy $\pfrr q$.
 \end{list1}
 This disjunct imposes the restrictions that 
@@ -1641,7 +2234,7 @@ without violating the strategy interaction of BP-obligations.
 % \begin{table*}[!ht]
 % \caption{A nondeterministic procedure for assigning obligations to
 % successors}
-\label{tab.nd.suc}
+% \label{tab.nd.suc}
 \procbegin
 $\ttsynsuc(q,C)$ // $\lambda()$ has been extended with 
 			satisfied state subformulas at each state. 
@@ -1667,7 +2260,6 @@ $\ttsynsuc(q,C)$ // $\lambda()$ has been extended with
   	(\delta((q,q'),a)=s_{\Lambda(a)})$} \label{stmt.nd.suc.pass}  
       \STATE Replace $(q',C')$ with 
         $(q',C'\cup\{\Lambda\ttnxt(\theta)\})$ in $K$.
-        \label{stmt.nd.suc.passCommit} 
     \ENDFOR
 \ENDFOR 
 \RETURN $K$.\label{stmt.nd.suc.succ} 
@@ -1848,7 +2440,6 @@ the following restrictions.
 \item $V$ is the set of nodes in the tree.
 \item $\bar{r}\in V$ is the root of the tree.
 \item $\alpha:V\mapsto Q$ labels each tree node with a state.
-\label{reply2.correct.g2q} 
     Also $\alpha(\bar{r})=q_0$.
 \item $E\subseteq V\times V$ is the set of arcs of the tree
     such that, for each $(q,q')\in R$,
@@ -1858,7 +2449,7 @@ the following restrictions.
     that need to be fulfilled at a node.  
     Moreover, we have the following restrictions on $\beta$.
     \begin{list2}
-    \item $C= \beta(r)$.\label{reply2.C.eq.betar}  
+    \item $C\subseteq \beta(r)$.
     \item For every $v\in V$,
         there exists a 
         $\Delta=\ttsynsuc(\alpha(v),\beta(v))$
@@ -1969,11 +2560,7 @@ BP-obligations to the children to $q$ in the computation tree.
 Specifically, procedure
 $\ttsynsuc(q,C)$ nondeterministically returns a
 set $\Delta$ with elements of the form $(q',C')$ such that
-$(q,q')\in R$ and $C'\subseteq C$ since \label{reply2.CpsubseteqC} 
-in procedure $\ttsynsuc(q,C)$, 
-a path obligation $\Lambda\theta$ is passed down to a child and 
-recorded in the corresponding $C'$ only when it 
-matches the for loop condition at statement~\ref{stmt.nd.suc.pass}.  
+$(q,q')\in R$ and $C'\subseteq C$. 
 Thus, along any path in the OD-tree, 
 the sets of literal bounds never increase.  
 Moreover, 
@@ -2086,7 +2673,7 @@ for covering those $\Gamma_p$'s with the decisions in those $\Omega_p$'s.
 For example, the following formula 
 $\eta\equiv \exists p\forall q\exists r
 ((p\vee q \vee r)\wedge(\neg p \vee \neg r))$ 
-can be read as {\em there exists a decision in $\Omega_p$ such that 
+can be read as ``{\em there exists a decision in $\Omega_p$ such that 
 for every decision in $\Omega_q$, there exists 
 a decision in $\Omega_r$ such that 
 \begin{list1} 
@@ -2192,6 +2779,8 @@ Following Lemmas~\ref{lemma.bsil.mck.nphard} and
 problems are PSPACE-complete.
 } \qed
 
+
+
 \section{Automata for BSIL model-checking
 \label{sec.mck.gen}
 }
@@ -2256,7 +2845,7 @@ no negation in the formula.}
 Boolean combinations of elements in $P$.  
 A satisfying assignment to a formula in $\bbbbb^+(P)$ is 
 a subset of $P$ such that 
-the formula is true if \label{reply2.iff.2.if}  
+the formula is true if, and only if, 
 all elements in the set is interpreted true.  
 
 For the convenience of the readers, we briefly review the 
@@ -2271,7 +2860,7 @@ $A$ is a tuple $\langle X,U,u_0,\delta,\gamma\rangle$, such that
 \item $u_0\in U$ is an initial state, 
 \item $\delta:(U\times X)\mapsto \bbbbb^+(\bbbbd\times U)$ 
   is a function that maps each pair of a state in $U$ 
-  and an input letter in $X$\label{reply2.chi.2.X} to 
+  and an input letter in $X$ to 
   a positive Boolean combination of pairs of directions and states, and
 \item $\gamma:U\mapsto \nnneg$ is a valuation function that 
   labels each state with a non-negative integer, called its {\em priority}.  
@@ -2366,7 +2955,7 @@ of an unravelling of $\calg$.
 To relate this to the automata we have introduced, 
 we assume for the moment that the successors are ordered: 
 a tree node with $k$ successors has a successor in direction $1$ through $k$.
-Each node is labelled with a quadruple\label{reply2.triple.2.quadruple} $(a,k,S,P)$, 
+Each node is labelled with a triple $(a,k,S,P)$, 
 containing the following information:
 \begin{itemize}
 \item $a \in [1,m]$ shows the owner of the node,
@@ -2623,11 +3212,13 @@ Model-checking BSIL formulas for CGGs is PTIME complete in the size of the model
 }
 \qed 
 
-\section{BSIL Satisfiability}
+
+
+\section{BSIL Satisfiability\label{sec.sat}} 
+
+
 In this section, we show that the satisfiability problem of BSIL is 2EXPTIME complete.
-The upper bound can be inferred by the simulation theorem \cite{MS95} 
-\label{reply1.sim.theorem.ref} 
-(or the automata constructions behind them \cite{Safra88,Piterman07,Schewe09}), while hardness is a consequence of the inclusion of CTL$^+$ \cite{Wilke99}.
+The upper bound can be inferred by the simulation theorem \cite{MS95} (or the automata constructions behind them \cite{Safra88,Piterman07,Schewe09}), while hardness is a consequence of the inclusion of CTL$^+$ \cite{Wilke99}.
 
 In the first step, 
 we provide an AA for checking the consistency of a labelling 
@@ -2740,7 +3331,25 @@ For $m$ agents, we would then have $|\Delta|^m$ directions.
 The satisfiability of a BSIL formula $\phi$ can be checked in time doubly exponential in the size of $\varphi$.
 If $\varphi$ is satisfiable, then a model can be constructed in time doubly exponential in $\varphi$.
 }
-\section{Experiment}
+
+
+
+\paragraph{Remark}
+Strictly speaking, a specification alone does not reveal the number of agents. There are two interpretations possible: either one requires the agents to be explicitly named, or one leaves the set of agents open. In the latter case, however, all agents that are not named explicitly co-operate, and their strategy is never bound in any conjunct of a DNBB. Hence, they can be collapsed to a single agent without changing the semantics.
+\medskip
+
+To obtain hardness we use draw from the 2EXPTIME-completeness of CTL$^+$.
+It is easy to see that CTL$^+$ is the sub-logic of BSIL, where $\langle A \rangle$ is restricted to $\langle \emptyset \rangle$ and $\langle+A \rangle$ operators are restricted to $\langle+\emptyset \rangle$ operators and always bind a temporal operator.
+Together with the previous theorem, the 2EXPTIME hardness of CTL$^+$  \cite{Wilke99} provides us with:
+
+\begin{corollary}
+Checking the realisability (both by a turn-based game and by a concurrent game graph) of a BSIL formula $\varphi$ is 2EXPTIME-complete in the size of $\varphi$.
+\end{corollary}
+
+
+
+\section{Experiment \label{sec.expe}}
+
 \subsection{Implementation} 
 
 We implemented a semi-symbolic model-checker of BSIL with {\bf REDLIB} 
@@ -2889,23 +3498,36 @@ and 8G RAM running Ubuntu 12.04.
 \end{center}
 \end{table*}
 
-\subsection{Discussion of the experiments \label{subsec.exp.disc}} 
+The experiment data shows that our tool can be used in analyzing strategies 
+for winning games.  
+It would be interesting to see how general and specific 
+performance improvement techniques could be designed in the future fro 
+practical industry projects.  
 
-The experiment shows that some possibilities of using our tool to flexibly support the analysis 
-and synthesis of collaborating strategies among several agents. 
-In the experiment with the prisoners' dilemma, 
-the prisoners are modeled as individual agents.  
-In the experiment with the election game, 
-the chairpersons of the parties are modeled as individual agents 
-and  their candidates and respective allocated budgets are modeled as numbers.  
-It would be interesting to see how we can explore the techniques in modeling and specifying 
-concurrent games with our tool.  
 
-On the verification side, we can see that the CPU time and memory usage exhibits 
-typical combinatorial explosion for tools for solving difficult problems.  
-As a preliminary tool, our experiment and implementation do shed light for performance 
-enhancement research in the future. 
-Specifically, our search for the OD-trees does take the shape of the game graphs and the BSIL formulas 
-into account.  
-It is possible to design heuristics that utilizes the syntax information 
-of the graphs and the formulas to construct OD-trees.
+
+\section{Conclusion \label{sec.conc}}
+
+BSIL can be useful in describing close collaboration among strategies of 
+agents in a multi-agent system. 
+Although it can express properties that
+ATL$^*$, GL, and AMC cannot, its model-checking problem incurs a
+much lower complexity.  
+Future work in this direction may include
+further extension to BSIL and 
+more efficient model-checking algorithms.  
+
+\section*{Acknowledgment}
+The authors would like to thank Moshe Vardi and the anonymous reviewers of CONCUR 2011 for their valuable comments and suggestions. 
+
+
+
+\bibliographystyle{abbrv}
+% \bibliography{../../../valcite}
+\bibliography{valcite}
+
+
+
+
+
+\end{document}

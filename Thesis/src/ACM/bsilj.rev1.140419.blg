@@ -1,0 +1,19 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: bsilj.rev1.140419.aux
+The style file: abbrv.bst
+Database file #1: ../../../valcite.bib
+I was expecting an "="---line 1198 of file ../../../valcite.bib
+ :   edmumd 
+ :          M. Clarke and Ernest Allen Emerson and A. Prassad Sistla},
+I'm skipping whatever remains of this entry
+You're missing a field name---line 1491 of file ../../../valcite.bib
+ :   title = {Applied and Algorithmic Graph Theory},
+ :                                                  　
+I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for "BMP83"
+Warning--I didn't find a database entry for ""
+Warning--to sort, need author or key in CES86
+Warning--empty author in CES86
+Warning--empty title in CES86
+Warning--empty journal in CES86
+Warning--empty year in CES86
+(There were 2 error messages)
