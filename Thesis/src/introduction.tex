@@ -26,19 +26,21 @@ That is, an {\it error} may be detected and fixed/neutralized before it creates 
 A {\it failure} is the fact that users can observe the faulty behavior created by {\it errors}.
 
 My specific goal is to develop a technique for finding a control mechanism of a software system which can against the maximal number of dense errors without degrading to failure.
-My inspiration is from methods for resilient avionic systems\cite{conf/ftrtft/Rushby92}, where fault tolerance is designed to recover from a bounded number of errors.
+My inspiration is from methods for resilient avionic systems\cite{conf/ftrtft/1992}, where fault tolerance is designed to recover from a bounded number of errors.
 The number of errors a system needs to tolerate is calculated from the mean time between errors of individual components and the maximal duration of the system.
 I use the quality guarantees one obtains for an airplain(the system) as an example to demonstrate the difference between the objective to tolerate up to {\it k errors} and sequences of separated blocks of up to {\it k dense errors} in a short period.
 Assuming the operating time of the system is 20 hours, the mean time between exponentially distributed errors is 10 hours and the repair time is 3.6 seconds.
 The mean time between dense errors (consecutive errors before system recovery) is calculated in Table~\ref{tab.mtbf}.
 \begin{table*}
 \begin{center}
+\resizebox{\columnwidth}{!}{
 \begin{tabular}{l||c|c|c|c|c|c|c|c}\hline 
 $k$              & $0$     & $1$     &    $2$   &  $3$  & $4$ & $5$ & $6$ & $\ldots$ \\\hline 
 $k$ errors       & $0.865$ & $0.594$ & $0.333$ & $0.143$ & $0.053$ & $0.017$ & $0.005$ & $\ldots$ \\
 $k$ dense errors & $0.865$ & $2 \cdot 10^{-4}$ & $2 \cdot 10^{-9}$ & $2 \cdot 10^{-14}$ & $2\cdot 10^{-19}$ & $2\cdot 10^{-24}$ & $2\cdot 10^{-29}$ & $\ldots$ 
 \\ \hline 
 \end{tabular}
+}
 \end{center}
 \caption{Probabilities of $k$ dense errors} 
 \label{tab.mtbf} 
