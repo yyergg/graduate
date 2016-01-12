@@ -1,0 +1,496 @@
+\begin{thebibliography}{10}
+
+\bibitem{Sommerville:2006:SE:1196763}
+Ian Sommerville.
+\newblock {\em Software Engineering: (Update) (8th Edition) (International
+  Computer Science)}.
+\newblock Addison-Wesley Longman Publishing Co., Inc., Boston, MA, USA, 2006.
+
+\bibitem{conf/ftrtft/1992}
+John~M. Rushby.
+\newblock Formal specification and verification of a fault-masking and
+  transient-recovery model for digital flight-control systems.
+\newblock In Jan Vytopil, editor, {\em FTRTFT}, volume 571 of {\em Lecture
+  Notes in Computer Science}, pages 237--257. Springer, 1992.
+
+\bibitem{AHK02}
+Rajeev Alur, Thomas~A. Henzinger, and Orna Kupferman.
+\newblock Alternating-time temporal logic.
+\newblock {\em Journal of the ACM (JACM)}, 49(5):672--713, September 2002.
+
+\bibitem{CLM10}
+Arnaud~Da Costa, Fran{\c{c}}ois Laroussinie, and Nicolas Markey.
+\newblock Atl with strategy contexts: Expressiveness and model checking.
+\newblock In {\em IARCS Annual Conference on Foundations of Software Technology
+  and Theoretical Computer Science (FSTTCS 2010)}, volume~8 of {\em Leibniz
+  International Proceedings in Informatics (LIPIcs)}, pages 120--132. Schloss
+  Dagstuhl--Leibniz-Zentrum fuer Informatik, 2010.
+
+\bibitem{CHP10}
+Krishnendu Chatterjee, Thomas~A. Henzinger, and Nir Piterman.
+\newblock Strategy logic.
+\newblock {\em Information and Computation}, 208:677--693, 2010.
+
+\bibitem{MMV10}
+Fabio Mogavero, Aniello Murano, and Moshe~Y. Vardi.
+\newblock Reasoning about strategies.
+\newblock In {\em IARCS Annual Conference on Foundations of Software Technology
+  and Theoretical Computer Science (FSTTCS 2010)}, volume~8 of {\em Leibniz
+  International Proceedings in Informatics (LIPIcs)}, pages 133--144. Schloss
+  Dagstuhl--Leibniz-Zentrum fuer Informatik, 2010.
+
+\bibitem{Stockmeyer74}
+Lawrence~J. Stockmeyer.
+\newblock {\em The complexity of decision problems in automata theory and
+  logic}.
+\newblock MIT, 1974.
+
+\bibitem{SC85}
+A.P. Sistla and E.M. Clarke.
+\newblock The complexity of propositional linear temporal logics.
+\newblock {\em JACM}, 32, 1985.
+
+\bibitem{CES86}
+Edmumd m. clarke and ernest allen emerson and a. prassad sistla.
+
+\bibitem{EH85}
+E.~Allen Emerson and Joe~Y. Halpern.
+\newblock Decision procedures and expressiveness in the temporal logic of
+  branching time.
+\newblock {\em Journal of Computer and System Sciences}, 30(1):1--24, Feb.
+  1985.
+
+\bibitem{EH86}
+E.~Allen Emerson and Joe~Y. Halpern.
+\newblock `sometimes' and `not never' revisited: On branching versus linear
+  time temporal logic.
+\newblock {\em Journal of ACM}, 33(1):151--178, Jan. 1986.
+
+\bibitem{EL87}
+E.~Allen Emerson and Chin-Laung Lei.
+\newblock Modalities for model checking: Branching time logic strikes back.
+\newblock {\em Science of Computer Programming}, 8:275--306, 1987.
+
+\bibitem{BPM83}
+M.~Ben-Ari, Amir Pnueli, and Zohar Manna.
+\newblock The temporal logic of branching time.
+\newblock {\em Acta Informatica}, 20:207--226, 1983.
+
+\bibitem{EC80}
+E.~Allen Emerson and Edmund~M. Clarke.
+\newblock Characterizing correctness properties of parallel programs as
+  fixpoints.
+\newblock In {\em 7th Colloquium on Automata, Language, and Programming},
+  volume LNCS 85. Springer-Verlag, 1980.
+
+\bibitem{Lamport80}
+Leslie Lamport.
+\newblock Sometimes is sometimes ``not never''-on the temporal logic of
+  programs.
+\newblock In {\em 7th Annual ACM Symp. on Principles of Programming Languages},
+  pages 174--185, 1980.
+
+\bibitem{BBGK07}
+Christel Baier, Tomas Br\'azdil, Marcus Gr\"oser, and Antonin Kucera.
+\newblock Stochastic game logic.
+\newblock In {\em QEST}, pages 227--236. IEEE Computer Society, 2007.
+
+\bibitem{Pradhan96}
+D.K. Pradhan.
+\newblock {\em Fault-tolerant computer system design}.
+\newblock Prentice-Hall, Inc., 1996.
+
+\bibitem{EhlersT14}
+R{\"{u}}diger Ehlers and Ufuk Topcu.
+\newblock Resilience to intermittent assumption violations in reactive
+  synthesis.
+\newblock In Martin Fr{\"{a}}nzle and John Lygeros, editors, {\em Proceedings
+  of the 17th International Conference on Hybrid Systems: Computation and
+  Control (part of {CPS} Week), HSCC'14, Berlin, Germany, April 15-17, 2014},
+  pages 203--212. {ACM}, 2014.
+
+\bibitem{BloemEJK14}
+Roderick Bloem, R{\"{u}}diger Ehlers, Swen Jacobs, and Robert K{\"{o}}nighofer.
+\newblock How to handle assumptions in synthesis.
+\newblock In Krishnendu Chatterjee, R{\"{u}}diger Ehlers, and Susmit Jha,
+  editors, {\em Proceedings of the 3rd Workshop on Synthesis, {SYNT} 2014,
+  Vienna, Austria, July 23-24, 2014}, volume 157 of {\em {EPTCS}}, pages
+  34--50, 2014.
+
+\bibitem{HPSW/12/rapidRecovery}
+Chung-Hao Huang, Doron Peled, Sven Schewe, and Farn Wang.
+\newblock Rapid recovery for systems with scarce faults.
+\newblock In {\em Proceedings of the 3rd International Symposium on Games,
+  Automata, Logics and Formal Verification (GandALF 2012), 6--8 September,
+  Naples, Italy}, volume~96 of {\em Electronic Proceedings in Theoretical
+  Computer Science}, pages 15--28, 2012.
+
+\bibitem{Immerman81}
+N.~Immerman.
+\newblock Number of quantifiers is better than number of tape cells.
+\newblock {\em Journal of Computer and System Sciences}, 22(3):65--72, 1981.
+
+\bibitem{Papadimitriou94}
+C.H. Papadimitriou.
+\newblock {\em Computational Complexity}.
+\newblock Addison-Wesley, 1994.
+
+\bibitem{Wang14}
+Frrn WAng.
+\newblock Model-checking fair dense-time systems with propositions and events.
+\newblock {\em International Journal on Software Tools for Technology
+  Transfer}, April 2014.
+
+\bibitem{Wang04}
+Farn Wang.
+\newblock Model-checking distributed real-time systems with states, events, and
+  multiple fairness assumptions.
+\newblock In {\em International Conference on Algebraic Methodology and
+  Software Technology (AMAST)}, volume LNCS 3116. Springer-Verlag, 2004.
+
+\bibitem{Immerman88}
+N.~Immerman.
+\newblock Nondeterministic space is closed under complementation.
+\newblock {\em SIAM Journal on Computing}, 17:935--938, 1988.
+
+\bibitem{BH89}
+Ferenc Belina and Dieter Hogrefe.
+\newblock The ccitt-specification and description language sdl.
+\newblock {\em Computer Networks and ISDN Systems}, 16(4):311--341, March 1989.
+
+\bibitem{CL99}
+M.~Castro and B.~Liskov.
+\newblock Practical byzantine fault tolerance.
+\newblock In {\em Proceedings of the 3rd USENIX Symposium on Operating Systems
+  Design and Implementation (OSDI)}, February 1999.
+
+\bibitem{RSB90}
+P.~Ramanathan, K.~G. Shin, and R.~W. Butler.
+\newblock Fault-tolerant clock synchronization in distributed systems.
+\newblock {\em IEEE Computer}, 23(10):33--42, 1990.
+
+\bibitem{MD98}
+D.M. Miller and R.~Drechsler.
+\newblock Implementing a multiple-valued decision diagram package.
+\newblock In {\em The 28th Intrernational Symposium on multiple-valued logic
+  (ISMVL)}, pages 52--57, 1998.
+
+\bibitem{AGGRW05}
+M.~Abd-El-Malek, G.~Ganger, G.~Goodson, M.~Reiter, and J.~Wylie.
+\newblock Fault-scalable byzantine fault-tolerant services.
+\newblock In {\em ACM Symposium on Operating Systems Principles}, 2005.
+
+\bibitem{CMLRS06}
+J.~Cowling, D.~Myers, B.~Liskov, R.~Rodrigues, and L.~Shrira.
+\newblock Hq replication: A hybrid quorum protocol for byzantine fault
+  tolerance.
+\newblock In {\em USENIX OSDI Symposium}, 2006.
+
+\bibitem{KADCW09}
+R.~Kotla, L.~Alvisi, M.~Dahlin, A.~Clement, and E.~Wong.
+\newblock Zyzzyva: Speculative byzantine fault tolerance.
+\newblock {\em ACM Transactions on Computer Systems}, 27(4), 2009.
+
+\bibitem{GKVQ10}
+R.~Guerraoui, N.~Kne\v{z}evi\'{c}, M.~Vukoli\'{c}, and V.~Qu\'{e}ma.
+\newblock The next 700 bft protocols.
+\newblock In {\em Proceedings of the 5th European conference on Computer
+  systems (EuroSys)}, 2010.
+
+\bibitem{CWADM09}
+A.~Clement, E.~Wong, L.~Alvisi, M.~Dahlin, and M.~Marchetti.
+\newblock Making byzantine fault tolerant systems tolerate byzantine faults.
+\newblock In {\em USENIX Symposium on Networked Systems Design and
+  Implementation}, April 22-24, 2009.
+
+\bibitem{bitcoin}
+Bitcoin website.
+\newblock "\verb+http://bitcoin.org/+".
+
+\bibitem{ET99}
+E.Allen Emerson and R.~Trefler.
+\newblock From asymmetry to full symmetry: New techniques for symmetry
+  reduction in model-checking.
+\newblock In {\em Correct Hardware Design and Verification Methods (CHARME)},
+  pages 142--156, 1999.
+
+\bibitem{Lubachevsky84}
+B.~Lubachevsky.
+\newblock An approach to automating the verification of compact parallel
+  coordination programs.
+\newblock {\em Acta Informatica}, 1984.
+
+\bibitem{Church63}
+A.~Church.
+\newblock Logic, arithmetic and automata.
+\newblock In {\em International Congress of Mathematicians}, pages 23--35,
+  August 1962 (Stockholm 1963).
+
+\bibitem{PR89a}
+Amir Pnueli and Roni Rosner.
+\newblock On the synthesis of a reactive module.
+\newblock In {\em 16th ACM SIGPLAN-SIGACT symposium on principles of
+  programming languages (POPL)}, pages 179--190, 1989.
+
+\bibitem{Rabin69}
+M.O. Rabin.
+\newblock Decidability of second order theories and automata on infinite trees.
+\newblock {\em Transaction of the American Mathematical Society}, 141:1--35,
+  1969.
+
+\bibitem{Buchi62}
+J.R. B{\"u}chi.
+\newblock On a decision method in restricted second order arithmetic.
+\newblock In {\em International Congress on Logic, Methodology, and Philosophy
+  of Science}, pages 1--11, 1962.
+
+\bibitem{BL69}
+J.R. B\"uchi and L.H. Landweber.
+\newblock Solving sequential conditions by finite-state strategies.
+\newblock {\em Trans. AMS}, 138(4):295--311, 1969.
+
+\bibitem{AAE04}
+P.C. Attie, A.~Arora, and E.~Allen Emerson.
+\newblock Synthesis of fault-tolerant concurrent programs.
+\newblock {\em ACM Transactions on Programming Languages and Systems},
+  26(1):125--185, 2004.
+
+\bibitem{EKA08}
+A.~Ebnenasir, S.S. Kulkarni, and A.~Arora.
+\newblock Ftsyn: a framework for automatic synthesis of fault-tolerance.
+\newblock {\em STTT}, 10(5):455--471, 2008.
+
+\bibitem{GR09}
+A.~Girault and E.~Rutten.
+\newblock Automating the addition of fault tolerance with discrete controller
+  synthesis.
+\newblock {\em Formal Methods in System Design}, 35(2):190--225, 2009.
+
+\bibitem{KV00}
+Orna Kupferman and Moshe~Y. Vardi.
+\newblock Synthesis with incomplete informatio.
+\newblock In {\em In Advances in Temporal Logic}, pages 109--127. Kluwer
+  Academic Publishers, 2000.
+
+\bibitem{PR89b}
+Amir Pnueli and Roni Rosner.
+\newblock On the synthesis of an asynchronous reactive module.
+\newblock In {\em Proceedings of the 16th International Colloquium on Automata,
+  Languages and Programming (ICALP)}, volume LNCS 372, pages 652--671, London,
+  UK, 1989. Springer-Verlag.
+
+\bibitem{Rushby92}
+J.M. Rushby.
+\newblock Formal specification and verification of a fault-masking and
+  transient-recovery model for digital flight-control systems.
+\newblock In {\em FTRTFT}, pages 237--257, 1992.
+
+\bibitem{SF06}
+S.~Schewe and B.~Finkbeiner.
+\newblock Synthesis of asynchronous systems.
+\newblock In {\em LOPSTR}, pages 127--142, 2006.
+
+\bibitem{JRT04}
+H.~Jin, K.~Ravi, and Fabio Somenzi.
+\newblock Fate and free will in error traces.
+\newblock {\em International Journal on Software Tools for Technology Transfer
+  (STTT)}, 6(2):102--116, 2004.
+
+\bibitem{AMP95}
+Eugene Asarin, Oded Maler, and Amir Pnueli.
+\newblock Symbolic controller synthesis for discrete and timed systems.
+\newblock In {\em Hybrid Systems II}, volume LNCS 999. Springer-Verlag, 1995.
+
+\bibitem{Thomas94}
+Wolfgang Thomas.
+\newblock Finite-state strategies in regular infinite games.
+\newblock In {\em FSTTCS}, pages 149--158, 1994.
+
+\bibitem{AG93}
+A.~Arora and M.G. Gouda.
+\newblock Closure and convergence: A foundation of fault-tolerant computing.
+\newblock {\em IEEE Transactions on Software Engineering (TSE)},
+  19(11):1015--1027, 1993.
+
+\bibitem{Dijkstra86}
+Edgar~W. Dijkstra.
+\newblock A belated proof of self-stabilization.
+\newblock {\em Distributed Computing}, 1(1):5--6, 1986.
+
+\bibitem{DHLN10}
+L.~Doyen, T.A. Henzinger, A.~Legay, and D.~Nickovic.
+\newblock Robustness of sequential circuits.
+\newblock In {\em ACSD}, pages 77--84, 2010.
+
+\bibitem{BGHJ09}
+R.~Bloem, K.~Greimel, and Barbara~Jobstmann T.A.~Henzinger.
+\newblock Synthesizing robust systems.
+\newblock In {\em FMCAD}, pages 85--92, 2009.
+
+\bibitem{FRSZ11}
+J.~Fearnley, M.N. Rabe, Sven Schewe, and L.~Zhang.
+\newblock Efficient approximation of optimal control for continuous-time markov
+  games.
+\newblock In {\em Proc. 31st IARCS Annual Conference on Foundations of Software
+  Technology and Theoretical Computer Science (FSTTCS)}, pages 399--410, 2011.
+
+\bibitem{KVW01}
+Orna Kupferman, Moshe~Y. Vardi, and Pierre Wolper.
+\newblock Module checking.
+\newblock {\em Information and Computation}, 164(2):322--344, 2001.
+
+\bibitem{BLLM09}
+T.~Brihaye, A.D.C. Lopes, F.~Laroussinie, and Nicolas Markey.
+\newblock Atl with strategy contexts and bounded memory.
+\newblock In {\em LFCS}, volume LNCS 5407, pages 92--106. Springer-Verlag,
+  2009.
+
+\bibitem{Pinchinat07}
+S.~Pinchinat.
+\newblock A generic constructive solution for concurrent games with expressive
+  constraints on strategies.
+\newblock In {\em Automated Technology for Verification and Analysis (ATVA)},
+  volume LNCS 4762, pages 253--267. Springer-Verlag, 2007.
+
+\bibitem{LM13}
+François Laroussinie and Nicolas Markey.
+\newblock Satisfiability of atl with strategy contexts.
+\newblock In {\em Workshop on Games, Automata, Logics and Formal Verification
+  (GANDALF)}, volume EPTCS 119, pages 208--223, 2013.
+
+\bibitem{MMPV12}
+Fabio Mogavero, Aniello Murano, Giuseppe Perelli, and Moshe~Y. Vardi.
+\newblock What makes atl$^*$ decidable ? a decidable fragment of strategy
+  logic.
+\newblock In {\em Concurrency theory (CONCUR 2012)}, volume LNCS 7454, pages
+  193--208. Springer-Verlag, 2012.
+
+\bibitem{MMS13}
+Fabio Mogavero, Aniello Murano, and Luigi Sauro.
+\newblock On the boundary of behavioral strategies.
+\newblock In {\em ACM/IEEE LICS}, 2013.
+
+\bibitem{GJ79}
+Michael~R. Garey and David~S. Johnson.
+\newblock {\em Computers and Intractability: A Guide to the Theory of
+  NP-Completeness}.
+\newblock W. H. Freeman \& Company, 1979.
+
+\bibitem{Kirsten02}
+Daniel Kirsten.
+\newblock Alternating tree automata and parity games.
+\newblock In Erich Gradel, Wolfgang Thomas, and Thomas Wilke, editors, {\em
+  Automata, Logics, and Infinite Games}, volume LNCS 2500, pages 3?V--21.
+  Springer, 2002.
+
+\bibitem{Zappe02}
+J\'ulia Zappe.
+\newblock Modal $\mu$-calculus and alternating tree automata.
+\newblock In Erich Gradel, Wolfgang Thomas, and Thomas Wilke, editors, {\em
+  Automata, Logics, and Infinite Games}, volume LNCS 2500, pages 3?V--21.
+  Springer, 2002.
+
+\bibitem{MS95}
+David~E. Muller and Paul~E. Schupp.
+\newblock Simulating alternating tree automata by nondeterministic automata:
+  new results and new proofs of the theorems of {Rabin}, {McNaughton} and
+  {Safra}.
+\newblock {\em Theoretical Computer Science}, 141(1-2):69--107, 1995.
+
+\bibitem{Safra88}
+Shmuel Safra.
+\newblock On the complexity of {$\omega$}-automata.
+\newblock In {\em Proceedings of the 29th Annual Symposium on Foundations of
+  Computer Science (FOCS 1988), 24--26 October, White Plains, New York, USA},
+  pages 319--327. IEEE Computer Society Press, 1988.
+
+\bibitem{Piterman07}
+Nir Piterman.
+\newblock From nondeterministic {B}\"uchi and {S}treett automata to
+  deterministic parity automata.
+\newblock {\em Journal of Logical Methods in Computer Science}, 3(3:5), 2007.
+
+\bibitem{Schewe09}
+Sven Schewe.
+\newblock Tighter bounds for the determinisation of {B\"u}chi automata.
+\newblock In {\em Proceedings of the Twelfth International Conference on
+  Foundations of Software Science and Computation Structures (FoSSaCS 2009),
+  22--29 March, York, England, UK}, volume 5504 of {\em Lecture Notes in
+  Computer Science}, pages 167--181. Springer-Verlag, 2009.
+
+\bibitem{Wilke99}
+Thomas Wilke.
+\newblock {CTL}$^+$ is exponentially more succinct than {CTL}.
+\newblock pages 110--121, 1999.
+
+\bibitem{Wang03}
+Farn Wang.
+\newblock Efficient verification of timed automata with {BDD}-like
+  data-structures.
+\newblock {\em International Journal of Software Tools for Technology Transfer
+  (STTT)}, 6(1), 2004.
+\newblock special issue for the 4th International Conference on Verification,
+  Model Checking, and Abstract Interpretation (VMCAI), Jan. 2003, LNCS 2575,
+  Springer-Verlag.
+
+\bibitem{Wang08a}
+Farn Wang.
+\newblock Time-progress evaluation for dense-time automata with concave path
+  conditions.
+\newblock In {\em Automated Technology for Verification and Analysis (ATVA)},
+  volume LNCS 5311. Springer-Verlag, 2008.
+
+\bibitem{Wang08b}
+Farn Wang.
+\newblock Efficient model-checking of dense-time systems with time-convexity
+  analysis.
+\newblock In {\em IEEE Real-Time System Symposium (RTSS)}. IEEE Computer
+  Society, 2008.
+
+\bibitem{Wang13}
+Farn Wang.
+\newblock Efficient model-checking of dense-time systems with time-convexity
+  analysis.
+\newblock {\em Theoretical Computer Science (TCS)}, 467:89?V108, 7 January
+  2013.
+
+\bibitem{WHY11}
+Farn Wang, Chung-Hao Huang, and Fang Yu.
+\newblock A temporal logic for the interaction of strategies.
+\newblock In {\em 22nd Concurrency Theory (CONCUR)}, volume LNCS 6901.
+  Springer-Verlag, Sept. 2011.
+
+\bibitem{Vardi+Stockmeyer/85/CTL}
+M~Y Vardi and L~Stockmeyer.
+\newblock Improved upper and lower bounds for modal logics of programs.
+\newblock In {\em Proceedings of the Seventeenth Annual ACM Symposium on Theory
+  of Computing}, STOC '85, pages 240--251, New York, NY, USA, 1985. ACM.
+
+\bibitem{SC79}
+Larry~J. Stockmeyer and Ashok~K. Chandra.
+\newblock Provably difficult combinatorial games.
+\newblock {\em SIAM Journal on Computing (SICOMP)}, 8(2):151--174, 1979.
+
+\bibitem{Muller+Schupp/95/Alternating}
+David~E. Muller and Paul~E. Schupp.
+\newblock Simulating alternating tree automata by nondeterministic automata:
+  New results and new proofs of the theorems of rabin, mcnaughton and safra.
+\newblock {\em Theor. Comput. Sci.}, 141(1\&2):69--107, 1995.
+
+\bibitem{Chatterjee+Henzinger/12/Buchi}
+Krishnendu Chatterjee and Monika Henzinger.
+\newblock An {\it o}({\it n}$^{\mbox{2}}$) time algorithm for alternating
+  b{\"u}chi games.
+\newblock In {\em Proceedings of the Twenty-Third Annual ACM-SIAM Symposium on
+  Discrete Algorithms (SODA 2012), Kyoto, Japan, January 17-19, 2012}, pages
+  1386--1399. SIAM, 2012.
+
+\bibitem{Schewe/07/parity}
+Sven Schewe.
+\newblock Solving parity games in big steps.
+\newblock In {\em Proceedings of the 27th Conference on Foundations of Software
+  Technology and Theoretical Computer Science (FSTTCS 2007), 12--14 December,
+  New Delhi, India}, volume 4805 of {\em Lecture Notes in Computer Science},
+  pages 449--460. Springer-Verlag, 2007.
+
+\end{thebibliography}

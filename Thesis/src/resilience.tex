@@ -2,21 +2,13 @@
 \label{c:resilience}
 
 
-
-
 \section{Two-player concurrent game structures}
-To facilitate our explanation of resilience analysis in a game's 
-perspective, 
-we start by reviewing the game concepts related to our work. 
+To facilitate the explanation of resilience analysis in a game's perspective, I start by reviewing the game concepts related to our work.
 A concurrent game may involve several players\label{reply1.multiple.players}, who make concurrent move decisions at the same time during transitions. 
 The destination of a transition is jointly determined by the moves chosen by all players.  
-Such a game model is very expressive and handy in 
-describing interactions in a complex system.  
-In this work, we adapt the finite concurrent games from \cite{AHK02} 
-with event concepts on transitions.  
-For the analysis of system resilience, 
-we only have to consider two players in the game, 
-the first is the system, and the second is the error model. 
+Such a game model is very expressive and handy in describing interactions in a complex system.  
+In this work, we adapt the finite concurrent games from \cite{AHK02} with event concepts on transitions.
+For the analysis of system resilience, we only have to consider two players in the game, the first is the system, and the second is the error model. 
 
 
 \begin{definition} \label{def.cncgame} 
@@ -30,7 +22,7 @@ $\calk=\langle Q,r,P,\lambda,E_1,E_2,\delta\rangle$, where
 \item $\lambda:Q\mapsto 2^P$ is a proposition-labeling function of the states. 
 \item $E_1$ and $E_2$ are finite sets of move symbols that the protagonist and 
 the antagonist can respectively choose in transitions.  
-A pair in $E_1\times E_2$ is called a {\em move vector}.  
+A pair in $E_1\times E_2$ is called a {\em move vector}.
 \item $\delta$ is a function that maps 
   from $Q\times E_1\times E_2$ to $Q$.  
   $\delta$ is called the transition function and 
@@ -45,25 +37,16 @@ $q$ when each player $a\in \{1,2\}$ chooses her respective move $e_a$.
 \qed 
 \end{definition} 
 
-We prefer to represent the moves available to the players by symbols (rather than integers as in \cite{AHK02}), as move (or event) symbols can be used to reflect some physical meaning.  
-For example, a move can correspond to the turning-off of a switch,  
-the detection of an airplane, 
-or\label{reply1.grammar.or} the execution of an error handling routine.  
-(Technically, representing moves as either integers or symbols 
-does, of course, make no difference.)
-
-
 \section{Motivation}
 \subsection{Background}
-Resilience to errors in computer systems is\label{reply2.are.is} usually 
-achieved through error recovery design as illustrated in Figure~\ref{fig.frwk}.  
-%\begin{figure}[t]
-%\begin{center}
-%\epsfig{file=state-par.eps,width=60mm}
-%\caption{Framework of resilience design}
-%\label{fig.frwk} 
-%\end{center}
-%\end{figure}  
+Resilience to errors in computer systems is usually achieved through error recovery design as illustrated in Figure~\ref{fig.frwk}.  
+\begin{figure}[t]
+\begin{center}
+\epsfig{file=frwk.eps,width=60mm}
+\caption{Framework of resilience design}
+\label{fig.frwk} 
+\end{center}
+\end{figure}  
 The system states can be partitioned into three regions: 
 safe, recovery, and failure. 
 The left part of the figure represents the safety region.

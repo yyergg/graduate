@@ -1,6 +1,177 @@
 \chapter{Introduction}
 \label{c:intro}
 
+The idea is to create a temporal logic which include strategy quantifier in the syntax.
+At the moment, there are various logic that express such properties of strategic power of agents,
+including {\em ATL} ({\em alternating-time logic}), 
+{\em ATL}$^*$, {\em AMC} ({\em alternating $\mu$-calculus}),
+{\em GL} ({\em game logic}) \cite{AHK02}, 
+and {\em SL} ({\em strategy logics}) \cite{CLM10,CHP10,MMV10}, 
+for the specification of open systems.  
+Each language also comes with a verification algorithm that helps to decide whether or not a winning strategy for the system exists.
+There is, however, a gap between the industrial need for efficient algorithms (and solvers) and the available technology offered from previous research.
+Frankly speaking, none of those languages represents a proper combination of expressiveness for close interaction among agent strategies and efficiency for specification verification.  
+ATL, ATL$^*$, AMC, and GL \cite{AHK02} allow us to specify that some players together have a strategy to satisfy some fully temporalised objective: strategy quantifiers mark the start of a state formula.
+As exemplified below, this is far from\label{reply1.falls.short.far.from} what the industry needs in specification.  
+
+Consider the example of a bank that need specify their information system embodied as a system security strategy and allowing a client to use a strategy to withdraw money, to use a strategy to deposit money, and to use a strategy to query for balance.
+Moreover, the same system strategy should forbid any illegal operation on the banking system.  
+Specifically, the same system strategy must accommodate all strategies of the client for 'good behavior' (i.e, behavior in line with the specification), while blocking all strategies of the client that refer to undesired behavior, and thus preventing the client from damaging the system.
+I will show that 
+{\em ATL} %({\em alternating-time logic}),
+{\em ATL}$^*$, %{\em AMC} ({\em alternating $\mu$-calculus}),
+and 
+{\em GL} %({\em game logic})
+\cite{AHK02}  
+do not support such specifications.  
+For example, it is not possible to specify in those languages that 
+the system strategies used both in a withdrawal transaction and 
+in a deposit transaction must be the same.  
+Consequently, verification techniques for specifications in those languages 
+cannot capture such real-world objectives for open systems.  
+
+To solve the expressiveness problem in the above example, strategy logics were proposed in \cite{CLM10,CHP10,MMV10} that allow for the flexible quantification of high-order strategy variables in logic formulas.  
+However, their verification complexities are prohibitively high and hinder them from practical application.  
+In retrospect, the strategy profiles in such strategy logics can be combined in unrestricted ways.  
+For example, in \cite{MMV10}, we can write down the following artificial and hypothetical property.  
+\begin{center} 
+$\ldabrac X\rdabrac \ldbrac Y\rdbrac\ldabrac Z\rdabrac 
+\square ((((1,X)\diamond p) \wedge \bigcirc (2,Y) \diamond q)\rightarrow
+(((2,Z)\diamond q)\wedge\neg(3,Z)\square q))$
+\end{center} 
+Here $\ldabrac X\rdabrac$ and $\ldabrac Z\rdabrac$ declare the existence of strategies named $X$ and $Y$ respectively.  
+$\ldbrac Y\rdbrac$ is a universal quantification on a strategy named $Y$.  
+Then operator $(1,X)$, $(2,Y)$, $(2,Z)$, and $(3,Z)$ 
+respectively bind strategy $X, Y, Z$, and $Z$ to agents $1, 2, 2$, and $3$.  
+As can be seen, the language is very free in style.  
+According to the experiences in temporal logic development, 
+usually proper restrictions in the modal operations can lead to 
+a spectrum of sub-logics with different expressiveness and model-checking efficiency.  
+The following examples shows that subclasses of temporal logics with proper balance between expressiveness and verification efficiency are not only theoretically interesting and can also be practically useful.
+\begin{itemize} 
+\item The validity problem of $\cal L$ (the first-order language of 
+  unary predicate symbols and the binary predicate symbol $\leq$) 
+  is non-elementary \cite{Stockmeyer74} while 
+  PTL, with the same expressiveness as $\cal L$, is only PSPACE-complete \cite{SC85}.  
+\item Between CTL \cite{CES86} and CTL* \cite{EH85,EH86}, there are many subclasses of CTL* with various balances 
+  between expressiveness and verification efficiency.  
+  Fair CTL \cite{EL87}, as a natural class between CTL and CTL*, 
+  is expressive enough for many practical specifications and 
+  still enjoys a polynomial time model-checking complexity.  
+  There are also other subclasses of CTL* with various balance considerations \cite{BPM83,EC80,EH86,Lamport80}.  
+\end{itemize} 
+
+Indeed, most specifications in real-world projects come in simple structures, for example, safety, liveness, etc. 
+Thus it would be interesting to see what "natural" subclasses of strategy logics 
+can be identified with a proper balance between expressiveness and model-checking efficiency.  
+Moreover, it would be practical and appealing if the subclass can be characterized with elegant syntax.  
+The purpose of this manuscript is to propose new natural modal operators for strategy collaborations and extend ATL for a subclass of strategy logic.  
+
+
+In the following, I use the classical prisoner's dilemma to explain how I design new modal operators for structured strategy collaboration to achieve a balance between expressiveness and model-checking efficiency.
+
+{\example1 \label{exmp.pd} \underline{\bf Prisoner's dilemma}} 
+Suppose the police is interrogating three suspects (prisoners).  
+The police has very little evidence.  
+A prisoner may cooperate (with his/her peers) and deny all charges made by the police. 
+If all deny, they are all acquitted of all charges.  
+However, each prisoner may choose to betray his/her peers
+and provide the police with evidence.
+If more than one prisoner choose to betray their peers, all will be sentenced and stay in jail.
+If only one chooses to betray, then the other prisoners will stay in jail, while (s)he will be a `dirty witness' and all charges against him/her will be dropped.
+
+One may want to specify that the three prisoners can cooperate with each other (by denying all charges), and will not be in jail.  
+Let $j_a$ be the proposition for prisoner $a$ in jail.  
+This can be expressed in Alur, Henzinger, and Kupferman's ATL$^*$, GL, or AMC \cite{AHK02}, respectively, as follows.\footnote{Note that the three example formulas are not equivalent.}  
+\begin{center} 
+\begin{tabular}{lll} 
+ATL$^*$: 
+& &  $\langle 1,2,3\rangle\bigwedge_{a\in[1,3]}\pevt \neg j_a$ \\
+GL: 
+& & $\existsb\{1,2,3\}.\bigwedge_{a\in[1,3]}\forall\pevt\neg j_a$ \\
+AMC: 
+& & $\emlfp x.\langle 1,2,3\rangle \nxt 
+\bigwedge_{a\in[1,3]}(x\vee \neg j_a)$
+\end{tabular} 
+\end{center} 
+Here "$\langle 1,2,3\rangle$" and 
+"$\existsb\{1,2,3\}$" are both existential 
+quantifiers on the collaborative strategy among prisoners $1,2$, and $3$.  
+Such a quantifier is called a {\em strategy quantifier} ({\em SQ}) for convenience.
+Operator '$\emlfp$' is the least fixed point operator.  
+Even though one can specify strategies employed by sets of prisoners and there is a natural relationship (containment) between sets with such logics, there is no way to relate strategies to each other.
+For example, if prisoners 1 and 2 are unconditional loyal to prisoner 3, they can both deny the charges, make sure that prisoner 3 will not be in jail, and let prisoner 3 to decide whether they will be in jail.
+\qed
+
+The research of strategies for related properties has a long tradition in game theory.  
+It is easy to see the similarity and link between the specification problems for the prisoner's dilemma and the banking system.
+This observation suggests that finding a language with an appropriate and natural balance between the expressive power and the verification complexity of a specification language is a central challenge.
+
+To meet this challenge, I propose an extension of ATL, called {\em BSIL} ({\em basic strategy-interaction logic}).
+In a first step, I extend ATL to ATL$^+$, where ATL$^+$ is the natural extension obtained by allowing for Boolean connectives of path quantifiers.(Cf.~\cite{BPM83,EC80} for the similar extension of CTL to CTL$^+$.)
+I then introduce a new modal operator called {\em strategy interaction quantifier} ({\em SIQ}). 
+In the following, I use several examples in the prisoner's dilemma to explain BSIL, starting with the following specification for the property discussed at the end of Example~\ref{exmp.pd}. 
+\begin{center} 
+\hfill $\langle 1,2\rangle((\langle+\rangle\pevt\neg j_3)\wedge 
+	(\langle +3\rangle \pevt\neg (j_1\vee j_2))
+	\wedge \langle+3\rangle \pfrr (j_1\wedge j_2))
+$\hfill (A) 
+\end{center} 
+Here "$\langle+3\rangle$" is an existential SIQ that reasons over 
+strategies of Prisoner 3 for collaborating with the strategies  
+of Prisoners 1 and 2 introduced by the parent SQ "$\langle 1,2\rangle$". 
+Similarly, "$\langle+\rangle$" means that 
+no collaboration of any prisoner is needed. 
+(For conciseness, we omit "$\langle+\rangle$" in the following.)  \label{reply1.null.siq1} 
+I also call an SIQ an SQ.  
+In BSIL formulas, I specifically require that no SIQ can appear as a topmost SQ in a path subformula.  
+
+As can be seen, SIQ imposes a hierarchical style of strategy collaboration which seems natural for practical specification.  
+Consider another example.
+If Prisoner 1 hates the others, he can always betray other prisoners, making sure that Prisoners 2 and 3 will be in jail, and let them decide whether he will be in jail.  
+This property can be expressed in BSIL as follows. 
+\begin{center} 
+\hfill 
+$\langle 1\rangle((\pfrr (j_2\wedge j_3))\wedge 
+	(\langle +2,3\rangle \pevt\neg j_1)
+	\wedge \langle+2,3\rangle \pfrr j_1)
+$
+\hfill (B) 
+\end{center} 
+
+One restriction of BSIL is that no negation between an SIQ and its parent SIQ or SQ is allowed. 
+This restriction then also forbids universal SIQ.  
+While at first glance, it seems less than elegant in mathematics, 
+it is both necessary for verification complexity and 
+compatible with practical specification styles.  
+When we take a closer look, in fact, there is an implicit universal SIQ 
+at the end of every maximal syntax path from an SQ to its descendant SIQ.  
+Thus, BSIL allows for the specification of the ways in combining system strategy profiles that 
+can be computed statically to enforce the system policy against 
+any hostile strategy profile of those agents not participating in the the system strategy 
+profiles.  
+If we explicitly allow for universal SIQs in BSIL, 
+then the strategy profiles associated with existential SIQs in the scope of a universal SIQs 
+may have to be computed dynamically.  
+Thus the explicit universal SIQs will not only necessarily blow up the verification complexity, 
+but also contradict the main-stream of game theory for statically calculable strategies.  
+In contrast, some strategy logics \cite{MMV10} 
+allow for the specification of strategy profiles that are not statically calculable.  
+
+In this work, I establish that BSIL is incomparable with ATL$^*$, GL, and AMC in expressiveness.  
+Although the strategy logics \cite{CHP10,CLM10,MMV10} are superclasses to BSIL with their flexible quantification of strategies and binding to strategy variables, their model-checking complexity are all doubly exponential time hard.  
+In contrast, BSIL enjoys a PSPACE-complete model-checking complexity for turn-based and concurrent game graphs.  
+This may imply that BSIL could be a better balance between expressiveness and verification efficiency than ATL$^*$, GL, AMC \cite{AHK02}, and SL \cite{CHP10,MMV10}.
+Further related work is the stochastic game logic (SGL) by Baier, Br\'azdil, Gr\"o{\ss}er, and Kucera \cite{BBGK07}, which allows for expressing strategy interaction.
+However, for memoryful strategies, the model-checking problem of SGL is undecidable. 
+
+I also establish some other properties of BSIL. 
+I show that the strategies for BSIL properties against turn-based games need to be memoryful.
+I prove that the BSIL model-checking problem is PSPACE-complete.  
+However, the PSPACE model-checking algorithm need enumerate the labellings on computation trees and may suffer from high time complexity.
+I thus also present an alternative model-checking algorithm with time complexity quadratic in the size of a game graph and exponential only in the size of a BSIL specification. 
+I also establish that the BSIL realisability problem is complete for doubly exponential time.
+
 There can be million lines of code in today's software system.
 On such a scale of complexity, defects in the source codes are unavoidable.  
 Various empirical studies show that the defect density of commercial software system is around 1 to 20 defects in every 1000 lines of source code\cite{Sommerville:2006:SE:1196763}.
@@ -31,6 +202,7 @@ The number of errors a system needs to tolerate is calculated from the mean time
 I use the quality guarantees one obtains for an airplain(the system) as an example to demonstrate the difference between the objective to tolerate up to {\it k errors} and sequences of separated blocks of up to {\it k dense errors} in a short period.
 Assuming the operating time of the system is 20 hours, the mean time between exponentially distributed errors is 10 hours and the repair time is 3.6 seconds.
 The mean time between dense errors (consecutive errors before system recovery) is calculated in Table~\ref{tab.mtbf}.
+
 \begin{table*}
 \begin{center}
 \resizebox{\columnwidth}{!}{
@@ -43,78 +215,46 @@ $k$ dense errors & $0.865$ & $2 \cdot 10^{-4}$ & $2 \cdot 10^{-9}$ & $2 \cdot 10
 }
 \end{center}
 \caption{Probabilities of $k$ dense errors} 
-\label{tab.mtbf} 
-\end{table*} 
+\label{tab.ntbe} 
+\end{table*}
 %\bibliographystyle{unsrt}
 %\bibliography{thesisbib}
-The figures for $k$ errors (component failures) are simply the values 
-for the Poisson distribution with coefficient $2$.
-To explain the figures for $k$ dense errors, 
-consider the density of 2 dense errors occurring in close succession.
-If an error occurs, the chance that the next error occurs 
-within the repair time (3.6 seconds) is approximately $\frac{1}{10000}$.
-The goal to tolerate an arbitrary number of up to $k$-dense errors is, of course, 
-much harder than the goal of tolerating up to $k$ errors, but, 
-as the example shows, the number $k$ can be much smaller.   
-Tolerating an arbitrary number of errors 
-(with a distance of at least $3.6$ seconds between them) 
-creates the same likelihood to result in a system failure 
-as tolerating up to $9$ errors overall, and 
-tolerating up to $15$ errors still results 
-in a $70\%$ higher likelihood of a system failure 
-than tolerating blocks of up to $2$ errors in this example. 
+
+The figures for $k$ errors (component failures) are simply the values for the Poisson distribution with coefficient $2$.
+To explain the figures for $k$ dense errors, consider the density of 2 dense errors occurring in close succession.
+If an error occurs, the chance that the next error occurs within the repair time (3.6 seconds) is approximately $\frac{1}{10000}$.
+The goal to tolerate an arbitrary number of up to $k$-dense errors is much harder than the goal of tolerating up to $k$ errors, but, as the example shows, the number $k$ can be much smaller.   
+Tolerating an arbitrary number of errors (with a distance of at least $3.6$ seconds between them) creates the same likelihood to result in a system failure as tolerating up to $9$ errors overall, and tolerating up to $15$ errors still results in a $70\%$ higher likelihood of a system failure than tolerating blocks of up to $2$ errors in this example. 
 Only errors for which this is the case could cause a system failure.
-The mean time between blocks of two dense errors is therefore not ten hours, 
-but 100,000\label{reply2.100000} hours.
+The mean time between blocks of two dense errors is therefore not ten hours, but 100,000 hours.
 Likewise, it increases to 1,000,000,000 (one billion) hours for blocks of three dense errors, and so forth.
 
-Maximizing the number of dense errors that are permitted before full recovery 
-is therefore a natural design goal.  
-After full recovery, the system is allowed again the same number of errors.
-Now, if the {\em mean time between errors} ({\em MTBE}) 
-is huge compared to the time the system needs to fully recover, 
-then the mean time between system failures (MTBF) grows immensely. 
+Maximizing the number of dense errors that are permitted before full recovery is therefore a natural design goal.  
+The system is allowed again the same number of errors after full recovery.
+Now, if the {\em mean time between errors} ({\em MTBE}) is huge compared to the time the system needs to fully recover, then the mean time between system failures (MTBF) grows immensely. 
 
-We view the problem of designing a resilient control mechanism 
-towards dense errors as a two-player game, 
-called {\em safety resilience game}, 
-between the system (\label{reply1.protagonist.player1}protagonist\footnote{In game theory, a protagonist sometimes is also called {\em player 1}.}, `he' for convenience) 
-and a hostile agent (antagonist\footnote{In game theory, an antagonist sometimes is also called {\em player 2}.}, `she' for convenience) 
-that injects errors into the system under execution.\label{reply1.antagonist.inject.errors}   
-The protagonist wants to keep the system from failure in the presence of errors, 
-while the antagonist wants to derail the system to failure. 
-\label{reply1.how.models} 
-Specifically, 
-system designers may model their system, defense mechanism, and error model 
-as a finite game graph.  
+I treat the problem of designing a resilient control mechanism against dense errors as a two-player game, called {\em safety resilience game}, between the system (protagonist\footnote{In game theory, a protagonist sometimes is also called {\em player 1}.}) and a hostile agent (antagonist\footnote{In game theory, an antagonist sometimes is also called {\em player 2}.}) that injects errors into the system under execution.
+Intuitively, the protagonist wants to keep the system from failure in the presence of errors, while the antagonist wants to derail the system to failure.
+
+Specifically, system designers may model their system, defence mechanism, and error model as a finite game graph.
 The nodes in the graph represent system states.
-These system states are partitioned into three classes:
-the safe states, the failure states, and the recovery states. 
-Some transitions are labeled with errors while others are considered normal transitions.  
-The game is played with respect to a resilience level $k$.  
+These system states are partitioned into three classes: the safe states, the failure states, and the recovery states. 
+Some transitions are labelled with errors while others are considered normal transitions.
+The game is played with respect to a resilience level $k$.
 If a play ever enters a failure state, then the antagonist wins in the play.  
 Otherwise, the protagonist wins.
 
-The protagonists plays by selecting a move, intuitively the `normal' event that should happen next (unless an error is injected).
-The antagonist can then decide to trigger 
-an error transition (injecting an error) with the intention to
-eventually deflect the system into a failure state. 
-Our error model, however, restricts 
-the antagonist to inject at most $k$ errors before she allows for a long period of time that the system may use to recover to the safe states.
-(If the antagonist decides to use less than $k$ errors, the protagonist does not know about this.
-It proves that this information is not required, as we will show
-\label{reply1.memoryless.future} that the protagonist can play memoryless.)
-After full recovery by the protagonist to the safe states, the antagonist is allowed again 
-to inject the same number of errors, and so forth.
+On a certain state in the game, the protagonists plays by selecting a move, intuitively the corresponding 'normal' event that should happen next (unless an error is injected).
+The antagonist can then decide to trigger an error transition (injecting an error) with the intention to eventually deflect the system into a failure state.
+The error model, however, restricts the antagonist to inject at most $k$ errors before she allows for a long period of time that the system may use to recover to the safe states.
+(If the antagonist decides to use less than $k$ errors, the protagonist does not know about this. It proves that this information is not required, as we will show that the protagonist can play memoryless.)
+After full recovery by the protagonist to the safe states, the antagonist is allowed again to inject the same number of errors, and so forth.
   
 If the system can win this game, then the system is called {\em $k$-resilient}.
-For $k$-resilient systems, there exists a control strategy---even one that does not use memory---to make the system 
-resilient in the presence of blocks of up to $k$ dense errors. 
-We argue that, if the component MTBF is huge compared to the time the system needs to fully recover, then the expected time for system breakdown grows immensely.  
+For $k$-resilient systems, there exists a control strategy---even one that does not use memory---to make the system resilient in the presence of blocks of up to $k$ dense errors. 
+The idea is, if the component MTBF is huge compared to the time the system needs to fully recover, then the expected time for system breakdown grows immensely.  
 
-Besides formally defining safety resilience games, we also present algorithms 
-for answering the following questions.  
-\label{reply2.alg.sfrch.res}
+Besides formally defining safety resilience games, I also present algorithms for answering the following questions.  
 \begin{itemize} 
 \item Given an integer $k$, a set $F$ of failure states, and 
   a set $S$ of safe states (disjoint from $F$), is there a recovery mechanism that 
@@ -135,267 +275,19 @@ for answering the following questions.
 The question can be extended to not only partition the states into safety, recovery, and failure states, but also for providing memoryless control on the safety and recovery states.
   
 \item Given a set of failure states, what is the maximal resilience level of the system that can be achieved with proper control?  
-  We argue that this maximal resilience level is a well-defined and plausible indicator of 
-  the defense strength of a control mechanism against a realistic error model. 
+  We argue that this maximal resilience level is a well-defined and plausible indicator of the defence strength of a control mechanism against a realistic error model. 
 \end{itemize} 
-With our technique, 
-software engineers and system designers 
-can focus on maximizing the number of dense errors that 
-the system can tolerate infinitely often, providing that they are grouped into blocks that are separated by a short period of time, which is sufficient for recovery.
+With the algorithm, software engineers and system designers can focus on maximizing the number of dense errors that the system can tolerate infinitely often, providing that they are grouped into blocks that are separated by a short period of time, which is sufficient for recovery.
 
-We investigate how to analyze the game with existing techniques. 
-We present an extension to alternating-time $\mu$-calculus (AMC) 
-and propose to use the AMC model-checking algorithm on concurrent games to check 
-resilience levels of embedded systems. 
-We present reduction from safety resilience games to 
-AMC formulas and concurrent game structures.  
-Then we present a PTIME algorithm for answering whether the system can be 
-controlled to tolerate up to a given number of dense errors.  
-The algorithm can then be used to find the maximal resilience level 
-that can be achieved of the system. 
-The evaluation is constructive:  
-it provides a control strategy  
-for the protagonist, which can be used to control a system 
-to meet this predefined resilience level.
-
-In the second part of this thesis, I try to push the game strategy concept further.
-The idea is to create a temporal logic which include strategy quantifier in the syntax.
-At the moment, there are various logic that express such properties of strategic power of agents,
-including {\em ATL} ({\em alternating-time logic}), 
-{\em ATL}$^*$, {\em AMC} ({\em alternating $\mu$-calculus}),
-{\em GL} ({\em game logic}) \cite{AHK02}, 
-and {\em SL} ({\em strategy logics}) \cite{CLM10,CHP10,MMV10}, 
-for the specification of open systems.  
-Each language also comes with a verification algorithm that helps to decide whether or not a winning strategy for the system exists.
-There is, however, a gap between the industrial need for efficient algorithms (and solvers) and the available technology offered from previous research.
-Frankly speaking, none of those languages represents a proper combination of expressiveness for close interaction among agent strategies and efficiency for specification verification.  
-ATL, ATL$^*$, AMC, and GL \cite{AHK02} allow us to specify that some players together have a strategy to satisfy some fully temporalised objective: strategy quantifiers mark the start of a state formula.
-As exemplified below, this is far from\label{reply1.falls.short.far.from} what the industry needs in specification.  
+I investigate how to analyse the game with existing techniques. 
+I present an extension to alternating-time $\mu$-calculus (AMC) and propose to use the AMC model-checking algorithm on concurrent games to check resilience levels of embedded systems. 
+I present reduction from safety resilience games to AMC formulas and concurrent game structures.  
+Then I present a PTIME algorithm for answering whether the system can be controlled to tolerate up to a given number of errors in a row.
+The algorithm can then be used to find the maximal resilience level that can be achieved of the system. 
+The evaluation is constructive: it provides a control strategy for the protagonist, which can be used to control a system to meet this predefined resilience level.
 
 
-Consider the example of a bank that need specify their information system 
-embodied as a system security strategy and 
-allowing a client to use a strategy to withdraw money, 
-to use a strategy to deposit money, and to use a strategy to query for balance.  
-Moreover, the same system strategy should forbid any illegal 
-operation on the banking system.  
-Specifically, the same system strategy must accommodate all strategies 
-of the client for `good behavior' 
-(i.e, behavior in line with the specification), 
-while blocking all strategies of the client that refer to undesired behavior, 
-and thus preventing the client from damaging the system.
-We will show that 
-{\em ATL} %({\em alternating-time logic}),
-{\em ATL}$^*$, %{\em AMC} ({\em alternating $\mu$-calculus}),
-and 
-{\em GL} %({\em game logic})
-\cite{AHK02}  
-do not support such specifications.  
-For example, it is not possible to specify in those languages that 
-the system strategies used both in a withdrawal transaction and 
-in a deposit transaction must be the same.  
-Consequently, verification techniques for specifications in those languages 
-cannot capture such real-world objectives for open systems.  
-
-\label{reply2.motive1} 
-To solve the expressiveness problem in the above example, 
-strategy logics were proposed in \cite{CLM10,CHP10,MMV10} that 
-allow for the flexible quantification of high-order 
-strategy variables in logic formulas.  
-However, their verification complexities are prohibitively high 
-and hinder them from practical application.  
-In retrospect, the strategy profiles in such strategy logics 
-can be combined in unrestricted ways.  
-For example, in \cite{MMV10}, we can 
-write down the following artificial and hypothetical property.  
-\begin{center} 
-$\ldabrac X\rdabrac \ldbrac Y\rdbrac\ldabrac Z\rdabrac 
-\square ((((1,X)\diamond p) \wedge \bigcirc (2,Y) \diamond q)\rightarrow
-(((2,Z)\diamond q)\wedge\neg(3,Z)\square q))$
-\end{center} 
-Here $\ldabrac X\rdabrac$ and $\ldabrac Z\rdabrac$ declare the 
-existence of strategies named $X$ and $Y$ respectively.  
-$\ldbrac Y\rdbrac$ is a universal quantification on a strategy named $Y$.  
-Then operator $(1,X)$, $(2,Y)$, $(2,Z)$, and $(3,Z)$ 
-respectively bind strategy $X, Y, Z$, and $Z$ to agents $1, 2, 2$, and $3$.  
-As can be seen, the language is very free in style.  
-According to the experiences in temporal logic development, 
-usually proper restrictions in the modal operations can lead to 
-a spectrum of sub-logics with different expressiveness and model-checking efficiency.  
-The following are two examples: 
-\begin{itemize} 
-\item The validity problem of $\cal L$ (the first-order langauge of 
-  unary predicate symbols and the binary predicate symbol $\leq$) 
-  is non-elementary \cite{Stockmeyer74} while 
-  PTL, with the same expressiveness as $\cal L$, is only PSPACE-complete \cite{SC85}.  
-\item Between CTL \cite{CES86} and CTL* \cite{EH85,EH86}, there are many subclasses of CTL* with various balances 
-  between expressiveness and verification efficiency.  
-  Fair CTL \cite{EL87}, as a natural class between CTL and CTL*, 
-  is expressive enough for many practical specifications and 
-  still enjoys a polynomial time model-checking complexity.  
-  There are also other subclasses of CTL* with various balance considerations \cite{BPM83,EC80,EH86,Lamport80}.  
-\end{itemize} 
-As can be seen, subclasses of temporal logics with proper balance between 
-expressiveness and verification efficiency are not only theoretically interesting and 
-can also be practically useful.  
-Indeed, most specifications in real-world projects come 
-in simple structures, for example, safety, liveness, etc. 
-Thus it would be interesting to see what ``natural" subclasses of strategy logics 
-can be identified with a proper balance between expressiveness and model-checking efficiency.  
-Moreover, it would be practical and appealing if the subclass 
-can be characterized with elegant syntax.  
-Indeed it is the purpose of this manuscript to propose new natural modal operators 
-for strategy collaborations and extend ATL for a subclass of strategy logic.  
-\label{reply2.motive2}
-
-In the following, we use the classical prisoner's dilemma to explain how we can 
-design new modal operators for structured strategy collaboration to 
-achieve a balance between expressiveness and model-checking efficiency.
-
-{\example1 \label{exmp.pd} 
-\underline{\bf Prisoner's dilemma}} 
-Suppose the police is interrogating 
-three suspects (prisoners).  
-The police has very little evidence.  
-A prisoner may cooperate (with his/her peers) and deny all charges made by the police. 
-If all deny, they are all acquitted of all charges.  
-However, each prisoner may choose to betray his/her peers
-and provide the police with evidence.
-If more than one prisoner choose to betray their peers, all will be sentenced and stay in jail.
-If only one chooses to betray, then the other prisoners will stay in jail, while (s)he will be a `dirty witness' and all charges against him/her will be dropped.
-
-We may want to specify that the three prisoners can cooperate with each other (by denying all charges), and will not be in jail.  
-Let $j_a$ be the proposition for prisoner $a$ in jail.  
-This can be expressed in Alur, Henzinger, and Kupferman's 
-ATL$^*$,  
-GL, or AMC \cite{AHK02}, respectively, as follows.\footnote{Note 
-that the three example formulas are not equivalent.}  
-\begin{center} 
-\begin{tabular}{lll} 
-ATL$^*$: 
-& &  $\langle 1,2,3\rangle\bigwedge_{a\in[1,3]}\pevt \neg j_a$ \\
-GL: 
-& & $\existsb\{1,2,3\}.\bigwedge_{a\in[1,3]}\forall\pevt\neg j_a$ \\
-AMC: 
-& & $\emlfp x.\langle 1,2,3\rangle \nxt 
-\bigwedge_{a\in[1,3]}(x\vee \neg j_a)$
-\end{tabular} 
-\end{center} 
-Here ``$\langle 1,2,3\rangle$" and 
-``$\existsb\{1,2,3\}$" are both existential 
-quantifiers on the collaborative strategy among prisoners $1,2$, and $3$.  
-Such a quantifier is called a {\em strategy quantifier} ({\em SQ}) 
-for convenience.  
-Operator `$\emlfp$' is the least fixpoint operator.  
-Even though we can specify strategies employed by sets of prisoners and 
-there is a natural relationship (containment) between sets with such logics, 
-there is no way to relate strategies to each other.  
-For example, if prisoners 1 and 2 are really loyal to prisoner 3, 
-they can both deny the charges,  
-make sure that prisoner 3 will not be in jail, and let prisoner 3 
-to decide whether they will be in jail. 
-\qed 
-
-The research of strategies for related properties has a long tradition in game theory.  
-It is easy to 
-see the similarity and link between the specification problems for the prisoner's dilemma and the banking system. 
-This observation suggests that finding a language with an appropriate and natural 
-balance between the expressive power and the verification complexity of a specification language is a central challenge.
-% yet to be overcome. 
-
-To meet this challenge, we propose an extension of ATL,
-called {\em BSIL} ({\em basic strategy-interaction logic}).
-In a first step, we extend ATL to ATL$^+$, where ATL$^+$ is the natural extension obtained by allowing for Boolean connectives of path quantifiers.
-(Cf.~\cite{BPM83,EC80} for the similar extension of CTL to CTL$^+$.)
-We then introduce a new modal operator 
-called {\em strategy interaction quantifier} ({\em SIQ}). 
-In the following, we use several examples in the prisoner's dilemma 
-to explain BSIL, starting with the following specification for the property discussed at the end of Example~\ref{exmp.pd}. 
-\begin{center} 
-\hfill $\langle 1,2\rangle((\langle+\rangle\pevt\neg j_3)\wedge 
-	(\langle +3\rangle \pevt\neg (j_1\vee j_2))
-	\wedge \langle+3\rangle \pfrr (j_1\wedge j_2))
-$\hfill (A) 
-\end{center} 
-Here ``$\langle+3\rangle$'' is an existential SIQ that reasons over 
-strategies of Prisoner 3 for collaborating with the strategies  
-of Prisoners 1 and 2 introduced by the parent SQ ``$\langle 1,2\rangle$''. 
-Similarly, ``$\langle+\rangle$'' means that 
-no collaboration of any prisoner is needed. 
-(For conciseness, we omit ``$\langle+\rangle$'' in the following.)  \label{reply1.null.siq1} 
-We also call an SIQ an SQ.  
-In BSIL formulas, we specifically require that no SIQ can appear 
-as a topmost SQ in a path subformula.  
-
-As can be seen, SIQ imposes a hierarchical style of strategy collaboration 
-which seems natural for practical specification.  
-Consider another example.  
-If Prisoner 1 really hates the others, 
-(s)he can always betray other prisoners,  
-making sure that Prisoners 2 and 3 will be in jail, and let them 
-decide whether (s)he will be in jail, too.  
-This property can be expressed in BSIL as follows. 
-\begin{center} 
-\hfill 
-$\langle 1\rangle((\pfrr (j_2\wedge j_3))\wedge 
-	(\langle +2,3\rangle \pevt\neg j_1)
-	\wedge \langle+2,3\rangle \pfrr j_1)
-$
-\hfill (B) 
-\end{center} 
-
-\label{reply2.motive3} 
-One restriction of BSIL is that no negation between an SIQ and its parent SIQ or SQ is allowed. 
-This restriction then also forbids universal SIQ.  
-While at first glance, it seems less than elegant in mathematics, 
-it is both necessary for verification complexity and 
-compatible with practical specification styles.  
-When we take a closer look, in fact, there is an implicit universal SIQ 
-at the end of every maximal syntax path from an SQ to its descendant SIQ.  
-Thus, BSIL allows for the specification of the ways in combining system strategy profiles that 
-can be computed statically to enforce the system policy against 
-any hostile strategy profile of those agents not participating in the the system strategy 
-profiles.  
-If we explicitly allow for universal SIQs in BSIL, 
-then the strategy profiles associated with existential SIQs in the scope of a universal SIQs 
-may have to be computed dynamically.  
-Thus the explicit universal SIQs will not only necessarily blow up the verification complexity, 
-but also contradict the main-stream of game theory for statically calculable strategies.  
-In contrast, some strategy logics \cite{MMV10} 
-allow for the specification of strategy profiles that are not statically calculable.  
-
-In this work, 
-we establish that BSIL is incomparable with ATL$^*$, GL, and AMC 
-in expressiveness.  
-Although the strategy logics \cite{CHP10,CLM10,MMV10} are superclasses to BSIL  
-with their flexible quantification of 
-strategies and binding to strategy variables, 
-their model-checking\footnote{A 
-model-checking problem is to check whether a given model 
-(game graphs in this work) satisfies a logic formulas 
-(in ATL and its extensions in this work).}  
-complexity are all doubly exponential time hard.  
-In contrast, BSIL enjoys a PSPACE-complete model-checking complexity for 
-turn-based and concurrent game graphs.  
-This may imply that BSIL could be a better balance between 
-expressiveness and verification efficiency 
-than ATL$^*$, GL, AMC \cite{AHK02}, and SL \cite{CHP10,MMV10}.
-Further related work is the stochastic game logic (SGL) by Baier, Br\'azdil,
-Gr\"o{\ss}er, and Kucera \cite{BBGK07}, which allows for expressing strategy interaction.
-However, for memoryful strategies, the model-checking problem of SGL is undecidable. 
-
-
-We also establish some other properties of BSIL. 
-We show that the strategies  
-for BSIL properties against turn-based games need to be memoryful. 
-We prove that the BSIL model-checking problem is PSPACE-complete.  
-However, the PSPACE model-checking algorithm need enumerate the 
-labelings on computation trees and may suffer from high time complexity.  
-We thus also present an alternative model-checking algorithm 
-with time complexity quadratic in the size of a game graph and 
-exponential only in the size of a BSIL specification. 
-We also establish that the BSIL realisability problem is complete for
-doubly exponential time.  
+  
 
 
 
