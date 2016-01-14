@@ -1,7 +1,17 @@
 \chapter{Introduction}
 \label{c:intro}
 
-The idea is to create a temporal logic which include strategy quantifier in the syntax.
+There are many computer systems such as bank system, web service and HMI in the factory which take input from users.
+Currently, the specification and verification of such systems focuses on the design of system interfaces that allow for the fulfillment of some objectives of the users while enforce certain safety policies of the systems.
+Intuitively, such system can be modeled as games played by users and the system and the verification of such systems can benefit from game-based techniques.
+From the game theoretical perspective, the design problem of such open systems can be modeled as multi-agent games.
+Some agents represent the system, while other agents represent the environment (or the users).
+The system wins the game in an execution if the user's objectives allowed by the system are indeed fulfilled and his disallowed objectives do not happen.
+The goal of system design is to design a computable strategy of the system that 
+enforces all the system objectives and also allows the users to achieve those objectives consistent with the system objectives.
+Such a strategy is called a {\em winning strategy} for the system.  
+
+To achieve such goal, I create 2 temporal logic which include strategy quantifier in the syntax, {\em BSIL} ({\em basic strategy-interaction logic}) and {\em TCL} ({\em temporal cooperation logic}).
 At the moment, there are various logic that express such properties of strategic power of agents,
 including {\em ATL} ({\em alternating-time logic}), 
 {\em ATL}$^*$, {\em AMC} ({\em alternating $\mu$-calculus}),
@@ -12,26 +22,17 @@ Each language also comes with a verification algorithm that helps to decide whet
 There is, however, a gap between the industrial need for efficient algorithms (and solvers) and the available technology offered from previous research.
 Frankly speaking, none of those languages represents a proper combination of expressiveness for close interaction among agent strategies and efficiency for specification verification.  
 ATL, ATL$^*$, AMC, and GL \cite{AHK02} allow us to specify that some players together have a strategy to satisfy some fully temporalised objective: strategy quantifiers mark the start of a state formula.
-As exemplified below, this is far from\label{reply1.falls.short.far.from} what the industry needs in specification.  
+As exemplified below, this is far from what the industry needs in specification.  
 
 Consider the example of a bank that need specify their information system embodied as a system security strategy and allowing a client to use a strategy to withdraw money, to use a strategy to deposit money, and to use a strategy to query for balance.
 Moreover, the same system strategy should forbid any illegal operation on the banking system.  
 Specifically, the same system strategy must accommodate all strategies of the client for 'good behavior' (i.e, behavior in line with the specification), while blocking all strategies of the client that refer to undesired behavior, and thus preventing the client from damaging the system.
-I will show that 
-{\em ATL} %({\em alternating-time logic}),
-{\em ATL}$^*$, %{\em AMC} ({\em alternating $\mu$-calculus}),
-and 
-{\em GL} %({\em game logic})
-\cite{AHK02}  
-do not support such specifications.  
-For example, it is not possible to specify in those languages that 
-the system strategies used both in a withdrawal transaction and 
-in a deposit transaction must be the same.  
-Consequently, verification techniques for specifications in those languages 
-cannot capture such real-world objectives for open systems.  
+I will show that {\em ATL}, {\em ATL}$^*$, and {\em GL} \cite{AHK02} do not support such specifications.  
+For example, it is not possible to specify in those languages that the system strategies used both in a withdrawal transaction and in a deposit transaction must be the same.  
+Consequently, verification techniques for specifications in those languages cannot capture such real-world objectives for open systems.  
 
 To solve the expressiveness problem in the above example, strategy logics were proposed in \cite{CLM10,CHP10,MMV10} that allow for the flexible quantification of high-order strategy variables in logic formulas.  
-However, their verification complexities are prohibitively high and hinder them from practical application.  
+However, the verification complexities are prohibitively high and hinder them from practical application.  
 In retrospect, the strategy profiles in such strategy logics can be combined in unrestricted ways.  
 For example, in \cite{MMV10}, we can write down the following artificial and hypothetical property.  
 \begin{center} 
@@ -41,11 +42,9 @@ $\ldabrac X\rdabrac \ldbrac Y\rdbrac\ldabrac Z\rdabrac
 \end{center} 
 Here $\ldabrac X\rdabrac$ and $\ldabrac Z\rdabrac$ declare the existence of strategies named $X$ and $Y$ respectively.  
 $\ldbrac Y\rdbrac$ is a universal quantification on a strategy named $Y$.  
-Then operator $(1,X)$, $(2,Y)$, $(2,Z)$, and $(3,Z)$ 
-respectively bind strategy $X, Y, Z$, and $Z$ to agents $1, 2, 2$, and $3$.  
+Then operator $(1,X)$, $(2,Y)$, $(2,Z)$, and $(3,Z)$ respectively bind strategy $X, Y, Z$, and $Z$ to agents $1, 2, 2$, and $3$.  
 As can be seen, the language is very free in style.  
-According to the experiences in temporal logic development, 
-usually proper restrictions in the modal operations can lead to 
+According to the experiences in temporal logic development, usually proper restrictions in the modal operations can lead to 
 a spectrum of sub-logics with different expressiveness and model-checking efficiency.  
 The following examples shows that subclasses of temporal logics with proper balance between expressiveness and verification efficiency are not only theoretically interesting and can also be practically useful.
 \begin{itemize} 
@@ -62,11 +61,9 @@ The following examples shows that subclasses of temporal logics with proper bala
 \end{itemize} 
 
 Indeed, most specifications in real-world projects come in simple structures, for example, safety, liveness, etc. 
-Thus it would be interesting to see what "natural" subclasses of strategy logics 
-can be identified with a proper balance between expressiveness and model-checking efficiency.  
+Thus it would be interesting to see what "natural" subclasses of strategy logics can be identified with a proper balance between expressiveness and model-checking efficiency.
 Moreover, it would be practical and appealing if the subclass can be characterized with elegant syntax.  
 The purpose of this manuscript is to propose new natural modal operators for strategy collaborations and extend ATL for a subclass of strategy logic.  
-
 
 In the following, I use the classical prisoner's dilemma to explain how I design new modal operators for structured strategy collaboration to achieve a balance between expressiveness and model-checking efficiency.
 
@@ -107,10 +104,10 @@ The research of strategies for related properties has a long tradition in game t
 It is easy to see the similarity and link between the specification problems for the prisoner's dilemma and the banking system.
 This observation suggests that finding a language with an appropriate and natural balance between the expressive power and the verification complexity of a specification language is a central challenge.
 
-To meet this challenge, I propose an extension of ATL, called {\em BSIL} ({\em basic strategy-interaction logic}).
+To meet this challenge, I propose 2 extension logic of ATL, called {\em BSIL} ({\em basic strategy-interaction logic}) and {\em TCL} ({\em temporal cooperation logic}).
 In a first step, I extend ATL to ATL$^+$, where ATL$^+$ is the natural extension obtained by allowing for Boolean connectives of path quantifiers.(Cf.~\cite{BPM83,EC80} for the similar extension of CTL to CTL$^+$.)
 I then introduce a new modal operator called {\em strategy interaction quantifier} ({\em SIQ}). 
-In the following, I use several examples in the prisoner's dilemma to explain BSIL, starting with the following specification for the property discussed at the end of Example~\ref{exmp.pd}. 
+In the following, I use several examples in the prisoner's dilemma to explain BSIL and TCL, starting with the following specification in BSIL for the property discussed at the end of Example~\ref{exmp.pd}.
 \begin{center} 
 \hfill $\langle 1,2\rangle((\langle+\rangle\pevt\neg j_3)\wedge 
 	(\langle +3\rangle \pevt\neg (j_1\vee j_2))
@@ -120,11 +117,12 @@ $\hfill (A)
 Here "$\langle+3\rangle$" is an existential SIQ that reasons over 
 strategies of Prisoner 3 for collaborating with the strategies  
 of Prisoners 1 and 2 introduced by the parent SQ "$\langle 1,2\rangle$". 
-Similarly, "$\langle+\rangle$" means that 
-no collaboration of any prisoner is needed. 
-(For conciseness, we omit "$\langle+\rangle$" in the following.)  \label{reply1.null.siq1} 
+Similarly, "$\langle+\rangle$" means that no collaboration of any prisoner is needed. 
+(For conciseness, we omit "$\langle+\rangle$" in the following.)
 I also call an SIQ an SQ.  
-In BSIL formulas, I specifically require that no SIQ can appear as a topmost SQ in a path subformula.  
+In BSIL formulas, I specifically require that no SIQ can appear as a topmost SQ in a path subformula.
+Further more, BSIL does not allow any temporal logic operator appears in the middle of 2 SIQs while TCL does.
+The loosen of the restriction brings TCL stronger expressive power as long as a higher verification complexity.
 
 As can be seen, SIQ imposes a hierarchical style of strategy collaboration which seems natural for practical specification.  
 Consider another example.
@@ -139,43 +137,36 @@ $
 \hfill (B) 
 \end{center} 
 
-One restriction of BSIL is that no negation between an SIQ and its parent SIQ or SQ is allowed. 
+One restriction of BSIL and TCL is that no negation between an SIQ and its parent SIQ or SQ is allowed. 
 This restriction then also forbids universal SIQ.  
-While at first glance, it seems less than elegant in mathematics, 
-it is both necessary for verification complexity and 
-compatible with practical specification styles.  
-When we take a closer look, in fact, there is an implicit universal SIQ 
-at the end of every maximal syntax path from an SQ to its descendant SIQ.  
-Thus, BSIL allows for the specification of the ways in combining system strategy profiles that 
-can be computed statically to enforce the system policy against 
-any hostile strategy profile of those agents not participating in the the system strategy 
-profiles.  
-If we explicitly allow for universal SIQs in BSIL, 
-then the strategy profiles associated with existential SIQs in the scope of a universal SIQs 
-may have to be computed dynamically.  
-Thus the explicit universal SIQs will not only necessarily blow up the verification complexity, 
-but also contradict the main-stream of game theory for statically calculable strategies.  
-In contrast, some strategy logics \cite{MMV10} 
-allow for the specification of strategy profiles that are not statically calculable.  
+While at first glance, it seems less than elegant in mathematics, it is both necessary for verification complexity and compatible with practical specification styles.  
+When we take a closer look, in fact, there is an implicit universal SIQ at the end of every maximal syntax path from an SQ to its descendant SIQ.
+Thus, BSIL and TCL allows for the specification of the ways in combining system strategy profiles that can be computed statically to enforce the system policy against any hostile strategy profile of those agents not participating in the the system strategy profiles.  
+If explicitly allowing for universal SIQs in BSIL and TCL, then the strategy profiles associated with existential SIQs in the scope of a universal SIQs may have to be computed dynamically.  
+Thus the explicit universal SIQs will not only necessarily blow up the verification complexity, but also contradict the main-stream of game theory for statically calculable strategies.  
+In contrast, some strategy logics \cite{MMV10} allow for the specification of strategy profiles that are not statically calculable. 
 
-In this work, I establish that BSIL is incomparable with ATL$^*$, GL, and AMC in expressiveness.  
-Although the strategy logics \cite{CHP10,CLM10,MMV10} are superclasses to BSIL with their flexible quantification of strategies and binding to strategy variables, their model-checking complexity are all doubly exponential time hard.  
-In contrast, BSIL enjoys a PSPACE-complete model-checking complexity for turn-based and concurrent game graphs.  
-This may imply that BSIL could be a better balance between expressiveness and verification efficiency than ATL$^*$, GL, AMC \cite{AHK02}, and SL \cite{CHP10,MMV10}.
+In this work, I establish that BSIL and TCL are incomparable with ATL$^*$, GL, and AMC in expressiveness.  
+Although the strategy logics \cite{CHP10,CLM10,MMV10} are superclasses to BSIL and TCL with their flexible quantification of strategies and binding to strategy variables, their model-checking complexity are all doubly exponential time hard.  
+In contrast, BSIL enjoys a PSPACE-complete model-checking complexity and TCL has a EXPTIME-complete model checking complexity for turn-based and concurrent game graphs.  
+This may imply that BSIL and TCL could be a better balance between expressiveness and verification efficiency than ATL$^*$, GL, AMC \cite{AHK02}, and SL \cite{CHP10,MMV10}.
 Further related work is the stochastic game logic (SGL) by Baier, Br\'azdil, Gr\"o{\ss}er, and Kucera \cite{BBGK07}, which allows for expressing strategy interaction.
 However, for memoryful strategies, the model-checking problem of SGL is undecidable. 
 
-I also establish some other properties of BSIL. 
-I show that the strategies for BSIL properties against turn-based games need to be memoryful.
-I prove that the BSIL model-checking problem is PSPACE-complete.  
-However, the PSPACE model-checking algorithm need enumerate the labellings on computation trees and may suffer from high time complexity.
-I thus also present an alternative model-checking algorithm with time complexity quadratic in the size of a game graph and exponential only in the size of a BSIL specification. 
+I also establish some other properties of BSIL and TCL. 
+I show that the strategies for BSIL and TCL properties against turn-based games need to be memoryful.
+I prove that the BSIL model-checking problem is PSPACE-complete and TCL model-checking problem is EXPTIME-complete.  
+However, the PSPACE model-checking algorithm of BSIL need enumerate the labellings on computation trees and may suffer from high time complexity.
+I present an alternative model-checking algorithm with time complexity quadratic in the size of a game graph and exponential only in the size of a BSIL specification.
+I also present an alternative model-checking algorithm with time complexity quadratic in the size of a game graph and  double exponential in the size of a TCL specification.
 I also establish that the BSIL realisability problem is complete for doubly exponential time.
 
-There can be million lines of code in today's software system.
-On such a scale of complexity, defects in the source codes are unavoidable.  
+%Resil
+However, there can be million lines of code in today's software system.
 Various empirical studies show that the defect density of commercial software system is around 1 to 20 defects in every 1000 lines of source code\cite{Sommerville:2006:SE:1196763}.
-Therefore, developers of systems created many engineering techniques to contain the damage that could be caused by such defects.
+On such a scale of complexity, defects in the source codes are unavoidable and, even with the PSPACE model checking algorithm of BSIL, the computing power of today's machine is far from enough to verify the systems.   
+To lower the verification complexity, I try to focus on a specific type of property which is highly connected to the game theoretical perspective, the fault tolerance problem.
+To make the system more reliable, developers of systems have already created many engineering techniques to contain the damage that could be caused by such defects.
 For example, a software system may have several measures to its disposal to avoid system failure, including resending the request, resetting the server, clearing the communication buffers, and etc when observing that a critical service request is not acknowledged.
 However, in general, since all the recovery cost time and money it is important to estimate how to organize the measures for the maximal resilience of the system against realistic errors.
 At the moment, an automated support which can suggest defence techniques to development teams is missing.
