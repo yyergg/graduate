@@ -1,2 +1,28 @@
 \chapter{Conclusions}
 \label{c:conclusions}
+\section{Conclusion}
+BSIL and TCL can be useful in describing combinations of strategy profiles in a multi-agent
+system. 
+They are carefully designed for low model-checking cost while maintaining sufficient expressiveness to specify some useful properties.
+We have thoroughly investigated the theoretical aspects of BSIL and TCL, including the expressive power, the model checking complexity.
+Our experiment report also points out new research directions, including further extension to BSIL\&TCL and performance-enhancing techniques to our model-checking algorithms.
+
+We have introduced an approach for the development of a control of safety critical systems that maximizes the number of \emph{dense} errors the system can tolerate.
+Our techniques are inspired by the problem of controlling systems with redundancy:
+in order to deflect the effect of individual errors, safety critical systems are often equipped with multiple copies of various components.
+If one or more components fail, such systems can still work properly as long as the correct behavior can be identified.
+ 
+This has inspired the two-phase formulation of the safety resilience problems in this article.
+In the first phase, we identify a $k$-resilient region, while we develop a control strategy for recovery in the second phase.  
+After an error, the controller can recover to the $k$-resilient region without encountering a system failure, unless the error is part of a group of more than $k$ errors that happen in close succession.
+Such a recovering strategy is memoryless.
+Being memoryless on a small abstraction in particular implies that the recovery is fast.
+
+The system can, once recovered, tolerate and recover from $k$ further dense errors, and so forth.
+Consequently, our control strategy allows for recovery from an arbitrary
+number of errors, provided that the number of dense errors is restricted.
+This is the best guarantee we can hope for: our technique guarantees to find the optimal parameter $k$.
+
+This parameter is bound to be small (smaller than the number of redundant components).
+Optimizing it is computationally inexpensive, but provides strong guarantees: the likelihood of having more than $k$ errors appear in short succession after an error occurred are, for independent errors, exponential in $k$. As errors are few and far between, each level of resilience gained reduces the likelihood of 
+system-level failures significantly.

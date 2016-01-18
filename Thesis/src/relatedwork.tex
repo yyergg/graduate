@@ -1,0 +1,57 @@
+\chapter{Related Work}
+
+\section{Existed Logics about Game and Strategy}
+\subsection{Prior to Strategy Logics}
+Kupferman, Vardi, and Wolper proposed Module checking, a famous framework for checking whether open systems can satisfy temporal logic properties \cite{KVW01}.
+In the framework, the open systems are modeled as a 2-agent turn-based games, one agent is the system and the other is the environment.
+The specification properties can be in CTL, CTL*, and LTL.
+Since there are only two agents, non-trivial strategy collaboration does not exist and the techniques in our model-checking algorithms cannot contribute to the improvement of their algorithms. 
+
+Alur, Henzinger, and Kupferman presented ATL (alternating-time temporal logic), ATL$^*$, AMC (alternating-time $\mu$-calculus), and GL (game logic) with strategy quantifier $\ldabrac M\rdabrac$ \cite{AHK02}.  
+ 
+Brihaye, Lopes, Laroussinie, and Markey introduced a very expressive extension to ATL$^*$ with other players' stratregies and memory constraints \cite{BLLM09}.  
+They also showed that the model-checking problem of this extension is decidable. 
+
+Pinchinat introduced a way to specify expressive constraints on strategies in concurrent games by extending $\mu$-calculus with decision modalities \cite{Pinchinat07}. 
+
+Laroussinie and Markey reported decidability of satisfiability problems in this direction with new context constraints, e.g., the number of moves by agents are bound \cite{LM13}.
+
+\subsection{With Strategy Logics}
+Chatterjee, Henzinger, and Piterman introduced a strategy logic allowing for first-order quantification over strategies \cite{CHP10}.  
+The decision procedure is however non-elementary.  
+
+Mogavero, Murano, Perelli, Sauro, Vardi et al also identified fragments of strategy logics with enjoys a doubly exponential time complexity model-checking algorithm \cite{MMV10,MMPV12,MMS13}. 
+For example, in \cite{MMS13}, conjunction and disjunction cannot happen in the same scope of 
+strategy quantification.
+BSIL is also a fragment of strategy logic with restriction on the hierarchy of SIQs and sometimes can be handy in expressing boolean relation among strategies. 
+Moreover, the restriction on BSIL results in a much lower model-checking complexity of PSPACE.
+We releases the hierarchy restriction in TCL.
+Thus TCL can describe the specifications which requires strategy quantifiers be placed after temporal operators.
+And the TCL model-checking complexity is higher then BSIL, EXPTIME.
+
+\section{Fault tolerance}
+Traditionally, fault tolerance refers to various basic fault models~\cite{AAE04}, such as a limited number of errors \cite{JRT04}.
+These traditional fault models are subsumed by more general synthesis or control objectives 
+\cite{AMP95,AAE04,Thomas94}; 
+as simple objectives with practical relevance, they have triggered the development of specialized tools~\cite{EKA08,GR09}.
+
+Dijkstra's self-stabilization criterion~\cite{AG93,Dijkstra86} suggests to build systems that eventually recover to a 'good state', from where the program commences normally.
+Instead of {\em constructing} a system to satisfy such a goal, one might want to apply control theory to {\em restrict} the execution of an existing system to achieve an additional goal.
+Our control objective is a recovery mechanism for up to $k$ errors.
+After recovery, the system has to tolerate up to $k$ errors again, and so forth.
+In this work, we suggest a mechanism to synthesize a recovery mechanism for a given fault model and recovery primitives.
+
+In \cite{DHLN10}, an interesting notion of robustness based on Hamming and Lewenstein distance related to the number of past states is defined.
+It establishes a connection between these distances with a notion of synchronization that characterizes the ability of the system to reset for combinatorial systems.
+In \cite{BGHJ09}, 'ratio games' are discussed, where the objective is to minimize the ratio between failures induced by the environment and system errors caused by them.
+
+Besides using our simple game model that neither refer directly to time, nor to probabilities, one can also consider models that make these aspects explicit.
+Their analysis is far more complex (with \cite{FRSZ11} offering the best complexity bounds), and so are the resulting strategies.
+If we, for example, return to the example of airplanes with an operation time of 20 hours referred to in Table \ref{tab.mtbf}, then an optimal timed model would take the remaining operation time into account.
+When the remaining time is two minutes, the balance between being resilient against waves of two errors and being resilient against 5 errors looks very different, and the optimal control would change over time rather than being static.
+Another implication of more complex models would be that the error model would have to be more detailed.
+Even if one assumes that a simple concept like safe states persists, it depends on the fineties of such a model if a two step path back to it where an error after step one leads to system failure is preferable over a much longer path, say through 10,000 intermediate states, where one error can be tolerated during recovery.
+
+We believe that the independence from such details is an advantage of our technique, partly because it is simpler and cheaper, and partly because the further advantages one can obtain from more detailed error models rely heavily on very knowledge of (or, realistically, on very detailde assumptions on) how errors are distributed.
+
+In \cite{EhlersT14,BloemEJK14} the resilience model we have introduced \cite{HPSW/12/rapidRecovery} has been applied for synthesising robust control in an assume-guaranee setting to produce robustness against occasional noncompliance of the environment with the assumptions of its behavior.

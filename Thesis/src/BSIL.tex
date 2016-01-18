@@ -1,83 +1,23 @@
 \chapter{Basic Strategy-interaction Logic}
 \label{c:bsil}
 
-\section{Existed Logics about Game and Strategy}
-\subsection{Prior to Strategy Logics}
-Kupferman, Vardi, and Wolper proposed 
-Module checking, a famous framework for checking 
-whether open systems can satisfy temporal logic properties \cite{KVW01}.  
-\label{reply3.module.checking}   
-In the framework, the open systems are modeled as a 2-agent 
-turn-based games, one agent is the system and the other is the environment. 
-The specification properties can be in CTL, CTL*, and LTL.  
-Since there are only two agents, non-trivial strategy collaboration 
-does not exist and the techniques in our model-checking algorithms
-cannot contribute to the improvement of their algorithms. 
-
-Alur, Henzinger, and Kupferman 
-presented ATL (alternating-time temporal logic), 
-ATL$^*$, AMC (alternating-time $\mu$-calculus), and GL (game logic)
-with strategy quantifier $\ldabrac M\rdabrac$ \cite{AHK02}.  
- 
-Brihaye, Lopes, Laroussinie, and Markey introduced a very expressive 
-extension to ATL$^*$ \label{reply3.laroussinie}
-with other players' stratregies and memory constraints \cite{BLLM09}.  
-They also showed that the model-checking problem of this extension is 
-decidable. 
-
-Pinchinat introduced a way to specify expressive constraints on strategies 
-in concurrent games by extending $\mu$-calculus with decision modalities 
-\cite{Pinchinat07}. 
-Laroussinie and Markey reported decidability of satisfiability problems 
-in this direction with new context constraints, \label{reply3.gandalf13} 
-e.g., the number of moves by agents are bound \cite{LM13}. 
-\subsection{With Strategy Logics}
-Chatterjee, Henzinger, and Piterman introduced a strategy logic allowing for 
-first-order quantification over strategies \cite{CHP10}.  
-The decision procedure is however non-elementary.  
-
-Mogavero, Murano, Perelli, Sauro, Vardi et al also identified fragments of 
-strategy logics with 
-enjoys a doubly exponential time complexity model-checking algorithm 
-\cite{MMV10,MMPV12,MMS13}.  \label{reply3.2recent} 
-For example, in \cite{MMS13}, conjunction 
-and disjunction cannot happen in the same scope of 
-strategy quantification.  
-BSIL is also a fragment of strategy logic with restriction 
-on the hierarchy of SIQs and sometimes can be handy in expressing 
-Boolean relation among strategies.  
-Moreover, the restriction on BSIL results in a much lower model-checking complexity of PSPACE.
-
-
 \section{Running Example}
-We use the banking example in the introduction to explain 
-the idea of this work. 
+We use a banking example to explain the idea of this work. 
 Suppose that a bank want to provide the following services. 
-\begin{list1} 
+\begin{list1}
+\item No client is allowed to check other's password
 \item Depositing to an account by a client from the root screen. 
-\item Transferring money from an account in the bank to an account 
-  in another bank, also from the root screen. 
+\item Transferring money from an account in the bank to an account in another bank, also from the root screen.
+\item There is only one bank system, which means the strategy of the bank system which fulfilled above specification should be identical.
 \end{list1} 
-As we can see, the deposit service involves the interaction 
-between a client and the bank while 
-the transfer service involves at least three parties:  
-a client, the bank, and a partner bank. 
-Also in the meantime, the bank wants to forbid any client and partner
-from checking sensitive information of other clients, .e.g., 
-checking the password of another client.  
-\subsection{Trying to Write Down a Correct Formal Specification}
+As we can see, the deposit service involves the interaction between a client and the bank while the transfer service involves at least three parties: a client, the bank, and a partner bank.
+Also in the meantime, the bank wants to forbid any client and partner from checking sensitive information of other clients, .e.g., checking the password of another client.  
 
-To develop the services, the bank manager in charge of the project 
-need specify the 
-services and make sure that the specification is not erroneous.  
-If they turn to the literature, 
-the bank manager may choose ATL or its extensions, e.g., 
-fair ATL, ATL*, AMC, GL, etc., to specify the services. 
-The choice is plausible at first glance since 
-ATL and fair ATL both have a polynomial time model-checking algorithm 
-and could support the verification of the services. 
-So the manager could easily specify the services with 
-the following formula. 
+\subsection{Trying to Write Down a Correct Formal Specification}
+To develop the services, the bank manager in charge of the project need specify the services and make sure that the specification is not erroneous.
+If they turn to the literature, the bank manager may choose ATL or its extensions, e.g., fair ATL, ATL*, AMC, GL, etc., to specify the services. 
+The choice is plausible at first glance since ATL and fair ATL both have a polynomial time model-checking algorithm and could support the verification of the services.
+So the manager could easily specify the services with the following formula. 
 \begin{center} \hfill 
 $\langle 1\rangle\left(\begin{array}{cl}
 		& \pfrr\neg \mbox{\sl checkOthersPassword}\\
@@ -86,20 +26,13 @@ $\langle 1\rangle\left(\begin{array}{cl}
 \end{array}\right)$
 \hfill (C) 
 \end{center}   
-Here we use agent index 1 for the bank, 
-2 for the client, and 3 for the partner bank. 
-But on a second look, we can see that 
-that this specification is too restrictive.  
-Subformula $\langle 2\rangle\pevt \mbox{\sl depositDone}$ 
-says that the client can force a deposit transaction
-no matter how the banking system responds. 
-In practice, there are many factors beyond the control of the client for the success of a
-transaction.  
-For example, when the banking system is in maintenance or out of order, 
-then the transaction may fail.  
+Here we use agent index 1 for the bank, 2 for the client, and 3 for the partner bank.
+But on a second look, we can see that that this specification is too restrictive.  
+Subformula $\langle 2\rangle\pevt \mbox{\sl depositDone}$ says that the client can force a deposit transaction no matter how the banking system responds. 
+In practice, there are many factors beyond the control of the client for the success of a transaction.  
+For example, when the banking system is in maintenance or out of order, then the transaction may fail.  
 
-After realizing the problem with formula (C), 
-the manager decides to rewrite the specification as follows. 
+After realizing the problem with formula (C), the manager decides to rewrite the specification as follows.
 \begin{center} \hfill 
 $\begin{array}{cl}
 		& \langle 1\rangle \pfrr\neg \mbox{\sl checkOthersPassword}\\
@@ -108,31 +41,16 @@ $\begin{array}{cl}
 \end{array}$
 \hfill (D) 
 \end{center}   
-This specification fixes the issue observed in formula (C) since 
-now $\langle 1,2\rangle\pevt\mbox{\sl depositDone}$ 
-says with the collaboration of the banking system, 
-the client can finish a deposit transaction.  
+This specification fixes the issue observed in formula (C) since now $\langle 1,2\rangle\pevt\mbox{\sl depositDone}$ says with the collaboration of the banking system, the client can finish a deposit transaction.  
 However, there is a subtle issue which nullifies the formula.  
-In the collaboration between the banking system and the client 
-for property $\langle 1,2\rangle\pevt\mbox{\sl depositDone}$, 
-the banking system is no longer required to maintain property 
-$\pfrr\neg \mbox{\sl checkOthersPassword}$ 
-since according to the semantics of ATL, 
-the specification does not require the banking system to 
-use the same strategy to enforce 
-both $\langle 1\rangle \pfrr\neg \mbox{\sl checkOthersPassword}$ and 
-$\langle 1,2\rangle \pevt \mbox{\sl depositDone}$.  
+In the collaboration between the banking system and the client for property $\langle 1,2\rangle\pevt\mbox{\sl depositDone}$, the banking system is no longer required to maintain property $\pfrr\neg \mbox{\sl checkOthersPassword}$ since according to the semantics of ATL, the specification does not require the banking system to use the same strategy to enforce both $\langle 1\rangle \pfrr\neg \mbox{\sl checkOthersPassword}$ and $\langle 1,2\rangle \pevt \mbox{\sl depositDone}$.  
 The same issue also appears in $\langle 1,2,3\rangle\pevt\mbox{\sl transferDone}$.  
-That is, the banking system's strategy in enforcing 
-$\langle 1,2,3\rangle\pevt\mbox{\sl transferDone}$ is not required to be the same one 
-in enforcing $\langle 1\rangle \pfrr\neg \mbox{\sl checkOthersPassword}$.  
-Thus, if the bank cannot sue their contractors for developing the service system if 
-the systems leaks clients' passwords in transferring funds. 
+That is, the banking system's strategy in enforcing $\langle 1,2,3\rangle\pevt\mbox{\sl transferDone}$ is not required to be the same one in enforcing $\langle 1\rangle \pfrr\neg \mbox{\sl checkOthersPassword}$.
+Thus, the bank cannot sue their contractors for developing the service system if the systems leaks clients' passwords in transferring funds.
+
 \subsection{Resorting to General Strategy Logics for a Correct Specification}
-After several trials, the manager eventually finds out that 
-the specification cannot be expressed in ATL, ATL*, GL, and AMC \cite{AHK02}.  
-Then the manager turns to strategy logics \cite{CHP10,MMV10} in the literature and 
-finds out that the specification can be expressed as follows. 
+After several trials, the manager eventually finds out that the specification cannot be expressed in ATL, ATL*, GL, and AMC \cite{AHK02}.
+Then the manager turns to strategy logics \cite{CHP10,MMV10} in the literature and finds out that the specification can be expressed as follows. 
 \begin{center} \hfill 
 $\langle x\rangle \langle y\rangle\langle z\rangle \langle w\rangle \left(\begin{array}{cl}
 		& (1,x)\pfrr\neg \mbox{\sl checkOthersPassword}\\
@@ -141,8 +59,9 @@ $\langle x\rangle \langle y\rangle\langle z\rangle \langle w\rangle \left(\begin
 \end{array}\right)$
 \hfill (E) 
 \end{center}   
-This formula declares four existentially quantified strategies: $x,y,z$, and $w$,  
-and says the following. 
+
+This formula declares four existentially quantified strategies: $x,y,z$, and $w$, and says the following. 
+
 \begin{list1} 
 \item On using strategy $x$, the banking system can enforce $\pfrr\neg \mbox{\sl checkOthersPassword}$.  
 \item On using strategy $x$ and $y$ respectively, the banking system and a client can 
@@ -150,16 +69,14 @@ and says the following.
 \item On using strategy $x$, $z$, and $w$ respectively, the banking system, the client, and 
   a partner bank can also finish a fund transfer transaction.  
 \end{list1} 
-The manager is happy with the elegant specification and wants to 
-verify the specification on the model of the development delivery.  
-Then he finds out that there is no tractable algorithm and 
-working tools for checking this specification or synthesize the strategies. 
+
+The manager is happy with the elegant specification and wants to verify the specification on the model of the development delivery.
+Then he finds out that there is no tractable algorithm and working tools for checking this specification or synthesize the strategies.
 In fact, the complexity reported in the literature is at best doubly exponential \cite{CHP10,MMV10}. 
 So the manager finds himself in the dilemma between expressiveness and verification efficiency.  
 
-But when the manager bangs his head to the theoretical challenges, 
-he soon realizes that strategy logics offer more expressiveness than he expects.  
-For example, he could write down the following formula. 
+But when the manager bangs his head to the theoretical challenges, he soon realizes that strategy logics offer more expressiveness than he expects.
+For example, he could write down the following formula.
 \begin{center} 
 \hfill 
 $\langle x\rangle \langle y\rangle[ z] \langle w\rangle \left(\begin{array}{cl}
@@ -170,26 +87,16 @@ $\langle x\rangle \langle y\rangle[ z] \langle w\rangle \left(\begin{array}{cl}
 \hfill (F) 
 \end{center}  
 Here $[z]$ universally quantifies a strategy named $z$.  
-Thus subformula $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$ in fact says that 
-the banking system has a strategy $x$ such that for all strategies $z$ of the client, 
-the partner bank have a strategy $w$ to help enforcing 
-$\pevt\mbox{\sl transferDone}$.  
-Considering that a strategy is an action decision function on the history, 
-this in fact means that strategy $w$ is clairvoyant and contradicts the implementation assumption 
-of all practical banking systems.  
-Indeed the huge verification complexity of strategy logics 
-can be attributed to such free-style binding operations of strategy names to agents.   
-Thus, the manager asks himself whether there is a subclass of strategy logics that 
-allows for elegant expressions of natural and practical specifications while supporting 
-verification with less complexity.  
-Similar examples in fact can appear in different projects with services that rely on collaboration of 
-multiple agents.
+Thus subformula $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$ in fact says that the banking system has a strategy $x$ such that for all strategies $z$ of the client, the partner bank have a strategy $w$ to help enforcing $\pevt\mbox{\sl transferDone}$.
+Considering that a strategy is an action decision function on the history, this in fact means that strategy $w$ is clairvoyant and contradicts the implementation assumption of all practical banking systems.  
+Indeed the huge verification complexity of strategy logics can be attributed to such free-style binding operations of strategy names to agents.  
+Thus, the manager asks himself whether there is a subclass of strategy logics that allows for elegant expressions of natural and practical specifications while supporting verification with less complexity.
+Similar examples in fact can appear in different projects with services that rely on collaboration of multiple agents.
+
 \subsection{BSIL: New Strategy Modalities Expressive Enough for the Specification}
-In fact, in conceivable applications, the developers cannot implement and are not interested at 
-clairvoyant strategies.  
-In other words, for practical specifications, it is likely that 
-existential SIQs are expressive enough.  
-In BSIL, formula (E) can be rewritten as follows.  
+In fact, in conceivable applications, the developers cannot implement and are not interested at clairvoyant strategies.  
+In other words, for practical specifications, it is likely that existential SIQs are expressive enough.
+In BSIL, formula (E) can be rewritten as follows.
 \begin{center} \hfill 
 $\langle 1\rangle \left(\begin{array}{cl}
 		& \pfrr \neg \mbox{\sl checkOthersPassword}\\
@@ -197,23 +104,19 @@ $\langle 1\rangle \left(\begin{array}{cl}
 \wedge  & \langle+2,3\rangle\pevt\mbox{\sl transferDone} 
 \end{array}\right)$
 \hfill (G) 
-\end{center}   
-This formula says that the banking system has a strategy that 
-at any instant, the system can ensure that no password is leaked, 
-the system allows a client to finish a deposit transaction, and 
-the system allows a client to transfer funds from or to a partner bank. 
+\end{center}
+This formula says that the banking system has a strategy that at any instant, the system can ensure that no password is leaked, the system allows a client to finish a deposit transaction, and the system allows a client to transfer funds from or to a partner bank.
+
 \subsection{Symbolic Strategy Names and Path Obligations}
-\label{reply2.alg.exp} 
-But to verify such a BSIL property, we need new techniques to check that along plays, 
-the same decision is made for the same strategy.  
+But to verify such a BSIL property, we need new techniques to check that along plays, the same decision is made for the same strategy.  
 Consider the model of the banking system in figure~\ref{fig.model.bank}.  
-%\begin{figure*}[t] 
-%\begin{center} 
-%\epsfig{file=bank.eps,width=120mm} 
-%\caption{Game graph of a banking system} 
-%\label{fig.model.bank}
-%\end{center} 
-%\end{figure*} 
+\begin{figure*}[t] 
+\begin{center} 
+\epsfig{file=bank.eps,width=120mm} 
+\caption{Game graph of a banking system} 
+\label{fig.model.bank}
+\end{center} 
+\end{figure*} 
 We need to find strategies of the agents to fulfill 
 $\pfrr \neg \mbox{\sl checkOthersPassword}$, 
 $\pevt \mbox{\sl depositDone}$, and 
@@ -223,321 +126,111 @@ we use symbolic strategy names $x,y,z,w$ and the binding notations in formula (F
 In fact, formula (G) is exactly the same as formula (E).  
 Thus by interpreting all symbolic strategy names as existential quantified, 
 formula (G) can be rewritten as follows.  
-\begin{center} \hfill 
-$((1,x) \pfrr \neg \mbox{\sl checkOthersPassword})
-\wedge ((1,x)(2,y)\pevt \mbox{\sl depositDone})
-\wedge ((1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone})$
-\hfill (H) 
+\begin{center} \hfill
+$
+\begin{array}{cl}
+((1,x) \pfrr \neg \mbox{\sl checkOthersPassword}) \\
+\wedge ((1,x)(2,y)\pevt \mbox{\sl depositDone}) \\
+\wedge ((1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone})
+\end{array}
+$
+\hfill (H)
 \end{center}   
 Note that since we only allow explicit existential strategy quantification, 
 the number of strategy bindings are exactly determined by the number and sizes of SQs and SIQs 
 in the formula.  
 
 
-If we label $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$, 
-$(1,x)(2,y)\pevt \mbox{\sl depositDone}$, and $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$
-on nodes of a computation tree in a labeling procedure, 
-then the symbolic names precisely reflect the the constraints on the decisions along plays. 
-For example, 
-suppose that both $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ and 
-$(1,x)(2,y)\pevt \mbox{\sl depositDone}$ are labeled on 
-a state of location {\em dep}.   
+If we label $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$, $(1,x)(2,y)\pevt \mbox{\sl depositDone}$, and $(1,x)(2,z)$ $(3,w)\pevt\mbox{\sl transferDone}$ on nodes of a computation tree in a labelling procedure, then the symbolic names precisely reflect the the constraints on the decisions along plays. 
+For example, suppose that both $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ and $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ are labelled on a state of location {\em dep}. 
 This state has three successor states: for convenience 
 C1 of location {\em idle} via $[\mbox{\rm fail},\mbox{\rm commit},\perp]$, 
 C2 of location {\em idle} via $[\mbox{\rm succ}, \mbox{\rm cancel}, \perp]$, and 
 C3 of location {\em depDone} via $[\mbox{\rm succ}, \mbox{\rm commit}, \perp]$.  
-If strategy $x$ chooses action succ, then obligation $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ 
-will be passed down to C2 and C3.  
-In this situation, 
-whether obligation $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ 
-is labeled on C2 or C3 relies on the action decision of strategy $y$.  
-But the constraint on strategy decision is that 
-if $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is labeled on C2, 
-then $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ must also be labeled on C2; 
-and if  $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is labeled on C3, 
-then $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ must also be labeled on C3.  
+If strategy $x$ chooses action succ, then obligation $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ will be passed down to C2 and C3.  
+In this situation, whether obligation $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is labeled on C2 or C3 relies on the action decision of strategy $y$.  
+But the constraint on strategy decision is that if $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is labeled on C2, then $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ must also be labeled on C2; and if  $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is labeled on C3, then $(1,x) \pfrr$ $\neg \mbox{\sl checkOthersPassword}$ must also be labeled on C3.  
 The reason is that the path obligations are enforced by the same strategy of the bank.  
+
 \subsection{Passing Down the Path Obligations While Observing the Restrictions Among S-Profiles}
-The above observation points out how to judge whether a passing-down scheme of path obligations 
-from a parent state to its child states are consistent with the strategy quantifications.  
-For example, suppose that we have the following characteristics of the strategy profile 
-$(1,x)(2,y)(2,z)(3,w)$.
+The above observation points out how to judge whether a passing-down scheme of path obligations from a parent state to its child states are consistent with the strategy quantifications.  
+For example, suppose that we have the following characteristics of the strategy profile $(1,x)(2,y)(2,z)(3,w)$.
 \begin{list1} 
 \item Strategy $x$ of the banking system never issues action fail. 
 \item Strategy $y$ and $z$ never cancel transactions for its client. 
 \item Strategy $w$ never shows busy message for the partner bank. 
 \end{list1} 
-Then the verification problem of strategy interaction can be visualized as
-finding strategies $x,y,z$, and $w$ that selecting paths in a computation tree 
-to satisfy three path obligations: 
+Then the verification problem of strategy interaction can be visualized as finding strategies $x,y,z$, and $w$ that selecting paths in a computation tree to satisfy three path obligations: 
 $\pfrr \neg \mbox{\sl checkOthersPassword}$, 
 $\pevt \mbox{\sl depositDone}$, and $\pevt\mbox{\sl transferDone}$.  
-Figure~\ref{fig.ctree} shows part of a computation tree when 
-strategy $x$ for the banking system is fixed with the following restriction. 
-%\begin{figure*}[t] 
-%\begin{center} 
-%\epsfig{file=ctree.eps,width=120mm} 
-%\caption{Part of the computation tree of the banking system} 
-%\label{fig.ctree}
-%\end{center} 
-%\end{figure*} 
+Figure~\ref{fig.ctree} shows part of a computation tree when strategy $x$ for the banking system is fixed with the following restriction. 
+\begin{figure*}[t] 
+\begin{center} 
+\epsfig{file=ctree.eps,width=120mm} 
+\caption{Part of the computation tree of the banking system} 
+\label{fig.ctree}
+\end{center} 
+\end{figure*} 
 \begin{list1} 
 \item At location {\em idle}, {\em depDone}, and {\em xferDone}, always issue action $\perp$.  
 \item At location {\em dep} and {\em xferCfm}, only issue action {\sf succ}.  
-\end{list1} 
-The leaves of the tree all end at location {\em idle} at which 
-the same tree structure can be replicated.  
-We can start synthesizing strategy $y,z$, and $w$ in the context 
-of this strategy $x$ which, for convenience of explanation, is memoryless 
-(or positional). 
+\end{list1}
+The leaves of the tree all end at location {\em idle} at which the same tree structure can be replicated.
+We can start synthesizing strategy $y,z$, and $w$ in the context of this strategy $x$ which, for convenience of explanation, is memoryless (or positional). 
 
-As we have suggested, we can label the path obligations on the nodes of 
-the computation tree and examine whether a strategy profile can fulfill 
-all the path obligations. 
-In the literature, we can name the nodes by their branching paths.  
+As we have suggested, we can label the path obligations on the nodes of the computation tree and examine whether a strategy profile can fulfill all the path obligations.
+In the literature, we can name the nodes by their branching paths.
 For example, the root is named $\varepsilon$ which is the empty string. 
-Then the node at location {\em xferDone} is named `100' and 
-the rightmost {\em idle} node is named `12.' 
+Then the node at location {\em xferDone} is named '100' and 
+the rightmost {\em idle} node is named '12.' 
 We begin by label node `$\varepsilon$ with the three path obligations: 
 $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$, 
-$(1,x)(2,y)\pevt \mbox{\sl depositDone}$, and $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$.  
+$(1,x)(2,y)\pevt \mbox{\sl depositDone}$, and $(1,x)(2,z)(3,w)$ $\pevt\mbox{\sl transferDone}$.  
 Then we can pass the path obligations to the children in the following way. 
-\begin{list1} 
+\begin{list1}
 \item We must pass $(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ to 
-  both child `0' and `1' of the root since the two children 
+  both child '0' and '1' of the root since the two children 
   are both selected by action $\perp$ of the banking system. 
 \item We can pass $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ 
 	and $(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$ respectively to 
-	child `0' and `1' of the root since 
+	child '0' and '1' of the root since 
 	the two children are selected with the same strategy $x$ of the banking system 
 	and different strategies ($y$ and $z$) of the client.  
 \end{list1} 
-Note that we can check whether the passing down of the path obligation 
-is consistent with the 
-strategy quantifications in the input formula (G) just by 
-checking the labeling of path obligations with 
-strategy name bindings since 
-all consistency information are maintained there. 
+Note that we can check whether the passing down of the path obligation is consistent with the strategy quantifications in the input formula (G) just by checking the labelling of path obligations with strategy name bindings since all consistency information are maintained there.
 
-Similarly, from node `0', strategy $x$ and $y$ can together choose to pass 
-$(1,x)(2,y)\pevt \mbox{\sl depositDone}$ to node `00' while 
-strategy $x$ must unilaterally pass 
-$(1,x) \pfrr \neg \mbox{\sl checkOthersPassword}$ 
-to both `00' and `01.'  
-Then at node `00,' $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is fulfilled 
+Similarly, from node '0', strategy $x$ and $y$ can together choose to pass 
+$(1,x)(2,y)\pevt$ $\mbox{\sl depositDone}$ to node '00' while strategy $x$ must unilaterally pass 
+$(1,x) \pfrr \neg$ $\mbox{\sl checkOthersPassword}$ 
+to both '00' and '01.'  
+Then at node '00,' $(1,x)(2,y)\pevt \mbox{\sl depositDone}$ is fulfilled 
 eventually and no longer need be passed down.  
-The passing down of path obligations from node `1' and fulfillment of 
-$(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$ can then be reasoned similarly.  
+The passing down of path obligations from node '1' and fulfillment of 
+$(1,x)(2,z)(3,w)\pevt\mbox{\sl transferDone}$ can then be reasoned similarly.
+ 
 \subsection{Finding Finite Satisfying Evidence for a Formula in a Computation Tree}
-As we can see, the existence of the tree top in figure~\ref{fig.ctree} is 
-sufficient for synthsizing strategy profile $(1,x)(2,y)(2,z)(3,w)$ to satisfy 
-formula $(G)$.  
+As we can see, the existence of the tree top in figure~\ref{fig.ctree} is sufficient for synthesizing strategy profile $(1,x)(2,y)(2,z)(3,w)$ to satisfy formula $(G)$.  
 From this example, it is easy to see that the requirement for such a tree top.  
-First, all eventual-formulas (or until-formulas) from the root SQ to the 
-next level of SQs have to be fulfilled by the strategy profile.  
-Second, the leaves of the tree top do not contain any eventual-formula (or until-formula) labels.  
-Thus our PSPACE algorithm for model-checking BSIL formulas is actually 
-a nondeterministic one that guess and check the consistency of 
-the tree top and strategic actions at the nodes 
-in the tree top.  
+First, all eventual-formulas (or until-formulas) from the root SQ to the next level of SQs have to be fulfilled by the strategy profile.
+Second, the leaves of the tree top do not contain any eventual-formula (or until-formula) labels.
+Thus our PSPACE algorithm for model-checking BSIL formulas is actually a non-deterministic one that guess and check the consistency of the tree top and strategic actions at the nodes in the tree top.  
 
-Then the final question regarding our algorithms is the terminating condition 
-for searching the tree tops and strategy profiles. 
-Let us consider a tree node labeled with path obligations and how to 
-(nondeterministically) explore for a tree top and a strategy profile.  
-Note that the path obligations labeled on a child will 
-be no more than those of its parent.  
+Then the final question regarding our algorithms is the terminating condition for searching the tree tops and strategy profiles.
+Let us consider a tree node labelled with path obligations and how to (non-deterministically) explore for a tree top and a strategy profile.  
+Note that the path obligations labelled on a child will be no more than those of its parent.  
 In fact, the path obligations can stop being passed down in a path when it is fulfilled. 
 Path obligations are simply passed down and not generated along the paths.  
-As a result, along a path longer than the size of the game graph, 
-either the number of path obligations decreases or 
-two nodes, say $v$ and $v'$ 
-(for convenience, we assume $v$ is an ancestor of $v'$), 
-with identical location and labels must appear. 
-If the tree top is an evidence of existence of a strategy profile 
-and the latter happens, 
-then we can replace the the subtree rooted at $v$ with the one rooted at 
-$v'$ and the result tree top is still an evidence.  
-This observation implies that 
-we can focus on tree top such that along any path, no duplication of 
-nodes with the same location and the same path obligation labels.  
-This implies that we only have to explore tree tops of depth no greater 
-than the size of the game graph times the number of temporal modalities 
-in the given BSIL formula.  
+As a result, along a path longer than the size of the game graph, either the number of path obligations decreases or two nodes, say $v$ and $v'$ 
+(for convenience, we assume $v$ is an ancestor of $v'$), with identical location and labels must appear.
+If the tree top is an evidence of existence of a strategy profile and the latter happens, then we can replace the the subtree rooted at $v$ with the one rooted at 
+$v'$ and the result tree top is still an evidence.
+This observation implies that we can focus on tree top such that along any path, no duplication of nodes with the same location and the same path obligation labels.  
+This implies that we only have to explore tree tops of depth no greater than the size of the game graph times the number of temporal modalities in the given BSIL formula.
 
-
-\section{Game Graphs}
-\subsection{Concurrent Games}
-A {\em concurrent game} is played by many agents 
-that make their moves concurrently.  
-Such a game can be formalized \label{reply1.be.formalized} with the following definition.  
-
-\begin{definition}
-A concurrent game graph is a tuple 
-$A=\langle m,Q,r,P,\lambda,R,\Delta,\delta\rangle$
-with the following restrictions.
-\begin{list1}
-\item 
-	$m$ is the number of agents in the game.
-\item 
-	$Q$ is a finite set of states.
-\item 
-	$r\in Q$ is the {\em initial state} of $A$.
-\item 
-	$P$ is a finite set of atomic propositions.
-\item Function 
-	$\lambda:Q\mapsto 2^P$ labels each 
-	state in $Q$ with a set of atomic propositions.
-\item 
-	$R\subseteq Q\times Q$ is the set of transitions.
-\item 
-	$\Delta$ is a set of tokens that can be issued 
-	by the agents during transitions.  
-\item 
-	$\delta:(R\times [1,m])\mapsto \Delta$ is a function that specifies the
-    token (move symbol) issued by each agent in a transition.
-\end{list1}
-\end{definition} 
-During a transition, each agent selects a token.  
-If there is no transition matching all the tokens selected by the agents, 
-then there is no transition.  
-Otherwise, the matching transition takes place.  
-\qed 
-
-
-In Figure~\ref{fig.cg}, we have the graphical representation of a concurrent game graph.  
-%\begin{figure}[!ht]
-%\begin{center}
-%\epsfig{file=cg.eps,width=80mm} 
-%\end{center}
-%\caption{A concurrent game graph}
-%\label{fig.cg}
-%\end{figure} 
-The ovals represent states while the arcs represent 
-state transitions.  
-We also put down the $\lambda$ values inside the corresponding states. 
-On each edge, we label the tokens issued by the agents. 
-Specifically, the label on arrow $(q,q')$ is 
-$[\delta((q,q'),1),\ldots,\delta((q,q'),m)]$.  
-For example, in Figure~\ref{fig.cg}, 
-on edge $(v,u)$, we have label $[a,b]$ meaning that 
-to make the transition, agent 1 has to choose token $a$ while 
-agent 2 has to choose $b$.  
-
-
-
-\label{reply2.calp} 
-For convenience, in the remaining part of the 
-manuscript, we assume that we are always in the context 
-of a given game graph
-$\calg=\langle m,Q,r,P,\lambda,R,\Delta,\delta\rangle$.
-Thus, when we write $Q,r,P,\lambda,R,\Delta$, and $\delta$ 
-we respectively refer to the corresponding components of this $\calg$.  
-
-
-
-A {\em state predicate} of $P$ is a Boolean combination of elements in $P$.
-% We let $\emstp(P)$ be the set of state predicates of $P$.
-The satisfaction of a state predicate $\eta$ at a state $q$,
-in symbols $q\models \eta$, is defined in the standard way.
-
-A {\em play} is an infinite path in a game graph.
-A play is {\em initial} if it begins with the initial state.
-Given a play $\rho=\bar{q}_0\bar{q}_1\ldots$,
-for every $k\geq 0$, we let $\rho(k)=\bar{q}_k$.
-Also, given $h\leq k$,
-we let $\rho[h,k]$ denote $\rho(h)\ldots\rho(k)$ and
-$\rho[h,\infty)$ denote the infinite tail of $\rho$
-from $\rho(h)$.
-A {\em play prefix} is a finite segment of a play from the beginning of
-the play.
-Given a play prefix $\rho=\bar{q}_0\bar{q}_1\ldots \bar{q}_n$, 
-we use $|\rho|=n+1$ for the {\em length} of $\rho$.
-For convenience, we use $\emlast(\rho)$ to denote the 
-last state in $\rho$, i.e., $\rho(|\rho|-1)$.  
-
-Let $Q^*$ be the set of finite sequences of states in $Q$.  
-For an agent $a\in [1,m]$,
-a {\em strategy} $\sigma$ for $a$ is
-a function from $Q^*$ to $\Delta$.
-An {\em agency} $A$ of $[1,m]$ is an integer subset of $[1,m]$.  
-For example, ``$\{1,3,4\}$'' represents the agency that consists of agents 1, 3, and 4. 
-A {\em strategy profile} (or {\em S-profile}) $\Sigma$ of 
-an agency $A\subseteq [1,m]$ 
-is a partial function from $[1,m]$ to the set of strategies
-such that, for every $a\in[1,m]$, 
-$a\in A$ iff %\footnote{``{\em iff}" is a shorthand for ``{\em if and only if}."} 
-$\Sigma(a)$ is defined.  
-The composition of two S-profiles $\Sigma,\Pi$,
-in symbols $\Sigma\circ\Pi$, is defined with
-the following restrictions for every $a\in[1,m]$.
-\begin{list1}
-\item If $\Pi(a)$ is defined,
-    then $\Sigma\circ\Pi(a)=\Pi(a)$.
-\item If $\Sigma(a)$ is defined and $\Pi(a)$ is undefined,
-    then $\Sigma\circ\Pi(a)=\Sigma(a)$.
-\item If $\Sigma(a)$ and $\Pi(a)$ are both undefined,
-    then $\Sigma\circ\Pi(a)$ is also undefined.
-\end{list1} 
-% Later, w
-We will use composition of S-profiles to model 
-inheritance of strategy bindings from ancestor formulas. 
-
-A play $\rho$ is compatible with a strategy
-$\sigma$ of an agent $a\in [1,m]$
-iff for every $k\in [0,\infty)$,
-$\delta((\rho(k),\rho(k+1)),a)=\sigma(\rho[0,k])$.
-The play is compatible with an S-profile $\Sigma$ of agency $A$
-iff for every $a\in A$,\label{reply2.M2A} 
-the play is compatible with $\Sigma(a)$ of agent $a$.
-\subsection{Turn-Based Games}
-Another popular game structure is {\em turn-based game} 
-in which at each state, at most one agent gets to decide the next state. 
-For example, in figure~\ref{fig.tg}, we have the graphical representation of 
-a turn-based game graph with initial state $v$.  
-%\begin{figure}[!ht]
-%\begin{center}
-%\epsfig{file=tg.eps,width=80mm} \\
-%$\bigcirc$ belongs to Agent 1 and $\pfrr$ belongs to Agent 2.
-%\end{center}
-%\caption{A turn-based game graph}
-%\label{fig.tg}
-%\end{figure} 
-The ovals and squares represent states respectively of 
-agent 1 and agent 2. 
-The arcs represent state transitions.  
-
-In fact, every turn-based game can be represented as a special case of 
-concurrent games.  
-Specifically, a turn-based game 
-$\calg=\langle m,Q,r,P,\lambda,E,\Delta,\delta\rangle$ 
-can be viewed as a concurrent game with the following restrictions. 
-\begin{list1} 
-\item $\Delta=Q\cup\{\perp\}$ where $\perp$ denotes a dummy move not in $Q$. 
-\item For every $(q,q')\in R$, if $q$ belongs to agent $a$, 
-	then $\delta((q,q'),a)=q'$ and 
-	for every $a'\neq a$, $\delta((q,q'),a')=\perp$. 
-\item For every $(q_1,q_2),(q_3,q_4)\in R$ and agent $a$, 
-	$\delta((q_1,q_2),a)=\perp$ if and only if $\delta((q_3,q_4),a)=\perp$.  
-	This restriction says that every state can be owned by only one agent. 
-\end{list1} 
-For convenience, for a turn-based game, 
-the owner of a state $q$, $\omega(q)$ in symbols, is defined as agent $a$ with 
-$\forall (q,q')\in E(\delta((q,q'),a)=q'$.  
-For ease of notation, we denote with 
-$Q_a = \{q \in Q \mid \omega(q)=a\}$ 
-the states owned by an agent $a$.
-
-In the investigation of many research issues, 
-turn-based game graphs are easier to handle than concurrent game graphs.   
-So in latter sections, we sometimes use turn-based game graphs 
-in examples and explanation of the theory as we see fit. 
 
 \section{BSIL}
 \subsection{Syntax}
-For concurrent game graph $\calg$ of $m$ agents, 
-we have three types of formulas: {\em state formulas}, {\em tree formulas}, 
-and {\em path formulas}.  
+For concurrent game graph $\calg$ of $m$ agents, we have three types of formulas: {\em state formulas}, {\em tree formulas}, and {\em path formulas}.  
 State formulas describe properties of states.  
 Tree formulas describe interaction of strategies.  
 Path formulas describe properties of plays.  
@@ -572,8 +265,7 @@ Intuitively, they mean that there exists an S-profile of $B$
 that collaborates with the strategies declared 
 with ancestor formulas to make $\psi_1$ true. 
 For convenience, we view SQs as special cases of SIQs. 
-Also, for conciseness, we omit null SIQs $\langle+\rangle$.  
- \label{reply1.null.siq2} 
+Also, for conciseness, we omit null SIQs $\langle+\rangle$.
 
 State formulas $\phi$ are called {\em BSIL} {\em formulas}. 
 From now on, we assume that we are always in the context of 
@@ -585,8 +277,7 @@ of strategies locally in a state and
 then enforce the interaction along all paths from this state.  
 
 For convenience, we also use the common shorthands.
-\begin{center}
-\label{reply2.conj.redundancy} 
+\begin{center} 
 $
 \true
 \equiv p\vee(\neg p) 
@@ -654,16 +345,7 @@ and only if, the following inductive constraints are satisfied.
     for all plays $\rho$ from $q$ compatible with ${\Sigma\circ\Pi}$,
     $\rho\models_{\Sigma\circ\Pi}\theta$ holds.  
 \end{list1} 
-% Note that we also let a play $\rho$ satisfy a path formula $\theta$ 
-% with the inheritance of an S-profile.  
-% This is in fact not necessary for BSIL semantics since 
-% all such inheritance will be overruled by SQs immediately.
-% However, this is necessary when we later extend BSIL  
-% by allowing for the inheritance of strategies across the temporal modal 
-% operators.  
-%%
-%% Commented out, as I don't think we actually do this any more.
-%%
+
 A play $\rho$ satisfies a path formula $\theta$ with S-profile $\Sigma$, 
 in symbols $\rho\models_\Sigma\theta$, 
 iff the following restrictions hold.
@@ -680,12 +362,6 @@ iff the following restrictions hold.
 \item $\rho\models_\Sigma\psi_1\until\psi_2$
     iff there exists an $h\geq 0$ with $\calg,\rho(h)\models_\Sigma\psi_2$ 
     and for all $j\in [0,h)$, $\calg,\rho(j)\models_\Sigma\psi_1$.
-% \item $\rho\models_\Sigma\psi_1\wntil\psi_2$
-%     iff either $\rho\models_{\Sigma}\psi_1\until\psi_2$ 
-%     or for all $h\geq 0$, $\calg,\rho(h)\models_\Sigma\psi_1$.
-%%
-%% Commented out, as I don't we did not define W.
-%%
 \end{list1}
 For convenience, we let $\perp$ be a null S-profile, 
 i.e., a function that is undefined on everything. 
@@ -968,9 +644,6 @@ The inductive step follows since Boolean combinations of
 subformulas that cannot distinguish $G_0$ and $H_0$ can neither
 distinguish the two game graphs.
 \qed
-
-
-
 
 
 Now we want to classify AMC formulas according to the nesting depths of
@@ -2192,720 +1865,4 @@ Following Lemmas~\ref{lemma.bsil.mck.nphard} and
 problems are PSPACE-complete.
 } \qed
 
-\section{Automata for BSIL model-checking
-\label{sec.mck.gen}
-}
 
-In this section, we discuss a simple encoding of BSIL model-checking 
-in {\em alternting automatas} on infinite trees 
-\cite{Kirsten02,Zappe02}.  
-This naturally raises the question why we should study 
-a second approach to BSIL model-checking.
-The answer is twofold.
-First, for model-checking itself, 
-it will allow us to establish that the model complexity 
-of BSIL model-checking is polynomial time complete:
-the problem to decide for a fixed BSIL formula $\phi$ whether 
-or not a game graph $\calg$ is a model of $\phi$ is P complete.
-As it is widely believed that models are usually large 
-while specifications are small, a polynomial time bound in the size 
-of the model might be considered more attractive than a PSPACE bound 
-on the complete input.
-Second, it provides us with the full access of automata 
-based analysis tools, which will allow us to establish 
-a doubly exponential upper bound on the decision problem of whether 
-or not a BSIL formula $\phi$ is satisfiable.
-
-We start this section by introducing alternating automata, 
-and then continue to encode the model-checking algorithm 
-from the previous section.
-These automata constructions are then used to establish 
-the inclusion of the model-checking algorithm in PTIME 
-for fixed formulas, 
-while hardness is shown by reducing reachability 
-in AND/OR graphs \cite{Immerman81} to model-checking the BSIL formula 
-$\langle 1 \rangle \pevt p$.
-Beyond establishing PTIME inclusion, 
-we actually show that the problem is fixed parameter tractable: 
-the problem is, for a fixed formula, only quadratic in the size 
-of the model.
-
-
-\subsection{Alternating Automata (AA)}
-
-{\em Alternating automata} ({\em AA}) are used 
-to recognized $\omega$-regular 
-tree languages over labeled trees.  
-Let $\nnneg$ denote the set of non-negative integers.  
-Let $\bbbbd=[1,d]$ be an interval of $\nnneg$.   
-A $\bbbbd$-tree $T$ is a non-empty prefix-closed subset of $\bbbbd^*$ 
-(and hence $T \subseteq \bbbbd^*$).  
-In $T$, $\bbbbd$ can be interpreted as {\em directions} from 
-each node in $T$.  
-Such a $T$ is an ordered tree in the sense that 
-the children of a node in $T$ are naturally ordered according to 
-the directions in $\bbbbd$.   
-For example, when $d=5$, 
-the children of $1212$ can be $12122$, $12123$, and $12125$ in order. 
-
-An $X$-labeled tree of $\Upsilon$ is a pair $\langle T,\xi\rangle$, 
-where $\xi:T\rightarrow X$ is a function from $T$ to $X$.  
-We use $\bbbbb^+(P)$ to denote the 
-set of positive\footnote{A Boolean formula is positive if there is 
-no negation in the formula.} 
-Boolean combinations of elements in $P$.  
-A satisfying assignment to a formula in $\bbbbb^+(P)$ is 
-a subset of $P$ such that 
-the formula is true if \label{reply2.iff.2.if}  
-all elements in the set is interpreted true.  
-
-For the convenience of the readers, we briefly review the 
-definition of AA.  
-
-\begin{definition}  
-An alternating automaton ({\em AA}) 
-$A$ is a tuple $\langle X,U,u_0,\delta,\gamma\rangle$, such that
-\begin{list1} 
-\item $X$ is the set of labels of the analysed trees,
-\item $U$ is a finite set of states,
-\item $u_0\in U$ is an initial state, 
-\item $\delta:(U\times X)\mapsto \bbbbb^+(\bbbbd\times U)$ 
-  is a function that maps each pair of a state in $U$ 
-  and an input letter in $X$\label{reply2.chi.2.X} to 
-  a positive Boolean combination of pairs of directions and states, and
-\item $\gamma:U\mapsto \nnneg$ is a valuation function that 
-  labels each state with a non-negative integer, called its {\em priority}.  
-\end{list1} 
-Alternating automata are interpreted over $X$-labeled trees.
-A \emph{run} of $A$ 
-on an $X$-labeled tree $\Upsilon=\langle T,\xi\rangle$ is a tree 
-$\langle T',\xi' \rangle$ 
-with $\xi':T' \mapsto (T\times U)$ with the following 
-inductive restrictions. 
-\begin{list1}
-\item $\xi'(\varepsilon)=(\varepsilon,u_0)$.  
-  $\varepsilon$ is the null sequence. 
-\item For every $u\in U$ and sequence $\zeta\in T$ and $\zeta'\in T'$ 
-  with $\xi'(\zeta')=(\zeta,u)$ and $\xi(\zeta)=x$, 
-  there is a satisfying assignment 
-  $S$ of $\delta(u,x)$ such that 
-  for every $(i,u')\in S$, there exists a $k\in\nnneg$ with 
-  $\zeta'k\in T'$ and $\xi'(\zeta'k)=(\zeta i, u')$.  
-\end{list1}
-As can be seen, the out-degree of a node in $T'$ is at most $d\cdot|U|$, 
-while the out-degree of $T$ is at most $d$.  
-\qed 
-\end{definition} 
-
-
-Intuitively, we want to 
-construct AAs with {\em states} that represent path obligations.  
-The transitions then define, in which way these path obligations 
-are sent down the tree.  
-An element $(i,u')$ in the transition formula 
-simply means that the path obligation from $u$ is sent to 
-the child state $u'$ at direction $i$ of the input $X$-labeled tree.  
-
-The priority of a node in a run tree is the priority of 
-the state in its label.
-The priority of an infinite path is the highest priority taken by infinitely many nodes on the path.
-A run tree is accepting if the priority of all infinite paths are even, and a tree is accepted if it has an accepting run.
-The set of trees accepted by such an automaton is called its language and an automaton is called empty if its language is empty.
-
-An AA is called {\em nondeterministic} 
-if all functions in the image of $\delta$ 
-can be written as a disjunction over conjuncts 
-that contain at most one pair per direction.
-If they contain only one such disjunct, 
-it is called {\em deterministic}.
-
-An AA is called a \emph{safety} AA if all its states have 
-the same even priority.  
-For safety AA, the priority function is therefore omitted.
-An AA is called \emph{weak} if for all its states $u$ 
-and all input letters $x$, 
-the function $\delta(u,x)$ refers only to states with priorities greater 
-or equal to $\gamma(u)$.  
-It is called a \emph{B\"uchi} AA if only prioritiy values $1$ and $2$ 
-are used, i.e., the image of $\gamma$ 
-is contained in $\{1,2\}$.  
-Note that weak AA can be rewritten as language equivalent B\"uchi AA 
-by changing only the priority function from $\gamma$ to $\gamma'$ 
-where $\gamma'$ maps a state $u$ to $2$ if $\gamma(u)$ is even, and 
-to $1$ otherwise. 
-
-
-
-
-\subsection{Model Checking with AA's}
-
-In this subsection, we relate the algorithms 
-used for model-checking from Section~\ref{sec.mck.psp} 
-to alternating automata.
-In order to approach this translation, 
-we start with the simple case, where we model-check a tree
-against a BSIL formula of the form $\langle A \rangle \tau$, 
-where $\tau$ does not contain an SQ.
-This is plausible since we can evaluate those SQs and replace them 
-with auxiliary propositions.  
-In addition, we assume that all strategy decisions are already made.  
-This is also reasonable since we only allow existential SIQs and 
-we forbid negations directly applied to SIQs.  
-Thus we can check the model by checking the existence of S-profiles that 
-fulfill the SQs and SIQs.  
-For convenience, we let $\bbbbs$ be the set of strategies that 
-fulfills the SQs and SIQs, if existent. 
-
-To keep the presentation simple, we study the algorithm for turn-based games and then turn to the general case of concurrent games.
-
-\subsubsection{Turn-based Games}
-Like in Section~\ref{sec.mck.psp}, 
-we start with the case that the DNBB formula has only one disjunct.
-For this case, we model-check a tree that has the form 
-of an unravelling of $\calg$.
-To relate this to the automata we have introduced, 
-we assume for the moment that the successors are ordered: 
-a tree node with $k$ successors has a successor in direction $1$ through $k$.
-Each node is labelled with a quadruple\label{reply2.triple.2.quadruple} $(a,k,S,P)$, 
-containing the following information:
-\begin{itemize}
-\item $a \in [1,m]$ shows the owner of the node,
-\item $k \in \bbbbd$ shows the number of successors, and
-\item $S\subseteq \bbbbs$ is the set of strategies, 
-  for which we can reach the node.
-  The strategies in $S$ are used just like atomic propositions.
-\item $P$ is the set of atomic propositions valid in the node.
-\end{itemize}
-For such a tree, we check two things for the satisfaction of 
-a BSIL property:
-\begin{list1}
-\item[(A1):] The labelling of states as reachable is consistent; 
-  that is, there are strategies in $S$ such that, 
-  for each strategy, exactly the nodes labelled by it are reachable.
-\item[(A2):] For the respective set of paths described by this labelling, 
-  the single disjunct of the DNBB is satisfied.
-\end{list1}  
-Note that, by these, we do not check that the form of 
-the tree complies with an unravelling of $\calg$.
-%
-However, the following observation obviously holds.
-
-{\lemma \label{lemma.A1.A2} 
-$\calg$ is a model of $\phi$ if, and only if, 
-we can extend the unravelling of $\calg$ such that (A1) and (A2) 
-are satisfied.
-} 
-\qed 
-
-To test this, we will first show how to construct two AAs that 
-check (A1) and (A2) individually, and 
-then construct a nondeterministic B\"uchi AA that checks (A1) and (A2) 
-together.
-Using a nondeterministic AA is attractive because it allows 
-for projecting away the strategies and interpreting $\calg$ directly 
-with the resulting AA.
-
-{\lemma \label{lemma.A1} 
-We can construct a nondeterministic safety AA 
-$\cala_s=\langle X,U_s,u_0^s,\delta^s \rangle$ 
-with $2^{|\bbbbs|}$ states that recognises 
-the trees that satisfy (A1).
-}
-\\\pf 
-We can simply use 
-$X = [1,m] \times \bbbbd \times 2^\bbbbs \times 2^P$,
-$U_s = 2^\bbbbs$, and 
-$u_0^s = \bbbbs$.   
-For all $k \leq d$, we have a transition function 
-$\delta_k^s$ for the $k$ successor case (of the input labeled tree node) 
-with the following restrictions. 
-\begin{list1}
-\item For an Agent $a$ owning a state and a set of strategies 
-  $S \subseteq \bbbbs$, we let
-  $S_a \subseteq S$ be the strategy names of strategies 
-  for Agent $a$.  
-  We let $\Pi^k_a$ be the set of $k$ tuples of disjoint sets $(S_a^1,S_a^2,S_a^3,\ldots, S_a^k)$ that cover\footnote{Note that disjoint cover does not mean patition, as we allow for empty sets.} $S_a$
-  and $S^\neg_a = S - S_a$ be the set of strategies not owned by $a$.  
-\item We let $\delta_k^s(a,S) = \bigvee_{(S_a^1,\ldots,S_a^k)\in \Pi_a^k}
-  \bigwedge_{i\in [1,k]}(i,S_a^i\cup S^\neg_a)$.  
-  Then we let $\delta_s \big(S,(a,k,S,P)\big) = \delta_k^s(a,S)$ 
-  and \linebreak 
-  $\delta_s \big(S,(a,k,S',P)\big)=\false$ if $S\neq S'$.
-\end{list1}
-First, the automaton is nondeterministic, and it is easy to see that a run tree must have the same form and the states in its nodes must comply with the strategies in the label of the input tree.
-
-With this observation, the correctness of the construction can be shown by a simple inductive argument.
-For the induction basis, the initial node is reachable under all strategies, and the run tree is labeled with all strategies.
-For the induction step, it is easy to show by induction that a node of a (minimal) run tree (and, similarly, the input tree) must have the following property.
-\begin{list1}
- \item If a state is not labelled with a strategy $s_i$, then no successor is labeled with $s_i$.
- \item If a state is labelled with a strategy $s_i$ owned by a different agent than the node, then all successor states must be labeled with $s_i$.
- \item If a state is labelled with a strategy $s_i$ owned by the same agent as the node, then exactly one successor state is labelled with $s_i$.
-\end{list1}
-Also, any combination of the labels according to the last rule is possible.
-This exactly characterize the labelling of reachability for the different strategies.
-\qed 
-
-
-
-Now we want to construct a weak deterministic AA for property (A2).  
-Let $\bbbbc$ denote the set of BP-obligations from property (A2).
-
-{\lemma \label{lemma.A2} 
-We can construct a weak deterministic automaton 
-$\cala_\wedge=\langle X,U_\wedge,u_0^\wedge,\delta_\wedge, \gamma_\wedge 
-\rangle$ with $2^{|\bbbbc|}$ states that recognises the run trees 
-that satisfy (A2).
-}
-\\\pf 
-We can simply use
-$X = [1,m] \times \bbbbd \times 2^\bbbbs \times 2^P$,
-$U_\wedge = 2^\bbbbc$, and 
-$u_0^\wedge = \bbbbc$.  
-For the transition formulas, 
-we have the following restrictions. 
-\begin{list1} 
-\item $\delta_\wedge \big(C,(a,k,S,P)\big) =\false$ 
-  if there exists a $\Lambda\theta\in C$ with $\Lambda\not\subseteq S$.  
-  That is, we require that all transitions can only use strategies 
-  that have been passed down from the ancestors.  
-\item $\delta_\wedge \big(C,(a,k,S,P)\big) =\false$ 
-  if there exists a $\Lambda\theta\in C$ with $\tteval(P,\theta)=\false$.  
-  Please recall that $\tteval(P,\theta)$ 
-  converts a $\theta$ that is locally violated by $P$ to $\false$.  
-\item Otherwise, $\delta_\wedge \big(C,(a,k,S,P)\big)
-  =\bigwedge_{i\in[1,k]} (i,C')$ with 
-  $C' = \{\Lambda\ttnxt(\tteval(P,\theta))\mid \Lambda\theta \in C\}$.  
-\end{list1} 
-Note that $\cala_\wedge$ is made deterministic by encoding 
-the choices of strategy passing-down in the input symbol $(a,k,S,P)$.  
-Then we define $\gamma_\wedge$ such that $\gamma_\wedge(C)$ 
-is odd iff $C$ contains an until formula $\phi_1 \until \phi_2$.
-The correctness of the construction is straightforward.  
-\qed 
-
-
-Intersection of $\cala_s$ and $\cala_\wedge$ can, 
-as usual, be done on the state level.
-
-{\corollary \label{coro.aa.Ap}
-We can construct a nondeterministic weak AA 
-$\cala'=\langle [1,m] \times \bbbbd \times 2^\bbbbs \times 2^P,U,u_0,\delta', \gamma \rangle$ 
-with $2^{|\bbbbs|+|\bbbbc|}$ states 
-that recognises trees that satisfy (A1) and (A2).
-}
-\\\pf 
-The new state set $U$ are simply $U_s \times U_\wedge$ and 
-the initial state is $(u_0^s,u_0^\wedge)$.   
-The transition function returns false 
-if either $\delta_s$ or $\delta_\wedge$ return false, 
-and are applied independently for the two projections otherwise.  
-Finally, $\gamma(u_s,u_\wedge) = \gamma_\wedge(u_\wedge)$.
-\qed 
-
-{\corollary\label{coro.aa.A}
-We can construct a nondeterministic weak automaton 
-$\cala=\langle [1,m] \times \bbbbd \times 2^\bbbbs \times 2^P,
-U,u_0,\delta, \gamma \rangle$ 
-with $2^{|\bbbbs|+|\bbbbc|}$ states that recognises 
-the trees with labelling functions that are projections from 
-the trees that satisfy (A1) and (A2).
-}
-\\\pf 
-As usual, this is achieved by choosing 
-$\delta\big(u,(a,k,P)\big) = 
-\bigvee_{S \subseteq \bbbbs}\delta'\big(u,(a,k,S,P)\big)$.
-\qed 
-
-The above lemmas and corrolaries  
-make it easy to proof our major claim in the section.  
-
-{\theorem\label{thm.aa.main}
-Model-checking BSIL formulas can be done in time exponential in the BSIL formula and bilinear in the number of states and transitions of the model.
-}
-\\\pf 
-Corollary~\ref{coro.aa.A} 
-establishes this for PSIL formulas of the form 
-$\phi=\langle A \rangle \tau$, where $\tau$ does not contain any SQ.
-We can extend this to general BSIL state formulas with the following 
-steps. 
-\begin{stmt1} 
-\item First, this extends to the case of several disjuncts simply 
-  by checking the claim for each disjunct individually.
-\item Second, we can model-check this for any state (treating it as the initial state) and subsequently store the result by introducing a fresh atomic proposition $p_\phi$, and replace the sub-formula $\phi$ in the specification by $p_\phi$.
-\item Repeating the above two steps until we have reduced 
-  the model-checking problem to model-checking a Boolean formula.
-\end{stmt1} 
-This procedure requires the model-checking procedure 
-to be repeated for every SQ as many times as $\calg$ has states.
-(In principle, it would suffice for the topmost SQ to model-check it 
-for only the initial state.)
-
-The model-checking algorithm for each state and SQ requires 
-to run up to the number of disjuncts many times the respective 
-construction algorithm of $\cala$.
-We can assume without loss of generality that the turn-based game structure is properly labeled, as it contains a label for the ownership as well as a label for the atomic propositions, so we only have to add a label for the number of successors and number the directions.
-
-The na\"ive approach of playing the acceptance game by 
-offering an acceptance player the choice of a disjunct 
-and a rejection player the choice of a direction is obviously too expensive. 
-But note that we can split the decision as follows. 
-\begin{list1}
-\item Let the acceptance player choose the set $S$ 
-  from $\delta\big(u,(a,k,P)\big) = 
-  \bigvee_{S \subseteq \bbbbs}\delta'\big(u,(a,k,S,P)\big)$,
-\item Let the acceptance and rejection player choose 
-  $\delta_s^k(a,S)$ successively by, starting with 
-  $I_0=\bbbbd$ and $S_0 = S_a$.  
-  Then we use binary search style to iteratively 
-  narrow down $I_0,I_1,\ldots$ by repeating the following steps for  
-  $i=0,1,2,\ldots$:  
-  \begin{stmt1}
-  \item Cut $I_i = [l,u]$ with $m=\big\lfloor\frac{l+u}{2}\big\rfloor$ 
-    into $I_i^l = [l,m]$ and $I_i^u = [m+1,u]$.   
-  \item Let the acceptance player choose disjoint sets $L_i$ and $U_i$ 
-    whose union is $S_i$.    
-  \item Let the rejection player choose to continue 
-    with either $I_{i+1}= I_i^l$ and $S_{i+1} = L_i$, 
-    or with $I_{i+1}= I_i^u$ and $S_{i+1} = U_i$.  
-  \end{stmt1}
-  The repetition goes on until 
-  $I_i =\{j\}$ is singleton and then execute 
-  $\big(j,S_i \cup (S - S_a)\big)$.
-\end{list1}
-That is, by approaching the chosen transition in a logarithmic search we can avoid the overhead. Solving this game is linear in its state space, and this is linear in the number of transition of $\calg$.
-\qed 
-
-
-
-For PTIME hardness, we reduce the reachability checking 
-in an AND/OR graphs \cite{Immerman81} to model-checking for the simple BSIL formula $\langle 1 \rangle \pevt p$.
-For the reduction, it suffices to turn AND nodes to nodes owned by Agent $1$ and OR nodes to nodes owned by Agent $2$.
-
-{\theorem\label{thm.aa.lb} 
-Model-checking BSIL formulas is PTIME complete in the size of the model.
-}
-\qed 
-
-\subsubsection{Concurrent Games}
-The differences that occur when studying the general case of concurrent game graphs rather than turn-based games structures are moderate.
-
-Note that the weak deterministic AA for property (A2) from Lemma \ref{lemma.A2} is not affected by this change. The automaton that checks for property (A1), on the other hand, is affected.
-
-To account for this change, we first re-visit how the transition function of the automaton from the nondeterministic safety automaton in Lemma \ref{lemma.A1} works.
-The basic mechanism is a disjunction over the possible choices in $\Pi^k_a$, which represents the possible decisions made by the agent $a$ who owns the current position for his different strategies in $S_a$.
-
-Having a concurrent game graph $A=\langle m,Q,r,P,\lambda,R,\Delta,\tau\rangle$, all agents need to make their respecitive decision.
-The strategies of each agent decide which token this agent selects.
-
-
-adjust the construction of the automaton that checks for property (A1) by using $a$ not to name the agent, but to name the state (that is $a \in Q$), and assuming $Q = \{1,\ldots,k\}$, we redefine $\delta_s^k$ to 
-
-$$\delta_s^k (a,S) = \bigvee_{f:S\rightarrow \Delta} \bigwedge_{q \in Q} (q,S^f_q),$$
-%
-where $S^f_q \subseteq S$ is the subset of strategy names such that $s \in S^f_q$ if, and only if,
-\begin{list1}
-\item $s \in S$ and
-\item $\tau\big((a,q),b\big) = f(s)$ holds for the Agent $b$ for whom $s$ is a strategy of Agent $b$. 
-\end{list1}
-$f$ is simply a function that captures the decisions of the strategy.
-
-The remainder of the constructions is not affected: the arguments used to establish Lemma \ref{lemma.A1.A2}, Corollaries \ref{coro.aa.A} and \ref{coro.aa.Ap}, and Theorem \ref{thm.aa.main} are not affected by this change.
-
-%!!!
-Note that some information about the CGG is now incorporated in the automaton that checks (A1). The only minor precaution to be taken is that the number of decisions might be reduced for some agents in some states.
-
-It is also possible to encode the transition function as part of the input letter instead.
-Note that, when model-checking, this information is available throught he CGG under consideration. The main theorem is therefore unaffected.
-
-{\theorem\label{thm.aa.cgg} 
-Model-checking BSIL formulas for CGGs is PTIME complete in the size of the model.
-}
-\qed 
-
-\section{BSIL Satisfiability}
-In this section, we show that the satisfiability problem of BSIL is 2EXPTIME complete.
-The upper bound can be inferred by the simulation theorem \cite{MS95} 
-\label{reply1.sim.theorem.ref} 
-(or the automata constructions behind them \cite{Safra88,Piterman07,Schewe09}), while hardness is a consequence of the inclusion of CTL$^+$ \cite{Wilke99}.
-
-In the first step, 
-we provide an AA for checking the consistency of a labelling 
-as it is constructed in the model-checking approach in the previous section.
-This labelling contains explicit information about whether 
-or not a BSIL SQ formula is satisfiable.
-In the following we assume without loss of generality 
-that every state in the turn based or concurrent game is reachable from 
-the initial state without mentioning this explicitly.
-(Note that unreachable states have no impact on the correctness 
-and can simply be removed.)
-
-
-
-{\lemma\label{lemma.sat.B}
-We can build an AA $\calb$ 
-which is exponential in the size of a BSIL formula $\chi$ 
-and accepts a fully labelled concurrent game graph 
-iff the labelling is consistent and the concurrent game structure 
-is a model of $\chi$.
-}
-\\\pf 
-For each SQ subformula $\phi$ of $\chi$, 
-we can build a weak nondeterministic AA 
-$\cala_\phi$ that consists of the nondeterministic AA 
-$\cala_\eta$ for each disjunct $\eta$ in the DNBB formula of $\phi$ 
-(where we assume, without loss of generality, 
-that their states are disjoint and 
-$\cala_\eta$ has initial state $u_\eta$) 
-plus a fresh initial state $u_0$ with priority $0$.
-The transition function for $u_0$ is simply
-$\delta(u_0,x) = \bigvee_{\eta} \delta(u_\eta,x)$, 
-that is, in the first step one arbitrary individual automata 
-is entered and never left again.
-
-Likewise, we can build a weak AA $\cald_\phi$ 
-that accepts the complement language of $\cala_\phi$ 
-by dualising it.  
-Let $K$ denote the set of subformulas of $\chi$ that start with an SQ.
-Assume, without loss of generality, 
-that the states of the individual $\cala_\phi$ and $\cald_\phi$ 
-are disjoint and 
-that the initial states of $\cala_\phi$ and $\cald_\phi$ are $u_\phi$ 
-and $\overline{u}_\phi$, respectively.
-Then we can build $\calb$ by adding two fresh states, a state $u$ 
-and the initial state $u_0$ (both with priority 0) and define 
-the transition formula as follows. 
-\begin{list1}
-\item $\delta\big(u_0,(a,k,P)\big) =$ \emph{false} if $P\not\models \chi$ 
-  and  
-\item $\delta\big(u_0,(a,k,P)\big) = \delta\big(u,(a,k,P)\big)$ 
-  if $P\models \chi$,
-\item $\delta\big(u,(a,k,P)\big) = \bigwedge\limits_{i\in[1,k]}(i,u) 
-  \wedge \bigwedge_{\phi\in K,p_\phi\in P} \delta\big(u_\eta,(a,k,P)\big) 
-  \wedge \bigwedge_{\phi\in K,p_\phi\notin P} 
-    \delta\big(\overline{u}_\eta,(a,k,P)\big)$.
-\end{list1}
-For the states of the individual $\cala_\phi$ and $\cald_\phi$, their transition and priority function is used.
-\qed 
-
-The argument only uses the automata from the previous section in the last line. Consequently, we can argue completely analogously for the concurrent game graphs.
-
-{\lemma\label{lemma.sat.B.cgg}
-We can build an AA $\calb$ 
-which is exponential in the size of a BSIL formula $\chi$ 
-and accepts a fully labelled turn-based game 
-iff the labelling is consistent and the turn-based game 
-is a model of $\chi$.
-\qed
-}
-
-{\theorem\label{thm.sat}
-The satisfiability of a BSIL formula $\phi$ can be checked in time doubly exponential in the size of $\varphi$.
-If $\varphi$ is satisfiable by a turn-based game, then a model can be constructed in time doubly exponential in $\varphi$.
-}
-\\\pf
-The main difference to the model-checking case is that we cannot infer a sufficient branching degree from the model.
-We therefore proceed in two steps: we assume that we know a sufficient branching degree, and discuss a synthesis algorithm for it.
-
-The first observation is that, for states in a $\cald_\phi$, 
-we can use any subtree as this automaton shows that something holds 
-for all strategies.   
-The reduction to a subtree makes the property easier to satisfy.
-The second observation is that a winning strategy 
-for the acceptance player 
-can be assumed to be memoryless.
-Thus, for each state of an AA $\cala_\phi$ and each state 
-of a tree accepted, strategies from the respective 
-$S_a$ (from the proof for Lemma~\ref{lemma.A1}) 
-are sent to at most $|S_a| \leq |\bbbbs|$ directions.
-But successors of nodes to whom from no state a non-empty subset 
-of $S_a$ is sent can be pruned, provided at least one successor remains.
-This gives a bound on the number of directions needed, which is bilinear in the number of states of all $\cala_\phi$ put together and the maximal number of strategies.
-(The latter can be estimated by the number of SIQs bound by any SQ plus one times the number of agents.)  
-Thus, the number of directions can be restricted 
-to a number exponential in $\chi$.
-
-Having established this bound of directions, 
-we can build a language equivalent nondeterministic B\"uchi AA  
-in time exponential in $\calb$ 
-(for the given $k$-bounded branching degree), 
-whose emptiness can be checked in polynomial time.
-\qed
-
-Similarly, the particularities of a turn-based game are only used when determining the number of directions needed.
-The argument directly extends to the number of \emph{decisions} needed in a concurrent game graph: the set $\Delta$ can be bounded accordingly, using the same argument.
-For $m$ agents, we would then have $|\Delta|^m$ directions.
-
-{\theorem\label{thm.sat.cgg}
-The satisfiability of a BSIL formula $\phi$ can be checked in time doubly exponential in the size of $\varphi$.
-If $\varphi$ is satisfiable, then a model can be constructed in time doubly exponential in $\varphi$.
-}
-\section{Experiment}
-\subsection{Implementation} 
-
-We implemented a semi-symbolic model-checker of BSIL with {\bf REDLIB} 
-\cite{Wang03,Wang08a,Wang08b,Wang13,Wang14}
-which is a free library for symbolic model-checking based on decision diagrams. 
-{\bf REDLIB} supports symbolic pre-condition and post-condition calculation 
-of discrete transitions.  
-Our model-checker starts from a symbolic representataion of the initial 
-condition. 
-Then it repeatedly applies the post-condition procedure of {\bf REDLIB}
-to explore the symbolic state representations in the computation tree.  
-Our model-checker use the result in section~\ref{sec.mck.psp} to bound 
-the exploration depth of tree.   
-
-\subsection{Benchmarks and their experiment report} 
-
-Then we experimented with two parameterized benchmarks.  
-The first is the prisoners' dilemma described in Example~\ref{exmp.pd} 
-with the number of prisoners as a parameter.  
-Then we applied the model-checker to check whether the model  
-satisfies formula (A) and (B) in the introduction.
-The time and memory usage of the model-checker is reported in 
-Table~\ref{tab.exp.pd}.
-\begin{table*}[!th]
-\caption{Experiment data for the prisoners' dilemma model}
-\label{tab.exp.pd}
-\begin{center}
-\begin{tabular}{c||c|c||c|c} \hline
-\multirow{2}{*}{\#prisoners}  &\multicolumn{2}{c||}{Formula (A)} & \multicolumn{2}{c}{Formula (B)}\\ \cline{2-5}
-& Time & Mem  & Time & Mem\\ \hline
-2 &0.50s &72M   &0.51s &71M \\
-3 &0.92s &75M   &0.88s &75M \\
-4 &1.23s &83M   &1.14s &80M \\
-5 &3.19s &146M  &2.90s &140M \\
-6 &6.71s &388M  &6.52s &361M \\
-7 &25.10s&1043M &23.11s&979M \\ \hline
-\end{tabular}
-\hspace*{10mm}
-\parbox{50mm}{
-s: seconds (computation time); \\
-M: megabytes (memory usage); \\[2mm]
-The experiment is conducted on a PC with Intel i7-2600k 3.4GHZ CPU 
-and 8G RAM running Ubuntu 12.04. 
-}
-\end{center}
-\end{table*}
-
-The second benchmark is for campaign strategies 
-of 2 political parties, Party $1$ and Party $2$, for seats in 
-the congress.  
-There are several parameters in our model, 
-the number of seats in the congress, 
-the amount of budget of each party in a round, 
-and the number of candidates of each party in a round. 
-The game is played by the chiefs of the parties, 
-Chief $1$ (a gentleman) and Chief $2$ (a lady), 
-who decide the amount of support that 
-a candidate receive in a round.   
-Candidates with more budget in a round will be elected in the round. 
-If two or more candidates get the same amount of support, 
-the winner will be decided randomly.  
-% \begin{figure}[htb]
-% \caption{Campaign Model}
-% \label{exp.campaign}
-% \centering
-% \includegraphics[width=0.8\textwidth]{vote_example}
-% \end{figure}
-
-In our model, in each round, chief 1 first decides his budget allotment, 
-then chief 2 decides her budget allotment, and 
-then the election result is determined.  
-For example, with 3 dollars in his budget for two candidates, 
-the strategy of a Chief can be written as 
-$(x,y)\in\{(3,0), (2,1),(1,2),(0,3)\}$ where $x$ and $y$ 
-respectively denote the support (in dollars) 
-alloted to the first and the second candidates in his party. 
-If Chief $1$ uses strategy $(2,1)$ and 
-Chief $2$ uses strategy $(0,2)$ (Assume she has less budget.), 
-the result of the round is 
-that the two parties both win one seat in the round. 
-On the other hand, if Chief $2$ chooses strategy $(1,1)$ instead, 
-then there is no strategy for Chief $1$ to win more seats for his party. 
-
-
-
-We use the following propositions and predicates to write 
-specifications.  
-For each $i\in[1,2]$ and $j\in[1,c]$ where $c$ is the number of 
-candidates, 
-$\textsl{elected}_{i,j}$ means the $j$'th candidate of party $i$ is 
-elected now. 
-Then we can use propositions $\textsl{elected}_{i,j}$ to construct 
-a predicate $\textsl{win}_i$ that means party $i$ wins more seats than party $2-i$ in the round. 
-Assume that the first candidate in each party is the chief. 
-Then the following BSIL formula specifies that 
-Chief $1$ has a strategy to make sure candidate 1 to be elected  
-and in the same time allow the opponent party to win more seats in every round.
-\begin{center} 
-\hfill 
-$\langle 1\rangle((\langle +\rangle\pevt \textsl{elected}_{1,1})
-\wedge(\langle+2\rangle\pfrr \textsl{win}_2))$
-\hfill (C) 
-\end{center} 
-Similarly, the following formula specifies that 
-the chief of party 1 has a strategy to assure that his party 
-can win more seats than his opponent party while allowing party two to assure 
-the winning of a candidate.  
-\begin{center} 
-\hfill $\langle 1\rangle((\langle +\rangle \pevt \textsl{win}_1)
-\wedge(\langle +2\rangle\pevt \textsl{elected}_{2,1}))$
-\hfill (D)
-\end{center} 
-With different values of budget and candidate count, we may use our model-checker 
-to analyze the strategy for achieving various goals.  
-The time and memory usage data for checking formula (C) and (D) 
-is in Table~\ref{tab.exp.vote}.
-\begin{table*}[!th]
-\caption{Experiment Data Election}
-\label{tab.exp.vote}
-\begin{center}
-\begin{tabular}{c|c|c|c|c||c|c|c||c|c|c} \hline
-\multicolumn{5}{c||}{Parameters}
-&\multicolumn{3}{c||}{Formula (C)} 
-& \multicolumn{3}{c}{Formula (D)}\\ \hline
-$c_1$ & $b_1$ & $c_2$ & $b_2$ & $s$ & Result & Time & Mem & Result & Time & Mem\\ \hline
-2&2 &2 &4 &1 &UNSAT &0.52s &61M  &UNSAT &0.53s &61M \\
-2&4 &2 &4 &2 &UNSAT &1.20s &75M  &UNSAT &1.15s &75M \\
-2&4 &2 &4 &3 &SAT   &0.73s &75M  &UNSAT &1.14s &75M \\
-3&6 &3 &6 &3 &SAT   &1.51s &211M &UNSAT &0.93s &211M \\
-3&9 &3 &6 &3 &UNSAT &9.14s &837M &SAT   &5.22s &681M \\
-3&6 &3 &9 &3 &SAT   &8.74s &502M &UNSAT &8.49s &502M \\
-3&9 &3 &9 &4 &SAT   &158s  &6631M&UNSAT &93.17s&5082M \\ \hline
-\end{tabular}
-\hspace*{2mm}
-\parbox{75mm}{
-$c_1$: \# candidates of party 1\\
-$b_1$: total budget in a round of party 1\\
-$c_1$: \# candidates of party 2\\
-$b_1$: total budget in a round of party 2\\
-$s$: \# of seats in the congress\\[2mm] 
-s: seconds (computation time)\\
-M: megabytes (memory usage) \\[2mm]
-The experiment is conducted on a PC with Intel i7-2600k 3.4GHZ CPU 
-and 8G RAM running Ubuntu 12.04. 
-}
-\end{center}
-\end{table*}
-
-\subsection{Discussion of the experiments \label{subsec.exp.disc}} 
-
-The experiment shows that some possibilities of using our tool to flexibly support the analysis 
-and synthesis of collaborating strategies among several agents. 
-In the experiment with the prisoners' dilemma, 
-the prisoners are modeled as individual agents.  
-In the experiment with the election game, 
-the chairpersons of the parties are modeled as individual agents 
-and  their candidates and respective allocated budgets are modeled as numbers.  
-It would be interesting to see how we can explore the techniques in modeling and specifying 
-concurrent games with our tool.  
-
-On the verification side, we can see that the CPU time and memory usage exhibits 
-typical combinatorial explosion for tools for solving difficult problems.  
-As a preliminary tool, our experiment and implementation do shed light for performance 
-enhancement research in the future. 
-Specifically, our search for the OD-trees does take the shape of the game graphs and the BSIL formulas 
-into account.  
-It is possible to design heuristics that utilizes the syntax information 
-of the graphs and the formulas to construct OD-trees.

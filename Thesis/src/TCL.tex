@@ -1,7 +1,38 @@
 \chapter{Temporal Cooperation Logic}
-\label{c:tcl}
-
 \section{TCL}
+TCL is an extension of BSIL which allow SQs appear after temporal operators.
+Thus, TCL is able to describe following complicate properties while BSIL is not.
+
+Let's reuse the example of prisoner dilemma\ref{exmp.pd}.
+We can specify that prisoner 1 has a {\em nice} strategy which means he will not betray other players until been betrayed in TCL by following expression.
+\begin{center} 
+\hfill 
+$\langle 1\rangle \pfrr ((\langle+\rangle \nxt \neg\mbox{\tt betray}_1)
+\vee \bigvee_{a\neq 1}\mbox{\tt betray}_a)$
+\hfill (I) 
+\end{center}
+
+Similarly, we can describe more involved strategies, such as 'Prisoner 2 will always betray when she does not have the power to force Player 1 to always play nice.'
+\begin{center} 
+\hfill 
+$\langle 2\rangle (
+(\langle+\rangle \pfrr \mbox{\tt betray}_2) 
+\vee \langle+\rangle\pfrr ((\langle+\rangle \nxt \neg\mbox{\tt betray}_1)
+\vee \bigvee_{a\neq 1}\mbox{\tt betray}_a))$
+\hfill (J) 
+\end{center} 
+
+Moreover, we can describe deterministic Nash equilibria like 'the three agents can cooperate such that every agent either eventually leaves prison, or stays forever in prison regardless of her own strategy under the current strategies of the remaining prisoners' in TCL.
+\begin{center}
+\hfill
+$\langle 1,2,3\rangle
+        \bigwedge_{a\in [1,3]}\big((
+        \langle+\emptyset\rangle\pevt \neg \mbox{\tt jail}_a) \vee
+        \langle-a\rangle \pfrr \mbox{\tt jail}_a\big)$
+\hfill (K)
+\end{center}
+
+
 \subsection{Syntax}
 A TCL formula $\phi$ is constructed with the following three syntax rules.
 \smallskip
@@ -226,12 +257,6 @@ if there are infinitely many prefixes of $\rho$ in $T$.
 
 We now define the semantics of subformulas of primitive TCL formulas 
 inductively as follows.  
-% We introduce the semantics of TCL formulas inductively, 
-% based on atomic propositions, Boolean combinations, and 
-% semantics for primitive TCL formulas, 
-% where a state formula is \emph{primitive} 
-% iff it has the form $\langle A \rangle \psi$ 
-% while none of its true subformulas has this form.
 Given the computation tree $T_q$ of $\calg$, a tree node $\pi\in T_q$, 
 and a strategy scheme $\sigma$, 
 we write $T_q,\pi,\sigma\models\psi_1$ to denote that 
@@ -548,8 +573,6 @@ Requiring additionally that the safety agent can guarantee that the boolean form
 \qed
 \end{proof}
 
-% With the construction above we have established EXPTIME hardness, and together with the previous lemma we can establish the TCL model-checking complexity in the above, we have the following lemma. 
-
 The details of the construction are available in the full version. 
 It is interesting that a game with only two agents suffices for the proof.  
 Two agents are also sufficient to show P hardness for fixed formulas, as solving a reachability problem for AND-OR graphs \cite{Immerman81} naturally reduces to showing $\langle 1 \rangle \pevt p$.
@@ -598,171 +621,3 @@ Viewing the size of a TCL sentence as a parameter, TCL model-checking is fixed p
 
 The automata construction from the proof of Theorem \ref{theo.ms.complete} extends to a construction for satisfiability checking.
 
-\begin{theorem}
-\label{theo.sat.complete}
-The TCL satisfiability problem is 2EXPTIME-complete.
-\end{theorem}
-
-\begin{proof}
-As usual, it is convenient to construct an enriched model that contains the truth of all subformulas for a TCL sentence $\phi$ that start with an SQ.
-
-In a first step, we construct an alternating tree automaton $\mathcal A$ that recognises the enriched models of a specification.
-This is quite simple:
-$\mathcal A$ merely has to check that the boolean combination of SQ formulas that forms the TCL sentence $\phi$ is satisfied and that the truth assignment of each SQ is consistent.
-But this is simple, as we can use the tree automaton 
-$\mathcal N_{\phi'}$ from the proof for Theorem~\ref{theo.ms.complete}  
-to validate the claim that a subformula $\phi'$ of $\phi$ that starts with an SQ is true, and its dual to validate that it is false.
-Hence, such an automaton has only two states more than the sum of the states of the individual $\mathcal N_{\phi'}$. In particular, it is exponential in $\phi$.
-
-
-% The only remaining stumbling block is the question of a sufficient branching degree.
-% To determine this, note that the individual $\mathcal N_{\phi'}$ (and the automata dual to them) treat at most $s$ successors different to the rest, where $s$ is the number of SQ/SIQs in the respective primitive TCL sentence, in which the agent $a$ that owns this node occurs.
-% Consequently, the overall number of required successors is restricted to the maximal such $s$, times the number of states of $\mathcal A$, and hence exponential in the TCL sentence $\phi$.
-% 
-% Fixing this number,
-
-For the resulting alternating automaton, we can again invoke the simulation theorem \cite{Muller+Schupp/95/Alternating} to construct an equivalent nondeterministic parity automaton, which has doubly exponentially many states in $\phi$ (and whose transition table is doubly exponential in $\phi$) and whose colours are exponential in $\psi$.
-Solving the emptiness game of this automaton reduces to solving a parity game, which can be done in time doubly exponential in $\psi$, e.g., using \cite{Schewe/07/parity}.
-
-Hardness is inherited from CTL$^*$ satisfiability checking \cite{Vardi+Stockmeyer/85/CTL}.
-\qed
-\end{proof}
-
-
-
-\section{Implementation and Experiment \label{sec.imp.exp}} 
-
-As a proof of concept, we have implemented a model-checker, {\tt tcl}, in C++.  
-{\tt tcl} accepts models composed of extended automata that 
-communicate with synchronisers and shared variables, with 
-an explicit shared variable {\tt turn} that specifies the turn of 
-agents at a state. 
-A turn-based game graph is then constructed as the product of 
-the extended automata.  
-Such an input format facilitates modular description of the interaction 
-among the agents. 
-
-The implementation builds on a prototype for a PSPACE logic \cite{WHY11}.
-The extension is possible because we can reduce the complexity of TCL to PSPACE by simply restricting the number of operators in the $\eta$ production rules in the scope of any SQ to be logarithmic in the size of the TCL sentence.
-%
-We show this for primitive TCL sentences.
-
-\begin{lemma}
-\label{lemma.tt.depth}
-Model-checking can be done in space bilinear in the size of the turn based game structure and the state and tree formulas that are produced using the $\psi$ production rules and exponentially only in the number of $\eta$ produced tree formulas.
-\end{lemma}
-
-\begin{proof}
-We have seen that, for a primitive TCL sentence $\phi$, we can use a single strategy scheme and only have to refer to the \emph{first} position that the right hand side of an until or the left hand side of a release operator is true.
-Moreover, it suffices to guess just a minimal set of positions where tree formulas are true.
-In particular, the left hand side of a release, the right hand side of an until, and a next formula are then marked true exactly once, and the respective release and until formulas never need to be marked as true after such an event.
-
-We can therefore use an alternating algorithm that guesses such minimal truth claims.
-The algorithm alternates between a verifier 
-who guesses a truth assignment and 
-the current decisions of the strategy scheme, and
-a falsifier, who guesses the direction into which to expand the path.
-
-It is now easy to see that they will produce an infinite path in this way, and on this path each obligation that refers to a tree subformula from a $\psi$ production rule can appear only on a continuous interval.
-The points where these obligations change is therefore linear in the size of $\phi$.
-However, it also needs to track the truth value of tree formulas produced by the $\eta$ production rule. 
-(If there are multiple untilities introduced by $\eta$ production rules, this also includes a marker that distinguishes a leading until, which is changed in a round robin fashion when the leading untility is fulfilled.)
-
-The number of possible assignments is then exponential in the number of tree subformulas from $\eta$ production rules. Note that $\pfrr$ formulas can be exempt from this rule: they are monotonous and hence incur a small impact similar to the formulas introduced using the $\psi$ production rule.
-
-Hence, if $|\calg|$ denotes the size of the turn based game and $k$ the number of temporal operators (different to $\pfrr$) introduced by $\eta$ production rules, we end up in a cycle if there is no change in the truth assignment temporal operators that are introduced by $\psi$ production rules or $\pfrr$ operators we reach a cycle within $|\calg| \cdot k \cdot 2^k$ steps.
-Hence, we reach a cycle in a number of steps that is linear in $|G|$ and the size of $\phi$, and exponential only in the size of $\eta$-produced temporal operators (different to $\pfrr$).
-
-Upon reaching a cycle, is suffices to check if the cycle is accepting.
-(No standing obligation by an until.)
-\qed 
-\end{proof}
-
-The model-checker uses a stack to explicitly 
-enumerate all paths of all tree tops 
-with depth prescribed by Lemma~\ref{lemma.tt.depth}.  
-The tool can be downloaded from Sourceforge at project REDLIB at: 
-% \begin{center}
-{\tt
-http://sourceforge.net/projects/redlib/}.
-% \end{center}
-
-We use the parametrised models of the iterated prisoners' dilemma 
-as our benchmarks to check the performance of our implementation.  
-A brief explanation of the models can be found in the introduction.  
-The unique parameter to the models are the number of prisoners $m$.  
-There is also a policeman in the models.  
-We build a turn-based game graph for each value of $m$ in the experiments. 
-The parametrisation helps us to observe how our algorithm and 
-implementation scale to model and formula sizes.  
-To simplify the construction of the state-space representation, 
-we assume that, in each iteration, the prisoners make their decisions 
-in a fixed order.
-After all prisoners have made their decisions, 
-the policeman makes his decision. Subsequently, the whole game moves to the 
-next iteration.
-%
-We use seven benchmark formulas on these models in our experiments.  
-The first five benchmarks are taken from the examples (A) through (E) from the introduction.
-Benchmarks (F) and (G) are the following two properties, taken from \cite{WHY11}. 
-\begin{list1} 
-\item Property (F) specifies that all prisoners except Prisoner 1 can collaborate 
-  to release Prisoner 1 and let Prisoner 1 decide their fate.
-
-  $\langle 2,\ldots,m\rangle \big((\langle + \rangle \pevt \neg \mbox{\tt jail}_1) \wedge
-  \bigwedge_{i \in \{2,\ldots m\}} (\langle +1 \rangle \pevt \neg \mbox{\tt jail}_i) \wedge
-  (\langle +1 \rangle \pfrr \mbox{\tt jail}_i\big)$
-  \hfill (F) 
-\item Property (G) specifies that Prisoner 1 has a strategy to put all other prisoners in jail while leaving her fate to them.
-
-    $\langle 1\rangle \big( (\bigwedge_{i \in \{2,\ldots m\}} \langle + \rangle \pfrr \mbox{\tt jail}_i) \wedge
-    (\langle 2,\ldots,m\rangle \pevt \neg \mbox{\tt jail}_1) \wedge \langle 2,\ldots,m\rangle \pfrr \mbox{\tt jail}_1 \big)$
-  \hfill 
-  (G) 
-\end{list1} 
-\begin{table*} 
-\caption{Performance data of model-checking the TCL fragment}
-\label{tab.perf}
-\begin{center} 
-\begin{tabular}{c||c|c|c|c|c|c|c|c|c} 
-\hline 
-\backslashbox{properties}{$m$}
-& 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ \hline \hline 
-(A) 	
-& 0.71s & 0.94s & 5.41s & 66.3s & 945s 	& \multicolumn{4}{c}{>1000s}\\ \cline{2-6} 
-& 163M	& 165M 	& 185M 	& 350M	& 1307M	\\\hline 
-(B) 
-& 0.50s	& 0.52s	& 0.61s	& 0.71s & 1.11s	& 1.62s	& 5.77s & 20.9s	& 68.1s \\
-  \cline{2-10} 
-& 163M 	& 163M 	& 164M 	& 165M	& 168M	& 176M	& 214M	& 270M	& 376M	\\ \hline 
-(C) 
-& 0.51s	& 0.51s	& 0.6s	& 0.82s	& 1.01s	& 1.81s	& 5.54s	& 18.2s	& 48.3s	\\\cline{2-10} 
-& 163M	& 163M	& 164M 	& 165M	& 168M	& 176M	& 200M	& 241M	& 318M	\\\hline 
-(D) 
-& 0.5s	& 0.51s	& 0.57s	& 0.74s	& 1.01s	& 1.79s	& 7.41s	& 33.8s	& 141s \\ \cline{2-10} 
-& 163M	& 163M	& 164M	& 165M	& 168M	& 175M	& 232M	& 312M	& 430M \\\hline 
-(E) 
-& 0.51s	& 0.66s	& 19.1s & \multicolumn{6}{c}{>1000s} \\\cline{2-4} 
-& 163M	& 164M	& 194M	\\\hline 
-(F) 
-& 0.51s	& 0.53s	& 0.61s	& 0.71s	& 1.01s	& 1.70s	& 5.38s	& 15.2s	& 53.7s	\\\cline{2-10} 
-& 163M	& 163M	& 163M	& 165M 	& 168M	& 175M	& 202M	& 243M	& 295M	 \\\hline 
-(G) 
-& 0.52s	& 0.52s	& 0.65s	& 0.72s	& 1.03s	& 1.85s	& 4.86s	& 16.1s	& 93.5s	 \\\cline{2-10} 
-& 163M	& 163M	& 164M	& 165M	& 169M	& 177M	& 189M	& 208M	& 235M \\\hline 
-\end{tabular} \\
-s: seconds; 
-M: megabytes. \\ 
-The models are with 1 policeman and $m$ prisoners.
-The experiment was carried out on an Intel i5 2.4G notebook 
-with 2 cores and 4G memory, running ubuntu Linux version 11.10.  
-\end{center} 
-\end{table*} 
-For these benchmarks, we have collected the performance data 
-for various parameter values in Table~\ref{tab.perf}. 
-For small models, the memory usage is dominated by the normal overhead, such as the representation of variable tables,
-state-transition tables, formula structures, etc. 
-The data shows that our prototype can handle the various benchmarks, and scales well on five of the seven benchmarks.
-Ignoring the overhead, it also shows the exponential growth.
-The models, however, are growing exponentially, too.
-We assume that this growth i the main cause of the exponential growth of the response time.

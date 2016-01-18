@@ -1,205 +1,22 @@
 \chapter{Software Resilience against Dense Errors}
 \label{c:resilience}
 
-
-\section{Two-player concurrent game structures}
-To facilitate the explanation of resilience analysis in a game's perspective, I start by reviewing the game concepts related to our work.
-A concurrent game may involve several players\label{reply1.multiple.players}, who make concurrent move decisions at the same time during transitions. 
-The destination of a transition is jointly determined by the moves chosen by all players.  
-Such a game model is very expressive and handy in describing interactions in a complex system.  
-In this work, we adapt the finite concurrent games from \cite{AHK02} with event concepts on transitions.
-For the analysis of system resilience, we only have to consider two players in the game, the first is the system, and the second is the error model. 
-
-
-\begin{definition} \label{def.cncgame} 
-{\bf (2-player concurrent game structure):}
-A {\em concurrent} game structure is a tuple 
-$\calk=\langle Q,r,P,\lambda,E_1,E_2,\delta\rangle$, where
-\begin{list1}
-\item $Q$ is a finite set of states. 
-\item $r$ is the initial state in $Q$.  
-\item $P$ is a finite set of atomic propositions. 
-\item $\lambda:Q\mapsto 2^P$ is a proposition-labeling function of the states. 
-\item $E_1$ and $E_2$ are finite sets of move symbols that the protagonist and 
-the antagonist can respectively choose in transitions.  
-A pair in $E_1\times E_2$ is called a {\em move vector}.
-\item $\delta$ is a function that maps 
-  from $Q\times E_1\times E_2$ to $Q$.  
-  $\delta$ is called the transition function and 
-  conceptually specifies a successor state 
-  that results from a state and moves of the players. 
-%   For convenience, we require that every state has a successor state. 
-\label{reply1.for.convenience.succ} 
-\end{list1}
-Given a state $q\in Q$ and a vector $[e_1,e_2]\in E_1\times E_2$, 
-$\delta(q,e_1,e_2)$ is the successor state from 
-$q$ when each player $a\in \{1,2\}$ chooses her respective move $e_a$.  
-\qed 
-\end{definition} 
-
-\section{Motivation}
-\subsection{Background}
-Resilience to errors in computer systems is usually achieved through error recovery design as illustrated in Figure~\ref{fig.frwk}.  
-\begin{figure}[t]
-\begin{center}
-\epsfig{file=frwk.eps,width=60mm}
-\caption{Framework of resilience design}
-\label{fig.frwk} 
-\end{center}
-\end{figure}  
-The system states can be partitioned into three regions: 
-safe, recovery, and failure. 
-The left part of the figure represents the safety region.
-The states in this safe region can be viewed as those for `normal' operation. 
-When an error occurs, the system goes through a recovery stage, where it follows some recovery mechanism.
-This is shown as the ``recovering'' area in Figure~\ref{fig.frwk}.
-In this region, the system intuitively tries to repair the effects of an error and thus to recover to the safety region. 
-
-During the recovery (or: in the recovery region), however, errors may still happen.  
-In general, fault-tolerant systems are built under the assumption that error detection and recovery is speedy and that there 
-% cannot be too many errors 
-can only be a few errors\label{reply2.cannnot.be2} 
-during the process of recovery.
-If the recovery mechanism is not resilient enough, a few errors may drive the system into failure.  
-
-We illustrate this on the following examples.  
-
-\begin{example} 
-{\bf (Fault-tolerant computer architectures):}  
-\label{exmp.avi}
-In computer architectures, 
-fault-tolerance is usually achieved via hardware duplication.  
-Consider an example of a multi-processor system that
-includes $n$ processor copies and $m$ memory copies.  
-The $n$ processors each can follow the instructions
-of the original system, or be engaged in memory recovery. 
-When a copy of the memory fails, a processor can be assigned to recover it.
-Majority check can be used to detect that a processor is faulty
-or that memory copy is faulty\label{reply2.defected} (often, both would happen at the same time). 
-For recovery, we can set a free processor to recover some memory copy, or
-make a processor follow the code of the majority of processors.
-
-The key to error resilience is to decide whether to make
-a processor follow the execution of the majority, or to
-assign it to recover faulty memory. 
-If too many errors occur in a short while before 
-the errors can be recovered from, 
-then there may be no more processors left to carry out any more recovery. 
-When such a critical situation arises, the system enters failure state when another error is induced.  
-
-The recovery mechanism described\label{reply2.in.the.above} above is typical in 
-the design of fault-tolerant systems \cite{Pradhan96}.  
-As explained, a practical recovery mechanism usually 
-does not rely on the detailed structure of the system.  
-Instead, error-detection 
-techniques such as parity checks, voting (for majority checks), 
-etc., are usually employed.  
-In fact, the number of duplicates is usually\label{reply2.usually.is} critical to the 
-resilience of the system to errors. 
-As long as the majority of the duplicate modules can be recovered 
-in time (i.e., before the\label{reply2.the.next} next wave of errors), 
-resilience of the system can be achieved. 
-\qed 
-\end{example} 
-
-\begin{example} {\bf (Exception handling):} 
-\label{exmp.ehan} 
-At the operating system level, errors are usually signaled via 
-interrupt lines and handled with routines called handlers.  
-The first thing that needs~\label{reply2.needs.to} to be done by a handler is to save 
-the CPU state of the interrupted process. 
-In some operating systems, a static memory space is used for 
-this purpose for each handler. 
-In such a scheme, if the same error happens again while executing 
-the error handler, then the system can run into the risk that 
-the CPU states of the interrupted handler can be overwritten and 
-destroyed. 
-
-Another scheme is to use a stack to save the CPU states of the interrupted 
-processes.  
-Such a scheme seems resilient to errors that happen during\label{reply1.durin1} the execution of 
-error handlers.  
-Still, too many errors that happen during the execution of error handlers
-can deny critical functions\label{reply2.delay.timely} of the system and 
-incur failures, including missed timer updates and priority inversions.   
-Thus, a proper assumption on the timely error recovery by 
-the error handling routines is critical to the design of 
-error resilience in such cases.  
-\qed 
-\end{example} 
-
-\begin{example} {\bf (Security attacks):} 
-\label{exmp.satt}
-Security in the Internet also relies on resilience to attacks 
-of hackers, viruses,\label{reply2.viruses} malware, etc.  
-For example, one common technique of attacks\label{reply2.attacks} 
-to communication modules is to 
-overflow the communication buffers.  
-In such attacks, the sizes\label{reply2.sizes} of the buffers and the ability 
-of the security procedures to detect and recover 
-from such overflowing attacks is crucial to the resilience design.  
-\qed 
-\end{example} 
-
-%% >>> changes start 
-These examples show that recovery is a crucial concept for\label{reply2.in2for} designing systems 
-that are resilient to errors. 
-When system errors are detected in such a system, 
-the system activates a recovery mechanism so as to remove the effect of the errors. 
-When designing such systems,\label{reply2.such.systems} the system designers usually
-have in mind 
-what errors and failures the systems can expect, according to the specification.  
-\label{reply2.comparatively}
-To avoid failures in the occurrence of dense errors, the system designers usually incorporate many error recovery mechanism 
-in the system, e.g., exception handlers and hardware/software redundancy. 
-But, in general, it would be difficult for the designers to evaluate 
-how effective their recovery mechanism is to dense errors.  
-To overcome this difficulty, we believe that it is important to 
-support them with automated analytical tools with a solid foundation.  
-
-Resilience has also been used in \cite{EhlersT14,BloemEJK14} with a similar goal.
-When synthesising code, one relies on assumptions of the behavior of the environment, and the formal specification\label{reply1.speicification} would only ask for the provision of guarantees under the condition that the assumptions are satisfied.
-When assessing the quality of an implementation, the behavior in cases\label{reply1.cases.comma} where the environment does not comply with the assumption matters.
-In \cite{EhlersT14,BloemEJK14}, the resilience model we have introduced in the conference version \cite{HPSW/12/rapidRecovery} 
-of this paper\label{reply1.of.this.paper}
-has been followed up upon, and proven to be well suited for reactive synthesis.
-
-In this work, we use these observations to design \label{reply1.theoretical.framework.eval} 
-a theoretical framework for synthesizing a control mechanism that provides 
-the maximal resilience against software errors in a realistic error model.
-\subsection{Resilience in a Nutshell}
-\label{reply2.from.the.examples} 
-From Example~\ref{exmp.avi} to \ref{exmp.satt} in 
-Subsection~\ref{subsec.rgame.bkg}, it is easy to see 
-the common paradigm of error recovery in software systems.  
+\section{Resilience in a Nutshell}
+From Example~\ref{exmp.avi} to \ref{exmp.satt} in the previous section, it is easy to see the common paradigm of error recovery in software systems.  
 
 \begin{quote}
-When errors are detected, a recovery mechanism will be activated
-to avoid failures and try to get back to normal execution. 
+When errors are detected, a recovery mechanism will be activated to avoid failures and try to get back to normal execution. 
 \end{quote}
 
-Moreover, \label{reply1.a.recovery.the.assumption}
-such a recovery mechanism usually needs to operate under the assumption 
-that more errors may also happen during the recovery process. In practice, system designers have already implemented many defensive modules, 
-e.g., exception handlers, which are certainly good candidates for the recovery segments.  
+Moreover, such a recovery mechanism usually needs to operate under the assumption that more errors may also happen during the recovery process.
+In practice, system designers have already implemented many defensive modules, e.g., exception handlers, which are certainly good candidates for the recovery segments.  
 Thus, the recovery scheme we discuss is likely to have arisen in an ad-hoc fashion as a natural concept when software architects and programmers designed recovery mechanisms for critical software.  
 
-The vast state spaces of critical systems make an automated support for and a solid foundation 
-of evaluating design alternatives particularly valuable. 
+The vast state spaces of critical systems make an automated support for and a solid foundation of evaluating design alternatives particularly valuable. 
 
-In the following, we will use the examples from the previous subsection 
-as a motivation for defining a new game, called {\em safety resilience game}, 
-between the recovery mechanism (the protagonist) 
-and the error-injecting agent (the antagonist).  
-\label{reply2.S.F}
-The game is specified with a set $F$ of failure states, 
-a set $S$ of safe states (the safety region), the 
-moves by the antagonist to inject errors, 
-and the resilience level $k$ that the designers want to achieve. 
-The objective of the protagonist is to identify a control strategy 
-so that the whole system can achieve the prescribed level (or 
-the highest level) $k$ of resilience for safety region $S$ (a set of states) 
-and failure state set $F$.  
+In the following, we will use the examples from the previous subsection as a motivation for defining a new game, called {\em safety resilience game}, between the recovery mechanism (the protagonist) and the error-injecting agent (the antagonist).  
+The game is specified with a set $F$ of failure states, a set $S$ of safe states (the safety region), the moves by the antagonist to inject errors, and the resilience level $k$ that the designers want to achieve. 
+The objective of the protagonist is to identify a control strategy so that the whole system can achieve the prescribed level (or the highest level) $k$ of resilience for safety region $S$ (a set of states) and failure state set $F$.  
 
 The game is played round by round. 
 When the antagonist issues an error move, 
@@ -212,7 +29,6 @@ a safety region can be abstracted as a fixed point
 to the recovery procedure 
 that transforms a safe state to another safe state via the recovery segment 
 with at most $k-1$ errors. 
-\label{reply1.fixed.point.explanation} 
 Conceptually, a fixed point to a procedure $f(x)$ is a set $S$ of elements 
 in the domain of $x$ such that $S=\{f(x)\mid x\in S\}$.  
 To calculate the fixed point of the recovery procedure, 
@@ -234,13 +50,13 @@ $k$-resilience and is the legitimate safety region.
 
 This recovery procedure can be illustrated as in Figure~\ref{fig.sfrch} 
 for resilience to $2$ errors.  
-%\begin{figure}[t]
-%\begin{center}
-%\epsfig{file=rseg.eps,width=60mm}
-%\caption{Illustration of the recovery operation}
-%\label{fig.sfrch} 
-%\end{center}
-%\end{figure}  
+\begin{figure}[t]
+\begin{center}
+\epsfig{file=rseg.eps,width=60mm}
+\caption{Illustration of the recovery operation}
+\label{fig.sfrch} 
+\end{center}
+\end{figure}  
 In this figure, the states in set $S'$ are computed  
 as the precondition of states in $S$ through those transitions in the figure.  
 Each path from $S'$ to $S$ is a recovery segment. 
@@ -279,20 +95,11 @@ and eventually degrade to system-level failure.
 
 \begin{example} 
 {\bf (Fault-tolerant computer architectures):}  
-\label{exmp.avi.revisit}
-Consider Example~\ref{exmp.avi} with $2k+1$ processor copies, 
-with the objective to maintain majority checks
-and to identify the bad processors. 
-Indeed, according to the first, na\"ive solution, 
-any safe state with a recovery strategy to 
-$Q\smallsetminus F$ is good.   
-After $k$ processor copies fail, 
-the majority checks are still capable to maintain the correctness
-of the combined behavior to follow the design of the original system.  
+Consider Example~\ref{exmp.avi} with $2k+1$ processor copies, with the objective to maintain majority checks and to identify the bad processors. 
+Indeed, according to the first, na\"ive solution, any safe state with a recovery strategy to $Q\smallsetminus F$ is good.   
+After $k$ processor copies fail, the majority checks are still capable to maintain the correctness of the combined behavior to follow the design of the original system.
 There seems to be nothing to do after $k$ errors.  
-Thus, na\"ively, we can choose those states as the safety region
-\label{reply1.majority.checks.as.safety.regions} if, 
-at those states, majority checks still work.  
+Thus, na\"ively, we can choose those states as the safety region if, at those states, majority checks still work.
 
 However, there is no expectation that the system will be able
 to recover at any point in the future into a situation where it can bear 
@@ -324,8 +131,6 @@ of being able to repeatedly tolerate waves of up to $k$ errors,
 which would only be satisfied by states $1$ and $2$ for 
 $k = 1$, and only for state $1$ for $k = 2$.
 
-
-
 \begin{figure}[t]
 \begin{center}
 \psset{xunit=26mm,yunit=7mm}
@@ -349,9 +154,6 @@ $k = 1$, and only for state $1$ for $k = 2$.
 \caption{\label{fig:example} An example for calculating $\safe_k$}
 \end{figure}
 
-
-
-
 This difference raises the question 
 if the rules of our game are depriving the antagonist 
 of some of the $k$ errors that she should intuitively be allowed to insert in a wave.
@@ -365,17 +167,7 @@ Thus such a fixed point of $\safe_k$ should consist of
 states, from which we can use a control mechanism to fend off 
 repetitive waves of $k$ dense errors in the recovery segments.  
 For convenience, we call states in such a fixed point of $\safe_k$  
-the $k$-resilient states. \label{reply1.k.resilient.states}  
-
-% Thus, we can simply define the set of $k$-resilient states while the definition of $k$-sfrch-ty does not demand that the 
-% system tries to recover, given enough 
-% game steps, into a state where it can sustain more failures,
-% for $k$-resilience, after recovery, $k$ more failures should be allowed, and so forth.
-% Resilience is similar to the property of `home states', 
-% where the system is capable, given enough time and 
-% no interruption (in the form of failures), 
-% of reaching again the good situation where it is again resilient to 
-% $k$ failures.
+the $k$-resilient states.
 
 For a state to be in $\safe_k(S)$, 
 the system (protagonist) has a strategy to recover to $S$, 
@@ -388,12 +180,6 @@ was not long enough for recovery to the safety region.
 Vice versa, if two successive errors are far enough apart 
 such that the protagonist can guarantee recovery in this separation, 
 then they do not belong to the same group.
-% (Besides the practical motivation of what recovery encounters in our examples, this assumption also has the technical motivation that memoryless strategies suffice for the protagonist to win $\safe_k(G)$.)
-% 
-% A state is $k$-resilient if groups of up to $k$ dense failures can be tolerated infinitely many times, provided that the system is given enough time to recover;
-% $k$-sfrch-ty is equivalent to tolerating up to {\em one} set of $\leq k$ dense errors%
-% \footnote{Note that the technical definition of sfrch states implies that a set of dense errors ends once the protagonist has recovered to $G$.
-% Thus, as seen in the example, a state from which no two failures can be tolerated might be $k$-sfrch for all $k$.}.
 
 To check whether recovering to $S$ by the protagonist (the fault-tolerance mechanism)
 is always possible, provided that at most $k$ errors occurred during 
@@ -424,19 +210,12 @@ to a state in the fixed point within no more than $k$ errors, i.e., $k$-resilien
 can be used to control the recovery mechanism, 
 constraining its transitions to follow its winning strategy.
 
-As explained in the introduction, 
-there can be several natural control problems in our safety resilience game.
-First, the system designers may want to know whether the chosen safety region $S$ can 
-be supported by the recovery mechanism for resilience level $k$.  
-Second, they may want to get design support for choosing the safety region 
-for achieving resilience level $k$.  
+As explained in the introduction, there can be several natural control problems in our safety resilience game.
+First, the system designers may want to know whether the chosen safety region $S$ can be supported by the recovery mechanism for resilience level $k$.  
+Second, they may want to get design support for choosing the safety region for achieving resilience level $k$.  
 Finally, they may want to know the maximal resilience level that they can achieve. 
 
-
-With the explanation in the above, in the rest of the manuscript, 
-we will focus on the algorithm for constructing 
-$\safe_k(\cdot)$ and evaluating $k$-resilient states. 
-
+we will explain the algorithm for constructing $\safe_k(\cdot)$ and evaluating $k$-resilient states.
 
 
 \section{Safety resilience games}
@@ -1481,527 +1260,3 @@ With Lemmas~\ref{lem:costSafe} and~\ref{lem:costRes}, we get the following theor
 \begin{theorem}
 For all $k \geq 0$, the problems of checking whether or not a state $s$ is in $\res_k(Q \smallsetminus F)$ and $\res_k(Q \smallsetminus F)$, respectively, are PTIME-complete for general safety resilience game structures.
 \end{theorem}
-\section{Tool implementation and experimental results}
-% \subsection{Implementation\label{subsec.imp}} 
-In the following, we report our implementation and experiment 
-with our constructions.  
-Our implementation is based on symbolic on-the-fly 
-model-checking techniques 
-and built on the simulation/model-checking library of REDLIB in 
-\verb+https://github.com/yyergg/Resil+ for fast implementation.  
-Our implementation and benchmarks can also be found in the same page. 
-
-We adopt {\em CEFSM} 
-({\em communicating extended finite-state machine})~\cite{BH89} 
-as a convenient language for the description of abstract models of 
-our concurrent game structures. 
-A CEFSM consists of several finite-state machines extended with shared variables 
-for the modeling of shared memory and 
-with synchronizations for 
-the modeling of message-passing in distributed systems.  
-This is justifiable 
-since the fault-tolerant algorithms may themselves be subject to  
-restrictions in concurrent or distributed computation.  
-Indeed, we found CEFSM very expressive in modeling the 
-benchmarks from the literature \cite{CL99,RSB90}.  
-\smallskip
-% The tool and the benchmarks can all be found 
-% in our Sourceforge REDLIB project at 
-% \texttt{http://sourceforge.net/projects/redlib/}.  
-
-
-
-The translation from our CEFSMs to state transition systems, 
-such as finite Kripke structures, is standard in the literature. 
-All state spaces, conditions, preconditions, post-conditions, 
-fixed points, etc., are represented as logic formulas. 
-The logic formulas are then implemented with multi-value decision diagrams 
-(MDD) \cite{MD98}.  
-
-\label{reply1.due.to.huge}
-We then took advantage of the support of REDLIB for writing down 
-template automatas for constructing complex models. 
-We specified a template automata with REDLIB to describe the moves of the players. 
-Conceptually, the player automatas are constructed as an instance of the template automata. 
-Then the whole game structure is constructed as the product of all player automatas. 
-Finally, we use the API of REDLIB to do on-th-fly construction of the game structure which 
-can be advantageous since unreachable states will never be generated.  
-\subsection{Benchmarks}
-We use the following five parameterized 
-benchmarks to check the performance of our techniques. 
-Each benchmark has parameters for the number of participating 
-modules in the model.  
-Such parameterized models come in handy for the evaluation of the scalability of our techniques with respect to concurrency and model sizes.  
-\begin{itemize} 
-\item[1.] We use the example of a fault-tolerant computer architecture 
-  (Example~\ref{exmp.avi}) as our first benchmark.  
-  An important feature of this benchmark is that there is an 
-  assumed mechanism for\label{reply2.mechanism.in} detecting errors of the modules.  
-  Once an error is detected, a processor can be assigned to recover the 
-  module, albeit to the cost of a reduced redundancy in the executions.
-\item[2.] \label{reply2.bch2} 
-	Voting is a common technique for fault tolerance through 
-  replication when there is no mechanism to detect errors of the 
-  modules \cite{Pradhan96}.  
-  In its simplest form, a system can guarantee correctness, provided less than half of its modules are faulty.   
-  This benchmark implements this simple voting mechanism.  
-  Every time a voting is requested, the modules submit their ballots individually.  
-  Then we check how many module failures the system can endure and recover. 
-\item[3.] This is a simplified version of the previous voting benchmark, where we assume that there is a blackboard 
-  for the client to check the voting result.  
-\item[4.] {\em Practical Byzantine fault-tolerance} ({\em PBFT}) algorithm: 
-  We use an abstract model of the famous algorithm by 
-  Castro and Liskov \cite{CL99}. 
-  It does not assume the availability of an error-detection 
-  mechanism but uses 
-  voting techniques to guarantee the correctness of 
-  computations when less than one third of the voters are faulty.  
-  This algorithm has impact on the design of many protocols 
-  \cite{AGGRW05,CMLRS06,KADCW09,GKVQ10,CWADM09} and is used in 
-  Bitcoin \cite{bitcoin}, a peer-to-peer digital currency system.  
-\item[5.] {\em Fault-tolerant clock synchronization algorithm}: 
-  Clock synchronization is a central issue in distributed computing. 
-  In \cite{RSB90}, 
-  Ramanathan, Shin, and Butler presented 
-  several fault-tolerance clock synchronization algorithms 
-  in the presence of Byzantine faults with high probability.  
-  We use a nondeterministic abstract model of the convergence averaging 
-  algorithm from their paper.  
-  The algorithm is proven correct when no more than one third of the 
-  local clocks can drift to eight time units from the median of all clock 
-  readings.  
-\end{itemize}
-\subsection{Modeling of the fault-tolerant systems}
-Appropriate modeling of the benchmarks is always important for 
-the efficient verification of real-world target systems. 
-Many unnecessary details can burden the verification algorithm 
-and blow up the computation, 
-while sketchy models can then give too many false alarms 
-and miss correct benchmarks.  
-We have found that there is an interesting aspect 
-in the modeling of the above benchmarks.  
-Replication and voting are commonly adopted techniques for 
-achieving fault-tolerance and resilience.  
-Such fault-tolerant algorithms usually consist of 
-several identical modules that use the same behavior templates.  
-This observation implies that the identity of individual modules 
-can be unimportant for some benchmarks.  
-For such benchmarks, we can use counter abstraction 
-\cite{ET99,Lubachevsky84} in their models.  
-\label{reply1.counter.abstraction} 
-Specifically, with counter abstraction, 
-we can model all system players with one player that keeps a counter $c(l)$ 
-for each control location $l$ in the template automatas. 
-Then at a state of the whole game graph, 
-$c(l)$ records the number of system players at location $l$.  
-With this technique, a system with $m-1$ system player and one error model player is 
-then reduced to two players: one counter-abstraction player for all the system players and one 
-remaining error model player. 
-If a system player enters a location $l$ in a global transition, 
-then in the model, $c(l)$ is incremented by one in the abstract global transition. 
-If a system player leaves $l$ in the global transition, 
-then $c(l)$ is decremented by one in the abstract global transition.  
-But the succession of location movements of a particular player is omitted from the abstraction. 
- 
-
-We found that we can use counter abstraction to 
-prove the correctness of benchmarks 1, 2, and 3. 
-In contrast, the PBFT and the clock synchronization algorithms use 
-counters for each module to model the responses received 
-from its peer modules. 
-As a result, we decided not to use counter abstraction to model 
-these two algorithms in this work. 
-
-In the following, we explain how to apply our techniques to analyze 
-the resilience levels of the avionic systems 
-in Example~\ref{exmp.avi}.  
-The application is achieved in three steps.\label{reply2.3step.model} 
-We first model the system under analysis either as a plain CEFSM or with counter abstraction (if our analysis tool cannot handle the complexity of the plain CEFSM).
-We then build the product automaton of the CEFSM as the resilience 
-game structure except for the move vectors.  
-Finally, we convert the labels on the transitions of the product automaton to 
-move vectors of the two players. 
-Note that the moves may not correspond to the transition labels of the CEFSM.  
-
-\subsection*{Step 1: the construction of the CEFSM}
-We first present the CEFSM model template 
-of Example~\ref{exmp.avi} in Figure~\ref{fig.pm}. 
-%\begin{figure*}[t] 
-%\begin{center} 
-%\epsfig{file=avi.eps,width=140mm} 
-%\caption{CEFSM templates of $n$ processors and $m$ memory copies}
-%\label{fig.pm}
-%\end{center} 
-%\end{figure*}
-The CEFSM model has $n$ processors and $m$ memory modules. 
-Figures~\ref{fig.pm}(a) and (b) are 
-for the abstraction of processors and memory copies, respectively.  
-The ovals represent local states of a processor or a 
-memory module, while the arrows represent transitions. 
-The transitions of a CEFSM are labeled with `$\emerr$', 
-`C' (for Control), or `R' (for recovery).  
-
-We also use synchronizers to bind process transitions. 
-For example, when a memory module moves into a faulty state, 
-an idle processor may issue an {\tt fd} (error-detected) event
-and try to repair the module by copying memory contents from 
-normal memory modules.  
-Such error-detection is usually achieved with standard hardware.  
-Note that the benchmarks are models that reflect the 
-recovery mechanism, abstracting away the details of the original systems.  
-A central issue in the design of this recovery mechanism is then 
-the resilience level of the controlled systems.  
-We need three synchronizers: 
-\textit{fd} for error detection by a processor, 
-\textit{rs} for recovery success, 
-and \textit{rf} for recovery failure.  
-The three synchronizers are used to bind a transition from a processor 
-and another from a memory module into a synchronized transition.  
-For example, a processor at state \textit{pidle} and 
-a memory module at state 
-\textit{mfaulty} may simultaneously enter their 
-\textit{pcopy} and \textit{mcopy} states respectively
-through synchronizers $!$\textit{fd} (for sending the synchronizer) 
-and $?$\textit{fd} (for receiving). 
-We also conveniently use a variable $q$ in this synchronized 
-transition to capture the identifier of the memory module receiving 
-the synchronizer.  
-A transition without synchronization labels is considered a trivial 
-synchronized transition.  
-The transition system of the CEFSM operates with interleaving semantics 
-at the abstraction level of the synchronized transitions. 
-
-For counter abstraction, we need four global variables \textit{crp}, \textit{cfp}, 
-\textit{crm}, and \textit{cfm} respectively 
-to keep track of the numbers of running processors, faulty processors, 
-running memory modules, and faulty memory modules. 
-We also need a local variable \textit{idm} for each processor to record 
-the faulty memory module identifier that the processor is 
-responsible for recovery. 
-We label the controllable, error, and recovery 
-transitions respectively with `C', `$\emerr$', and `R'. 
-We also label each transition with synchronizers and actions.  
-At any moment, the processors and the memory modules 
-may enter their running states, execute a task, and generate 
-the outcome. 
-A processor starts its execution from state \textit{prun} while 
-a memory module starts from state \textit{mrun}. 
-
-
-\subsection*{Step 2: building the product automata}
-The product automata is a Kripke structure whose 
-states are of is a vector $[p_1,\ldots,p_n,i_1,\ldots,i_n,s_1,\ldots,s_m]$ 
-of $2n+m$ elements.  
-For all $k$, $p_k$ and $i_k$ respectively represent the 
-current location and the current \textit{idm} value of processor $k$ while 
-$s_k$ represents the current location of memory module $k$.  
-Then interleaving semantics that each time only a global transition 
-(a single local process transition without synchronizers 
-or two local process transition bound by a synchronizer) is executed 
-is adopted to determine the transition relation from one state to another. 
-Such techniques are standard in model construction.  
-REDLIB can help in this regard by constructing the Kripke structure in 
-an on-the-fly style to avoid the construction of those states not reachable 
-from the initial state. 
-
-\subsection*{Step 3: the labeling of the move vectors} 
-After the second step, we have the game structure ready except for the 
-move vectors on the transitions. 
-We use $E_1=\{C,R,\mbox{\em nop}\}$, where {\em nop} represents ``no operation,"
-and $E_2=\{\emnerr,\emerr\}$.  
-Then we use the following three rules to label move vectors. 
-\begin{list1} 
-\item Every global transition with one component local process transition labeled 
-	with $\emerr$ is labed with move vector $[\mbox{\em nop},\emerr\}$.  
-\item Every global transition with a component local process transition labeled 
-	with $R$ 	
-	is labeled with move vector $[R,\emnerr]$.  
-\item All other global transitions are labeled with move vector $[C,\emnerr]$.  
-\end{list1} 
-
-
-\subsection*{Counter abstraction of the example} 
-We also use the CEFSM in figure~\ref{fig.pm} to explain counter abstraction. 
-We need eight counter variables: 
-{\em pr}, 
-{\em pi}, 
-{\em pc}, 
-{\em pf}, 
-{\em mr}, 
-{\em mi}, 
-{\em mc}, and 
-{\em mf} to respectively record the 
-number of processes in location prun, pidle, pcopy, pfaulty, mrun, midle, mcopy, and mfaulty
-in a state.  
-Then the counter abstraction of the CEFSM is in Figure~\ref{fig.pmC}.  
-%\begin{figure*}[t] 
-%\begin{center} 
-%\epsfig{file=aviC.eps,width=140mm} 
-%\caption{Counter abstraction of the CEFSM templates of $n$ processors and $m$ memory copies}
-%\label{fig.pmC}
-%\end{center} 
-%\end{figure*}
-The initial state are specified with constraint: 
-$\mbox{\em pr}=n
-\wedge \mbox{\em pi}=0
-\wedge \mbox{\em pc}=0
-\wedge \mbox{\em pf}=0
-\wedge \mbox{\em mr}=m
-\wedge \mbox{\em mi}=0
-\wedge \mbox{\em mc}=0
-\wedge \mbox{\em mf}=0$
-on the counters.  
-The state in the product automata must satisfy the following constraints: 
-$\mbox{\em pr}+\mbox{\em pi}+\mbox{\em pc}+\mbox{\em pf}=n
-\wedge \mbox{\em mr}+\mbox{\em mi}+\mbox{\em mc}+\mbox{\em mf}=m$.  
-As can be seen, we do not care which processor is in the idle mode, 
-in the running mode, etc., in this abstraction. 
-Similarly, we do not care which memory module is in the idle mode, in the running mode, and etc. 
-The local state transition only keeps tracks of the number of processors in each mode and 
-the number of memory modules in each mode. 
-We also do not care which processor is in charge of the recovery of which memory module.  
-Such an abstraction can be done automatically.  
-
-The labeling of the move vectors on the transitions in the Kripke structure (product automaton)
-follows the same rules for the product automaton from the CEFSM in Figure~\ref{fig.pm}.  
-
-
-
-
-\subsection*{Analysis of the game structure} 
-The majority outcome of the processors and memory copies 
-is used as the outcome of the system.  
-A processor may enter the faulty state.  
-A memory module may also enter the faulty state. 
-Processors may control to recover themselves or a faulty memory module 
-by copying the contents of a functioning memory module to 
-the faulty one.  
-At any moment, we want to make sure that we can always recover 
-to a global condition with the following two restrictions. 
-\begin{itemize} 
-\item There are at least two more processors in \label{reply2.2more} 
-	the running mode than the processors in the faulty mode.  
-\item There are at least two more memory copies in 
-	the running mode than memory copies in the faulty mode. 
-\end{itemize} 
-Together, the failure condition is 
-$\textit{crp}-\textit{cfp}<2\vee\textit{crm}-\textit{cfm}<2$.  
-That is, all states in the transition system satisfying 
-$\textit{crp}-\textit{cfp}<2\vee\textit{crm}-\textit{cfm}<2$ 
-are in set $F$.  
-
-Tool implementation and the benchmarks used in the experiment 
-can all be found in our Sourceforge REDLIB project at 
-\verb+https://github.com/yyergg/Resil+.
-\subsection{Performance data}
-We report the performance data 
-in Table~\ref{tab.perf} for the resilience algorithms 
-described in Section~\ref{subsec.bench} 
-against the parameterized benchmarks in the above with various 
-parameters.  
-The second column shows the concurrency sizes.  
-The third column shows the values of $k$ for the rows.  
-The fourth and fifth columns show the sizes of the concurrent game structures.  
-The sixth and seventh columns show the time and spaces used to calculate 
-sfrch$_k()$.  
-Similarly, the eighth and ninth columns show the time and spaces for calculating 
-the res$_k()$.  
-
-The benchmark in Figure~\ref{fig.pm} does not have nodes in 
-$\safe_2(G)$ and $\res_2(G)$.  
-So we changed the benchmark to see how we check our implementation 
-with $k>1$.  
-The change is that the recovery transition from state \textit{pcopy} to 
-\textit{pidle}
-of processors are relabeled as controllable. 
-This change significantly limits the ability of the system errors 
-to derail the system.  
-\begin{table*}[t] 
-\caption{Performance data for resilience calculation \hspace{21mm} s: seconds; M: megabytes} 
-\label{tab.perf} 
-\begin{center} 
-\resizebox{\columnwidth}{!}{
-\begin{tabular}{l|c|c|c|c||c|c||c|c} \hline 
-benchmarks & concurrency & $k$ & \multicolumn{2}{c||}{game sizes} 
-& \multicolumn{2}{c||}{sfrch$_k$}  
-			& \multicolumn{2}{c}{res$_k$} \\\cline{4-9} 
-	 & 	& & \#nodes & \#edges & time  & memory   & time & memory  \\
-\hline \hline 
-avionics & 2 processors \& 2 memory modules 
-     & 2 & 118 & 750 
-     & 0.62s & 114M & 0.85s & 116M \\ \cline{2-9} 
-     & 2 processors \& 3 memory modules 
-     & 2 & 414 & 3252
-     & 0.94s & 139M & 1.10s & 153M \\ \cline{2-9} 
-     & 3 processors \& 3 memory modules 
-     & 3 & 1540 & 15090 
-     & 4.67s & 225M & 8.38s & 267M \\ \cline{2-9} 
-     & 3 processors \& 4 memory mdules
-     & 3 & 5601 & 63889 
-     & 42.86s & 815M & 155s & 846M \\ \hline  
-avionics & 6 processors \& 6 memory modules 
-	 & 2 & 1372 & 6594 
-	 & 2.89s & 129M & 3.54s & 516M \\ \cline{2-9} 
-(counter	 & 7 processors \& 7 memory modules 
-	 & 3 & 2304 & 11396 
-	 & 10.7s & 216M & 23.4s & 808M \\ \cline{2-9}
-abstraction)	 & 8 processors \& 8 memory modules 
-	 & 3 & 3645 & 18432 
-	 & 43.8s & 1009M & 135s & 2430M \\ \hline 
-voting	 & 1 client \& 20 replicas 
-	 & 9 & 9922 & 23551 & 7.01s & 260M & 36.7s & 297M \\ \cline{2-9} 
-	 & 1 client \& 26 replicas 
-	 & 12 & 20776 & 49882 & 19.9s & 474M & 79.6s & 611M \\ \hline 
-simple	 & 1 client \& 150 replicas 
-	 & 74 & 458 & 1056 & 0.71s & 159M & 31.7s & 219M \\ \cline{2-9} 
-voting	 & 1 client \& 200 replicas 
-	 & 99 & 608 & 1406 & 1.06s & 161M & 162s & 337M \\ \cline{2-9} 
-	 & 1 client \& 250 replicas 
-	 & 124 & 758 & 1756 & 1.36s & 163M & 307s & 499M \\ \hline 
-PBFT 	 & 1 client \& 6 replicas 
-	 & 2 & 577 & 897 & 0.34s & 72M & 1.05s & 193M \\ \cline{2-9} 
-	 & 1 client \& 9 replicas 
-	 & 4 & 2817 & 4609 & 13.3s & 564M & 58.5s & 1657M \\ \hline 
-clock	 & 1 client \& 15 servers  
-	 & 7 & 16384 & 229376 & 45.1s & 3075M & 62.4s & 3264M  \\ \cline{2-9} 
-sync	 & 1 client \& 17 severs  
-	 & 8 & 65536 & 1070421 & 870s & 14725M & 915s & 15433M  \\ \hline 
-\end{tabular}
-}
-\end{center}
-\vspace*{-5mm}
-\end{table*}
-For the avionics system, %the $k$ value
-the resilience level $k$ is set to 
-one less than half the %value
-number of processors.  
-For the voting and simple voting benchmarks, 
-the value of $k$ is set to one less than half the number of 
-replicas (voters). 
-For the PBFT and clock synchronization algorithm, we choose 
-$k$ to be one less than one third of the number of replicas. 
-
-The performance data has been collected with a Virtual Machine (VM) 
-running opensuse 11.4 x86 
-on Intel i7 2600k 3.8GHz CPU 
-with 4 cores and 8G memory. 
-The VM only uses one core and 4G memory.  
-
-The time and space used to calculate resilience is a little bit more 
-than that to check for $\safe$.  
-The reason is that $\safe_k$ is a pre-requisite for calculating $\res_k$.  
-In our experiment, $\safe_k$ is usually 
-very close to $\res_k$ and does not require much extra time in 
-calculating $\res_k$ out of $\safe_k$.  
-
-The experiments show that our techniques 
-scale to realistic levels of redundancy.  
-For fault-tolerant hardware, usually the numbers of replicas are small, 
-for example, less than 10 replicas. 
-Thus our techniques seem very promising for the 
-verification and synthesis\label{reply2.verification.hardware} of hardware fault-tolerance.  
-
-On the other hand, 
-nowadays, software fault-tolerance through networked computers can 
-create huge numbers of replicas.  
-Our experiment shows that counter abstraction can be a useful 
-techniques for the modeling and verification of software resilience.  
-Specifically, for the avionics benchmark, 
-we can verify models of much higher concurrency and complexity with 
-counter abstraction than without. 
-% As can be seen, our techniques can really prove the % safety and 
-% resilience of pretty large concurrency sizes.  
-\section{Related works}
-We have applied game-based technqiues~\cite{Church63,PR89a,Rabin69} \label{reply1.related.work.1st.para} 
-for synthesizing a control mechanism with maximal resilience to software errors.  
-The synthesis of control strategies is essential in solving games with temporal and $\omega$-regular objectives.  
-For these more complex objective, synthesis goes back to Church's solvability problem~\cite{Church63} and 
-inspired Rabin's work on finite automata over infinite 
-structures~\cite{Rabin69} and 
-B\"uchi and Landweber's works on finite games 
-of infinite duration~\cite{Buchi62,BL69}. 
-A righ body of literature on synthesis
-has since been developed \cite{AAE04,EKA08,GR09,KV00,PR89b,Rushby92,SF06}.
-
-Traditionally, fault tolerance refers to various basic fault models~\cite{AAE04}, 
-such as a limited number of errors \cite{JRT04}.
-These traditional fault models are subsumed 
-by more general synthesis or control objectives 
-\cite{AMP95,AAE04,Thomas94};\label{reply2.RW} 
-as simple objectives with practical relevance, 
-they have triggered the development of specialized tools~\cite{EKA08,GR09}.
-
-Dijkstra's self-stabilization criterion~\cite{AG93,Dijkstra86} suggests to build systems that eventually recover
-to a `good state', from where the program commences normally.
-Instead of {\em constructing} a system to satisfy such a goal, one
-might want to apply control theory to {\em restrict} the execution of
-an existing system to achieve an additional goal.
-Our control objective is a recovery mechanism for up to $k$ errors.
-After recovery, the system has to tolerate up to $k$ errors again, and so forth.
-In this work, 
-we suggest a mechanism to synthesize a recovery mechanism for a given fault model and recovery primitives.
-
-
-In \cite{DHLN10}, an interesting notion of robustness based on Hamming 
-and Lewenstein distance related to the number of past states is defined. 
-It establishes a connection between these distances with a notion of 
-synchronization that characterizes the ability of the system to reset for 
-combinatorial systems.
-In \cite{BGHJ09}, `ratio games' are discussed, where the objective is 
-to minimize the ratio between failures induced by the environment and system errors caused by them.
-
-
-Besides using our simple game model that neither refer directly to time, nor to probabilities, one can also consider models that make these aspects explicit.
-Their analysis is far more complex (with \cite{FRSZ11} offering the best complexity bounds), and so are the resulting strategies.
-If we, for example, return to the example of airplanes with an operation time of 20 hours referred to in Table \ref{tab.mtbf}, then an optimal timed model would take the remaining operation time into account.
-When the remaining time is two minutes, the balance between being resilient against waves of two errors and being resilient against 5 errors looks very different, and the optimal control would change over time rather than being static.
-Another implication of more complex models would be that the error model would have to be more detailed.
-Even if one assumes that a simple concept like safe states persists, it depends on the fineties of such a model if a two step path back to it where an error after step one leads to system failure is preferable over a much longer path, say through 10,000 intermediate states, where one error can be tolerated during recovery.
-
-We believe that the independence from such details is an advantage of our technique, partly because it is simpler and cheaper, and partly because the further advantages one can obtain from more detailed error models rely heavily on very knowledge of (or, realistically, on very detailde assumptions on) how errors are distributed.
-\label{reply1.prob.more.complex}  
-
-%\paragraph{\bf Organization of the article.}
-%We suggest a two layered approach:
-%in a first layer, we simplify a complex system to the aspects relevant for its control.
-%This abstraction layer of our approach reduces life size examples to small abstractions 
-% (Example~\ref{exmp.avi}).
-%%
-%In Section~\ref{sec:kresil}, we provide computationally cheap algorithms to synthesize a strategy for controlling the system to allow for up to $k$ dense failures.
-%Such a strategy restricts the choices of the system to achieve resilience towards $k$ failures.
-%Failure to construct such a strategy means that the system is not $k$-resilient.
-%% Through the abstraction used, a
-%Achieving the fault tolerance goal by controlling the system through the calculated strategy, provides a guarantee that the executions of the controlled system are included in the original executions of the system.
-%This, in turn, guarantees that {\em all} (linear) temporal properties of the system are preserved.
-%%
-%We describe our implementation and discuss experimental results in Section~\ref{sec.imp.exp}.
-
-%% >>> changes start 
-
-
-In \cite{EhlersT14,BloemEJK14} the resilience model we have introduced \cite{HPSW/12/rapidRecovery} has been applied for synthesising robust control in an assume-guaranee setting to produce robustness against occasional noncompliance of the environment with the assumptions of its behavior.
-
-%% <<< changes end
-
-\section{Conclusion \label{sec.conc}}
-We have introduced an approach for the development of a control of safety critical
-systems that maximizes the number of \emph{dense} errors the system can tolerate.
-Our techniques are inspired by the problem of controlling systems with redundancy:
-in order to deflect the effect of individual errors, safety critical systems are often equipped with multiple copies of various components.
-If one or more components fail, such systems can still work properly as long as the correct behavior can be identified.
- 
-This has inspired the two-phase formulation of the safety resilience problems in this article.
-In the first phase, we identify a $k$-resilient region\label{reply2.need.identify},  
-while\label{reply2.layer} we develop a control strategy for recovery in the second phase.  
-After an error, the controller can recover to the $k$-resilient region without encountering a system failure, unless the error is part of a group of more than $k$ errors that happen in close succession.
-Such a recovering strategy is memoryless.
-Being memoryless on a small abstraction in particular implies that the recovery is fast.
-
-The system can, once recovered, tolerate and recover from $k$ further dense errors, and so forth.
-Consequently, our control strategy allows for recovery from an arbitrary
-number of errors, provided that the number of dense errors is restricted.
-This is the best guarantee we can hope for: our technique guarantees to find the optimal parameter $k$.
-%
-This parameter is bound to be small (smaller than the number of redundant components).
-Optimizing it is computationally inexpensive, but provides strong guarantees: the likelihood of having more than $k$ errors appear in short succession after an error occurred are, for independent errors, exponential in $k$. As errors are few and far between, each level of resilience gained reduces the likelihood of 
-system-level failures significantly.
